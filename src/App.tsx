@@ -1,121 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { Gamepad2, Play, LayoutGrid, UserCircle } from "lucide-react";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+interface Game {
+  id: number;
+  title: string;
+  icon: React.ReactNode;
+  color: string;
 }
 
-export default App
+const gameList: Game[] = [
+  { id: 1, title: "숫자 맞추기", icon: <Gamepad2 />, color: "text-blue-500" },
+  { id: 2, title: "카드 뒤집기", icon: <LayoutGrid />, color: "text-purple-500" },
+  { id: 3, title: "얼굴 맞추기", icon: <UserCircle />, color: "text-green-500" },
+];
+
+export default function App() {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-6">
+      <header className="max-w-4xl mx-auto mb-10">
+        <h1 className="text-4xl font-black text-slate-800 flex items-center gap-3">
+          EduPlay <span className="text-sm font-normal text-slate-400">v1.0</span>
+        </h1>
+      </header>
+
+      <main className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {gameList.map((game) => (
+          <div 
+            key={game.id}
+            className="group relative bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100"
+          >
+            <div className={`mb-4 ${game.color} group-hover:scale-110 transition-transform`}>
+              {/* 아이콘 크기 조절도 가능합니다 */}
+              {game.icon}
+            </div>
+            
+            <h2 className="text-xl font-bold text-slate-700 mb-6">{game.title}</h2>
+            
+            <button 
+              onClick={() => setSelectedId(game.id)}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-colors font-semibold"
+            >
+              <Play size={18} fill="currentColor" /> 시작하기
+            </button>
+          </div>
+        ))}
+      </main>
+
+      {selectedId && (
+        <footer className="fixed bottom-0 w-full bg-white border-t p-4 text-center text-slate-600">
+          현재 선택된 게임 ID: {selectedId}
+        </footer>
+      )}
+    </div>
+  );
+}
