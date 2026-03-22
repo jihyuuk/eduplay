@@ -1,8 +1,6 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Game1 from "./pages/Game1";
-import Game2 from "./pages/Game2";
-import Game3 from "./pages/Game3";
+import FlipCard from "./pages/FlipCard";
 
 export default function App() {
 
@@ -16,9 +14,7 @@ export default function App() {
       {/* 2. 주소에 따라 갈아끼워질 화면들 */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/game1" element={<Game1 />} />
-        <Route path="/game2" element={<Game2 />} />
-        <Route path="/game3" element={<Game3 />} />
+        <Route path="/flip-card" element={<FlipCard />} />
       </Routes>
     </BrowserRouter>
   );
