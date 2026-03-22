@@ -1,6 +1,6 @@
 
-export interface kid {
-    id: string,
-    name: string,
-    imagePath: string,
+export interface Kid {
+    id: string;
+    name: string;
+    imagePath: string;
 }
