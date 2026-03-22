@@ -154,18 +154,21 @@ export default function FlipCard() {
 
     // 정답 처리 함수
     const handleMatch = (first: Card, second: Card) => {
+
         //1. Matched로 상태 변경
         const updatedCards = cards.map(card =>
             card.kid.id === first.kid.id ? { ...card, isMatched: true } : card
         );
 
-        setCards(updatedCards);
-        resetTurn();
+        setTimeout(() => {
+            setCards(updatedCards);
+            resetTurn();
 
-        //2. 클리어 판별
-        if (updatedCards.every(card => card.isMatched)) {
-            setTimeout(() => setIsClear(true), 600);
-        }
+            //2. 클리어 판별
+            if (updatedCards.every(card => card.isMatched)) {
+                setTimeout(() => setIsClear(true), 600);
+            }
+        }, 600);
     };
 
     // 오답 처리 함수
@@ -235,32 +238,41 @@ export default function FlipCard() {
                     >
                         {cards.map((card) => {
                             const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
-                            return(
-                            <div
-                                key={card.instanceId}
-                                onClick={() => handleCardClick(card)}
-                                className={`card ${isWrong ? "wrong" : ""}`}
-                            >
-                                <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
-                                    {/* 뒷면 (물음표) */}
-                                    <div className="card-back">
-                                        <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
-                                    </div>
+                            return (
+                                <div
+                                    key={card.instanceId}
+                                    onClick={() => handleCardClick(card)}
+                                    className={`card ${isWrong ? "wrong" : ""}`}
+                                >
+                                    <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
+                                        {/* 뒷면 (물음표) */}
+                                        <div className="card-back">
+                                            <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
+                                        </div>
 
-                                    {/* 앞면 (사진) */}
-                                    <div className="card-front">
-                                        <img
-                                            src={card.kid.imagePath}
-                                            alt={card.kid.name}
-                                            className="w-full h-[80%] object-cover rounded-xl"
-                                        />
-                                        {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
-                                        <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
-                                            {card.kid.name}
-                                        </p>
+                                        {/* 앞면 (사진) */}
+                                        <div className={`card-front ${card.isMatched ? "matched" : ""}`}>
+                                            <img
+                                                src={card.kid.imagePath}
+                                                alt={card.kid.name}
+                                                className="w-full h-[80%] object-cover rounded-xl"
+                                            />
+                                            {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
+                                            <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
+                                                {card.kid.name}
+                                            </p>
+
+                                            {/* 정답일 때 나타나는 체크 표시 뱃지 */}
+                                            {card.isMatched && (
+                                                <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg badge-appear">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             );
                         })}
                     </div>
