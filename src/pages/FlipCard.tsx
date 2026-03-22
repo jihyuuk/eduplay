@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
+import { HelpCircle, RefreshCw } from "lucide-react";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -89,6 +90,8 @@ export default function FlipCard() {
     // 플레이타임
     const [playTime, setPlayTime] = useState(0);
     const playTimerRef = useRef<number | null>(null);
+    // 힌트 사용 횟수
+    const [hintCount, setHintCount] = useState(0);
 
 
     // 게임 셋업
@@ -268,9 +271,38 @@ export default function FlipCard() {
         setWrongCards([]);
     };
 
+    //힌트 클릭
+    const handleHintClick = () => {
+
+        // 클릭 무시 조건
+        if (isLock) return;
+        // 턴 초기화
+        resetTurn();
+        //클릭 막기
+        setIsLock(true);
+
+        //힌트 사용 횟수 증가
+        setHintCount(hintCount + 1);
+
+        // 1. 모든 카드 앞면으로 뒤집기 
+        setCards(prev => prev.map(card => ({
+            ...card,
+            isFlipped: true
+        })));
+
+        // 2. 2초 뒤에 다시 덮기
+        setTimeout(() => {
+            setCards(prev => prev.map(card => ({
+                ...card,
+                isFlipped: card.isMatched ? true : false // 맞춘 카드만 앞면 유지
+            })));
+            setIsLock(false); // 다시 클릭 가능하게 풀기
+        }, 2000);
+    }
+
 
     return (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+        <div className="bg-slate-100 flex items-center justify-center p-4">
 
             {/* 1단계: 난이도 선택 */}
             {status === 'SETTING' && (
@@ -302,7 +334,7 @@ export default function FlipCard() {
             {/* 3단계: 실제 게임 화면 */}
             {status === 'PLAYING' && (
                 /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
-                <div className="w-full max-w-[95vw] lg:max-w-6xl mx-auto p-4">
+                <div className="flex flex-col items-center w-full max-w-[95vw] lg:max-w-6xl mx-auto p-4">
 
                     {countDown &&
                         <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
@@ -322,14 +354,35 @@ export default function FlipCard() {
                             </motion.span>
                         </div>
                     }
-                    <div className="absolute top-4 left-4 text-lg font-bold text-slate-700">
-                        ⏱ {playTime}s
+
+                    <div className="title-area text-center mb-6">
+                        <div className="space-y-1 mb-5">
+                            <h1 className="text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
+                                햇살반 <span className="text-purple-700">친구 찾기 놀이</span>
+                            </h1>
+                            <p className="sub-title">"카드 속에 누가 숨었을까? 🧐"</p>
+                        </div>
                     </div>
 
+
+                    <div className="flex gap-8 mb-4 text-2xl font-bold text-slate-700">
+                        <div className="flex items-center">
+                            <i data-lucide="timer" className="w-6 h-6 mr-2 text-blue-500"></i>
+                            시간: <span id="live-timer" className="ml-2 text-blue-600">{playTime}</span> 초
+                        </div>
+                        <div className="flex items-center">
+                            <i data-lucide="help-circle" className="w-6 h-6 mr-2 text-amber-500"></i>
+                            힌트: <span id="hint-count" className="ml-2 text-amber-600">{hintCount}</span>번
+                        </div>
+                    </div>
+
+
+                    {/* 카드 판 */}
                     <div
                         className="grid gap-2 sm:gap-4 justify-center" // justify-center로 중앙 정렬
                         style={{
                             gridTemplateColumns: `repeat(${DIFFICULTY_CONFIG[difficulty].cols}, minmax(0, 1fr))`
+
                         }}
                     >
                         {cards.map((card) => {
@@ -372,6 +425,19 @@ export default function FlipCard() {
                             );
                         })}
                     </div>
+
+                    {/* 하단 버튼 */}
+                           <div className="button-group flex flex-row gap-5 mt-10 w-full max-w-2xl px-4">
+            <button  onClick={() => setupGame(difficulty)}
+                className="flex-1 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                <RefreshCw className="w-8 h-8 mr-3" /> 다시 하기
+            </button>
+
+            <button onClick={() => handleHintClick()}
+                className="flex-1 py-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                <HelpCircle className="w-8 h-8 mr-3" /> 힌트 보기
+            </button>
+        </div>
                 </div>
             )}
 
