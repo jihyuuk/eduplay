@@ -217,29 +217,42 @@ export default function FlipCard() {
 
             {/* 3단계: 실제 게임 화면 */}
             {status === 'PLAYING' && (
-                <div
-                    className="grid gap-4"
-                    style={{ gridTemplateColumns: `repeat(${DIFFICULTY_CONFIG[difficulty].cols}, minmax(0, 1fr))` }}
-                >
-                    {cards.map((card) => (
-                        <div
-                            key={card.instanceId}
-                            onClick={() => handleCardClick(card)}
-                            className={`cursor-pointer rounded-2xl shadow p-4 aspect-[3/4] flex items-center justify-center transition-all duration-500 transform ${card.isFlipped || card.isMatched ? "bg-white rotate-0" : "bg-blue-600 -rotate-180"
-                                }`}
-                        >
-                            {/* 뒤집혔거나 맞춘 경우에만 사진 노출 */}
-                            {(card.isFlipped || card.isMatched) ? (
-                                <img
-                                    src={card.kid.imagePath}
-                                    alt={card.kid.name}
-                                    className="w-full h-full object-cover rounded-xl"
-                                />
-                            ) : (
-                                <div className="text-white text-4xl font-bold">?</div>
-                            )}
-                        </div>
-                    ))}
+                /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
+                <div className="w-full max-w-[95vw] lg:max-w-6xl mx-auto p-4">
+                    <div
+                        className="grid gap-2 sm:gap-4 justify-center" // justify-center로 중앙 정렬
+                        style={{
+                            gridTemplateColumns: `repeat(${DIFFICULTY_CONFIG[difficulty].cols}, minmax(0, 1fr))`
+                        }}
+                    >
+                        {cards.map((card) => (
+                            <div
+                                key={card.instanceId}
+                                onClick={() => handleCardClick(card)}
+                                className="card"
+                            >
+                                <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
+                                    {/* 뒷면 (물음표) */}
+                                    <div className="card-back">
+                                        <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
+                                    </div>
+
+                                    {/* 앞면 (사진) */}
+                                    <div className="card-front">
+                                        <img
+                                            src={card.kid.imagePath}
+                                            alt={card.kid.name}
+                                            className="w-full h-[80%] object-cover rounded-xl"
+                                        />
+                                        {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
+                                        <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
+                                            {card.kid.name}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 
