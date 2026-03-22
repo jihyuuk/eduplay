@@ -51,6 +51,20 @@ function shuffleCards<T>(array: T[]): T[] {
     return copied;
 }
 
+//이미지 미리 로딩
+function preloadImages(imagePaths: string[]): Promise<void[]> {
+    return Promise.all(
+        imagePaths.map(
+            (path) =>
+                new Promise<void>((resolve) => {
+                    const img = new Image();
+                    img.src = path;
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve(); //실패시에도 일단 진행
+                })
+        )
+    );
+}
 
 
 export default function FlipCard() {
@@ -64,29 +78,29 @@ export default function FlipCard() {
 
 
     // 게임 셋업
-    const setupGame = (selectedDiffi: Difficulty) => {
+    const setupGame = async (selectedDiffi: Difficulty) => {
 
-        //난이도, 상태 적용
-        setDifficulty(selectedDiffi);
+        //1. 로딩 적용 및 난이도 업데이트
         setStatus('LOADING');
+        setDifficulty(selectedDiffi);
 
-        //1. 랜덤 n명 뽑기
+        //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
 
-        // 2. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
+        //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
         const pairCards: Card[] = randomKids.flatMap((kid) => [
             { instanceId: `${kid.id}-a`, kid, isFlipped: false, isMatched: false },
             { instanceId: `${kid.id}-b`, kid, isFlipped: false, isMatched: false }
         ]);
 
-        // 3. 카드 섞기
+        // 4. 카드 섞기
         const shuffledCards = shuffleCards(pairCards);
-
-        // 4. 상태 업데이트
+        // 5. 이미지 미리 로드
+        await preloadImages(randomKids.map((kid) => kid.imagePath));
+        // 6. 카드 업데이트
         setCards(shuffledCards);
-        setTimeout(() => {
-            setStatus('PLAYING');
-        }, 2000);
+        // 7. 로딩 끝
+        setStatus('PLAYING');
     };
 
 
