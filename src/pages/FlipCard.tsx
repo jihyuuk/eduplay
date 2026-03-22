@@ -22,23 +22,22 @@ const DIFFICULTY_CONFIG = {
 
 //임시 아이들 목록
 const kids: Kid[] = [
-    { id: "1", name: "홍길동", imagePath: "/images/1.jpg" },
-    { id: "2", name: "김철수", imagePath: "/images/2.jpg" },
-    { id: "3", name: "이영희", imagePath: "/images/3.jpg" },
-    { id: "4", name: "박민수", imagePath: "/images/4.jpg" },
-    { id: "5", name: "최서윤", imagePath: "/images/5.jpg" },
-    { id: "6", name: "윤도현", imagePath: "/images/6.jpg" },
-    { id: "7", name: "한지민", imagePath: "/images/7.jpg" },
-    { id: "8", name: "강하늘", imagePath: "/images/8.jpg" },
-    { id: "9", name: "정예준", imagePath: "/images/9.jpg" },
-    { id: "10", name: "조아라", imagePath: "/images/10.jpg" },
-    { id: "11", name: "임시아", imagePath: "/images/11.jpg" },
-    { id: "12", name: "송지후", imagePath: "/images/12.jpg" },
-    { id: "13", name: "오하린", imagePath: "/images/13.jpg" },
-    { id: "14", name: "권우진", imagePath: "/images/14.jpg" },
-    { id: "15", name: "신유나", imagePath: "/images/15.jpg" },
+    { id: "1", name: "기서윤", imagePath: "/images/giseoyun.jpg" },
+    { id: "2", name: "김 단", imagePath: "/images/gim-dan.jpg" },
+    { id: "3", name: "김로운", imagePath: "/images/gim-rowoon.jpg" },
+    { id: "4", name: "김태린", imagePath: "/images/gim-taerin.jpg" },
+    { id: "5", name: "김하윤", imagePath: "/images/gim-hayun.jpg" },
+    { id: "6", name: "박시현", imagePath: "/images/park-sihyeon.jpg" },
+    { id: "7", name: "손예령", imagePath: "/images/son-yeryeong.jpg" },
+    { id: "8", name: "신희재", imagePath: "/images/sin-huijae.jpg" },
+    { id: "9", name: "오성준", imagePath: "/images/oh-seongjun.jpg" },
+    { id: "10", name: "윤태연", imagePath: "/images/yun-taeyeon.jpg" },
+    { id: "11", name: "윤혜리", imagePath: "/images/yun-hyeri.jpg" },
+    { id: "12", name: "이태연", imagePath: "/images/i-taeyeon.jpg" },
+    { id: "13", name: "최시윤", imagePath: "/images/choi-siyun.jpg" },
+    { id: "14", name: "최우담", imagePath: "/images/choi-udam.jpg" },
+    { id: "15", name: "한서율", imagePath: "/images/han-seoyul.jpg" }
 ];
-
 //카드 섞는 함수
 function shuffleCards<T>(array: T[]): T[] {
     const copied = [...array];
@@ -69,12 +68,18 @@ function preloadImages(imagePaths: string[]): Promise<void[]> {
 
 export default function FlipCard() {
 
+    //클리어 여부
+    const [isClear, setIsClear] = useState(false);
     //현재 상태 - 난이도 선택 -> 로딩 -> 실행
     const [status, setStatus] = useState<GameStatus>('SETTING');
     //난이도 - EASY, NORMAL, HARD
     const [difficulty, setDifficulty] = useState<Difficulty>('EASY');
     //카드
     const [cards, setCards] = useState<Card[]>([]);
+    //뒤집힌 카드 - 최대 2개
+    const [flippedCards, setFlippedCards] = useState<Card[]>([]);
+    //카드 클릭 가능 여부
+    const [isLock, setIsLock] = useState(false);
 
 
     // 게임 셋업
@@ -83,6 +88,8 @@ export default function FlipCard() {
         //1. 로딩 적용 및 난이도 업데이트
         setStatus('LOADING');
         setDifficulty(selectedDiffi);
+        resetTurn();
+        setIsClear(false);
 
         //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
@@ -104,6 +111,63 @@ export default function FlipCard() {
     };
 
 
+    //카드 뒤집기 
+    const handleCardClick = (clickedCard: Card) => {
+
+        //1. 클릭 무시 - 비교중, 이미 뒤집힘, 이미 맞춤, 이미 2장 이상 뒤집음
+        if (isLock || clickedCard.isFlipped || clickedCard.isMatched || flippedCards.length === 2) return;
+
+        // 2. 해당 카드의 isFlipped를 true로 변경 (UI 업데이트)
+        setCards((prev) =>
+            prev.map((card) =>
+                card.instanceId === clickedCard.instanceId
+                    ? { ...card, isFlipped: true }
+                    : card
+            )
+        );
+
+        // 3. 비교 로직 시작
+        const newFlippedCards = [...flippedCards, clickedCard];
+
+        if (newFlippedCards.length === 1) {
+            // 첫 번째 카드를 뒤집은 경우
+            setFlippedCards(newFlippedCards);
+
+        } else if (newFlippedCards.length === 2) {
+            // 두 번째 카드를 뒤집은 경우
+            setIsLock(true); // 판정 끝날 때까지 클릭 잠금
+
+            const [firstCard, secondCard] = newFlippedCards;
+
+            if (firstCard.kid.id === secondCard.kid.id) {
+                // 정답! (Matched 상태로 변경)
+                const updatedCards = cards.map(card =>
+                    card.kid.id === firstCard.kid.id ? { ...card, isMatched: true } : card
+                );
+                setCards(updatedCards);
+                resetTurn();
+
+                // 2. 즉시 승리 판정
+                if (updatedCards.every(card => card.isMatched)) {
+                    setIsClear(true);
+                }
+            } else {
+                // 오답... (1초 뒤에 다시 덮기)
+                setTimeout(() => {
+                    setCards(prev => prev.map(card =>
+                        (card.instanceId === firstCard.instanceId || card.instanceId === secondCard.instanceId)
+                            ? { ...card, isFlipped: false } : card
+                    ));
+                    resetTurn();
+                }, 1000);
+            }
+        }
+    };
+
+    const resetTurn = () => {
+        setFlippedCards([]);
+        setIsLock(false);
+    };
 
 
     return (
@@ -145,15 +209,43 @@ export default function FlipCard() {
                     {cards.map((card) => (
                         <div
                             key={card.instanceId}
-                            className="bg-white rounded-2xl shadow p-4 aspect-[3/4] flex items-center justify-center"
+                            onClick={() => handleCardClick(card)}
+                            className={`cursor-pointer rounded-2xl shadow p-4 aspect-[3/4] flex items-center justify-center transition-all duration-500 transform ${card.isFlipped || card.isMatched ? "bg-white rotate-0" : "bg-blue-600 -rotate-180"
+                                }`}
                         >
-                            <img
-                                src={card.kid.imagePath}
-                                alt={card.kid.name}
-                                className="w-full h-full object-cover rounded-xl"
-                            />
+                            {/* 뒤집혔거나 맞춘 경우에만 사진 노출 */}
+                            {(card.isFlipped || card.isMatched) ? (
+                                <img
+                                    src={card.kid.imagePath}
+                                    alt={card.kid.name}
+                                    className="w-full h-full object-cover rounded-xl"
+                                />
+                            ) : (
+                                <div className="text-white text-4xl font-bold">?</div>
+                            )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* 4단계: 클리어 화면 */}
+            {isClear && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="bg-white rounded-3xl p-8 text-center shadow-xl">
+                        <h2 className="text-3xl font-bold mb-3">🎉 모두 맞췄어요!</h2>
+                        <button
+                            onClick={() => {setupGame(difficulty); setIsClear(false)}}
+                            className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
+                        >
+                            다시하기
+                        </button>
+                        <button
+                            onClick={() => {setStatus('SETTING'); setIsClear(false)}}
+                            className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
+                        >
+                            난이도 선택
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
