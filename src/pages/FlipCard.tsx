@@ -38,6 +38,7 @@ const kids: Kid[] = [
     { id: "14", name: "최우담", imagePath: "/images/choi-udam.jpg" },
     { id: "15", name: "한서율", imagePath: "/images/han-seoyul.jpg" }
 ];
+
 //카드 섞는 함수
 function shuffleCards<T>(array: T[]): T[] {
     const copied = [...array];
@@ -140,30 +141,44 @@ export default function FlipCard() {
             const [firstCard, secondCard] = newFlippedCards;
 
             if (firstCard.kid.id === secondCard.kid.id) {
-                // 정답! (Matched 상태로 변경)
-                const updatedCards = cards.map(card =>
-                    card.kid.id === firstCard.kid.id ? { ...card, isMatched: true } : card
-                );
-                setCards(updatedCards);
-                resetTurn();
-
-                // 2. 즉시 승리 판정
-                if (updatedCards.every(card => card.isMatched)) {
-                    setIsClear(true);
-                }
+                // 정답! (Matched 상태로 변경, 클리어 판별)
+                handleMatch(firstCard, secondCard);
             } else {
                 // 오답... (1초 뒤에 다시 덮기)
-                setTimeout(() => {
-                    setCards(prev => prev.map(card =>
-                        (card.instanceId === firstCard.instanceId || card.instanceId === secondCard.instanceId)
-                            ? { ...card, isFlipped: false } : card
-                    ));
-                    resetTurn();
-                }, 1000);
+                handleMismatch(firstCard, secondCard);
             }
         }
     };
 
+    // 정답 처리 함수
+    const handleMatch = (first: Card, second: Card) => {
+        //1. Matched로 상태 변경
+        const updatedCards = cards.map(card =>
+            card.kid.id === first.kid.id ? { ...card, isMatched: true } : card
+        );
+
+        setCards(updatedCards);
+        resetTurn();
+
+        //2. 클리어 판별
+        if (updatedCards.every(card => card.isMatched)) {
+            setTimeout(() => setIsClear(true), 600);
+        }
+    };
+
+    // 오답 처리 함수
+    const handleMismatch = (first: Card, second: Card) => {
+        //1초 뒤 다시 뒤집기
+        setTimeout(() => {
+            setCards(prev => prev.map(card =>
+                (card.instanceId === first.instanceId || card.instanceId === second.instanceId)
+                    ? { ...card, isFlipped: false } : card
+            ));
+            resetTurn();
+        }, 1000);
+    };
+
+    //뒤집기 초기화
     const resetTurn = () => {
         setFlippedCards([]);
         setIsLock(false);
@@ -234,13 +249,13 @@ export default function FlipCard() {
                     <div className="bg-white rounded-3xl p-8 text-center shadow-xl">
                         <h2 className="text-3xl font-bold mb-3">🎉 모두 맞췄어요!</h2>
                         <button
-                            onClick={() => {setupGame(difficulty); setIsClear(false)}}
+                            onClick={() => { setupGame(difficulty); setIsClear(false) }}
                             className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
                         >
                             다시하기
                         </button>
                         <button
-                            onClick={() => {setStatus('SETTING'); setIsClear(false)}}
+                            onClick={() => { setStatus('SETTING'); setIsClear(false) }}
                             className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
                         >
                             난이도 선택
