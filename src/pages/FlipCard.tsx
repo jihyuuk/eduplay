@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Kid } from "../types/Kid"
+import { AnimatePresence, motion } from "framer-motion";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -15,9 +16,9 @@ export type Card = {
 
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
 const DIFFICULTY_CONFIG = {
-    EASY: { kids: 6, cols: 4, countdown: 10, hintTime: 1 },
-    NORMAL: { kids: 10, cols: 5, countdown: 15, hintTime: 2 },
-    HARD: { kids: 15, cols: 10, countdown: 20, hintTime: 3 },
+    EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1 },
+    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 2 },
+    HARD: { kids: 15, cols: 10, rows: 3, countdown: 20, hintTime: 3 },
 }
 
 //임시 아이들 목록
@@ -83,24 +84,28 @@ export default function FlipCard() {
     const [isLock, setIsLock] = useState(false);
     // 1. 틀린 카드들을 저장할 상태 추가 (애니메이션 적용 대상)
     const [wrongCards, setWrongCards] = useState<Card[]>([]);
+    // 처음 카운트 다운
+    const [countDown, setCountDown] = useState<string | null>(null);
 
 
     // 게임 셋업
     const setupGame = async (selectedDiffi: Difficulty) => {
 
         //1. 로딩 적용 및 난이도 업데이트
+        setIsClear(false);
         setStatus('LOADING');
         setDifficulty(selectedDiffi);
-        resetTurn();
-        setIsClear(false);
+        setFlippedCards([]);
+        setWrongCards([]);
+        setIsLock(true);
 
         //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
 
         //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
         const pairCards: Card[] = randomKids.flatMap((kid) => [
-            { instanceId: `${kid.id}-a`, kid, isFlipped: false, isMatched: false },
-            { instanceId: `${kid.id}-b`, kid, isFlipped: false, isMatched: false }
+            { instanceId: `${kid.id}-a`, kid, isFlipped: true, isMatched: false },
+            { instanceId: `${kid.id}-b`, kid, isFlipped: true, isMatched: false }
         ]);
 
         // 4. 카드 섞기
@@ -111,7 +116,46 @@ export default function FlipCard() {
         setCards(shuffledCards);
         // 7. 로딩 끝
         setStatus('PLAYING');
+        // 8. 외우기 카운트 다운
+        startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
     };
+
+    const startCountDown = (count: number) => {
+
+        setCountDown(count.toString());
+
+        //카운트 다운
+        const timer = setInterval(() => {
+
+            count--;
+
+            if (count <= 0) {
+                //타이머 해제
+                clearInterval(timer);
+                //시작 멘트
+                setCountDown("시작!");
+                //카드 뒤집기
+                setTimeout(() => {
+                    //멘트 초기화
+                    setCountDown(null);
+                    //뒤집기
+                    setCards(prev =>
+                        prev.map(card => ({
+                            ...card,
+                            isFlipped: false
+                        }))
+                    );
+                    //락풀기
+                    setIsLock(false);
+                }, 500);
+
+                return;
+            }
+
+            setCountDown(count.toString());
+
+        }, 1000);
+    }
 
 
     //카드 뒤집기 
@@ -230,6 +274,26 @@ export default function FlipCard() {
             {status === 'PLAYING' && (
                 /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
                 <div className="w-full max-w-[95vw] lg:max-w-6xl mx-auto p-4">
+
+                    {countDown &&
+                        <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
+                            {/* AnimatePresence는 요소가 사라질 때(exit)의 애니메이션을 처리해줍니다 */}
+                            <motion.span
+                                key={countDown} // 숫자가 바뀔 때마다 "새로운 요소"로 인식해 애니메이션을 재실행함
+                                initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }} // 등장 시작
+                                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}    // 등장 끝
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 250,
+                                    damping: 15
+                                }}
+                                className="text-[12rem] font-bold text-pink-500 drop-shadow-[0_0_30px_white] whitespace-nowrap"
+                            >
+                                {countDown}
+                            </motion.span>
+                        </div>
+                    }
+
                     <div
                         className="grid gap-2 sm:gap-4 justify-center" // justify-center로 중앙 정렬
                         style={{
