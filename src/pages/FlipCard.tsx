@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -86,6 +86,9 @@ export default function FlipCard() {
     const [wrongCards, setWrongCards] = useState<Card[]>([]);
     // 처음 카운트 다운
     const [countDown, setCountDown] = useState<string | null>(null);
+    // 플레이타임
+    const [playTime, setPlayTime] = useState(0);
+    const playTimerRef = useRef<number | null>(null);
 
 
     // 게임 셋업
@@ -96,8 +99,9 @@ export default function FlipCard() {
         setStatus('LOADING');
         setDifficulty(selectedDiffi);
         setFlippedCards([]);
-        setWrongCards([]);
         setIsLock(true);
+        setWrongCards([]);
+        setPlayTime(0);
 
         //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
@@ -120,6 +124,7 @@ export default function FlipCard() {
         startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
     };
 
+    //카운트 다운
     const startCountDown = (count: number) => {
 
         setCountDown(count.toString());
@@ -147,6 +152,8 @@ export default function FlipCard() {
                     );
                     //락풀기
                     setIsLock(false);
+                    //플레이타이머 작동
+                    startPlayTimer();
                 }, 500);
 
                 return;
@@ -156,6 +163,27 @@ export default function FlipCard() {
 
         }, 1000);
     }
+
+    //플레이 타임 타이머 작동
+    const startPlayTimer = () => {
+        if (playTimerRef.current) {
+            clearInterval(playTimerRef.current);
+        }
+
+        setPlayTime(0);
+
+        playTimerRef.current = window.setInterval(() => {
+            setPlayTime(prev => prev + 1);
+        }, 1000);
+    };
+
+    //플레이 타이머 정지
+    const stopPlayTimer = () => {
+        if (playTimerRef.current) {
+            clearInterval(playTimerRef.current);
+            playTimerRef.current = null;
+        }
+    };
 
 
     //카드 뒤집기 
@@ -210,6 +238,7 @@ export default function FlipCard() {
 
             //2. 클리어 판별
             if (updatedCards.every(card => card.isMatched)) {
+                stopPlayTimer();
                 setTimeout(() => setIsClear(true), 600);
             }
         }, 600);
@@ -293,6 +322,9 @@ export default function FlipCard() {
                             </motion.span>
                         </div>
                     }
+                    <div className="absolute top-4 left-4 text-lg font-bold text-slate-700">
+                        ⏱ {playTime}s
+                    </div>
 
                     <div
                         className="grid gap-2 sm:gap-4 justify-center" // justify-center로 중앙 정렬
