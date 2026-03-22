@@ -175,3 +175,37 @@ code {
   padding: 10px;
   box-sizing: border-box;
 }
+
+
+/* 1. 흔들리는 키프레임 정의 */
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* 간단한 버전 */
+/* @keyframes shake {
+    0%, 100% { transform: rotateY(0deg); }
+    20%, 60% { transform: rotateY(0deg) translateX(-6px); }
+    40%, 80% { transform: rotateY(0deg) translateX(6px); }
+} */
+
+/* 2. 애니메이션을 적용할 클래스 */
+.card.wrong {
+  animation: shake 0.6s; /* 0.5초 동안 흔들림 */
+  animation-iteration-count: 1; /* 한 번만 실행 */
+}
+
+.card.wrong .card-front {
+  border: 4px solid #ef4444; /* 테두리를 빨간색(red-500)으로 변경 */
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); /* 붉은 광채 추가 */
+}

@@ -81,6 +81,8 @@ export default function FlipCard() {
     const [flippedCards, setFlippedCards] = useState<Card[]>([]);
     //카드 클릭 가능 여부
     const [isLock, setIsLock] = useState(false);
+    // 1. 틀린 카드들을 저장할 상태 추가 (애니메이션 적용 대상)
+    const [wrongCards, setWrongCards] = useState<Card[]>([]);
 
 
     // 게임 셋업
@@ -141,10 +143,10 @@ export default function FlipCard() {
             const [firstCard, secondCard] = newFlippedCards;
 
             if (firstCard.kid.id === secondCard.kid.id) {
-                // 정답! (Matched 상태로 변경, 클리어 판별)
+                // 정답 (Matched 상태로 변경, 클리어 판별)
                 handleMatch(firstCard, secondCard);
             } else {
-                // 오답... (1초 뒤에 다시 덮기)
+                // 오답
                 handleMismatch(firstCard, secondCard);
             }
         }
@@ -168,6 +170,11 @@ export default function FlipCard() {
 
     // 오답 처리 함수
     const handleMismatch = (first: Card, second: Card) => {
+        //틀린 카드 상태 저장
+        setTimeout(() => {
+            setWrongCards([first, second]);
+        }, 600);
+
         //1초 뒤 다시 뒤집기
         setTimeout(() => {
             setCards(prev => prev.map(card =>
@@ -175,13 +182,14 @@ export default function FlipCard() {
                     ? { ...card, isFlipped: false } : card
             ));
             resetTurn();
-        }, 1000);
+        }, 1200);
     };
 
-    //뒤집기 초기화
+    //턴 초기화
     const resetTurn = () => {
         setFlippedCards([]);
         setIsLock(false);
+        setWrongCards([]);
     };
 
 
@@ -225,11 +233,13 @@ export default function FlipCard() {
                             gridTemplateColumns: `repeat(${DIFFICULTY_CONFIG[difficulty].cols}, minmax(0, 1fr))`
                         }}
                     >
-                        {cards.map((card) => (
+                        {cards.map((card) => {
+                            const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
+                            return(
                             <div
                                 key={card.instanceId}
                                 onClick={() => handleCardClick(card)}
-                                className="card"
+                                className={`card ${isWrong ? "wrong" : ""}`}
                             >
                                 <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
                                     {/* 뒷면 (물음표) */}
@@ -251,7 +261,8 @@ export default function FlipCard() {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
