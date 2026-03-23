@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
-import { HelpCircle, RefreshCw } from "lucide-react";
+import { HelpCircle, RefreshCw, Timer } from "lucide-react";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -15,11 +15,6 @@ export type Card = {
     isMatched: boolean;
 }
                       
-                       
-                       
-                       
-                           
-                        
 //난이도, 넓이별 그리드
 const GRID_CONFIG = {
     EASY: "grid-cols-4 gap-2 px-3 max-w-lg sm:gap-4",
@@ -314,7 +309,7 @@ export default function FlipCard() {
 
 
     return (
-        <div className="bg-slate-100 flex items-center justify-center">
+        <div className="bg-slate-100 flex flex-col items-center justify-center min-h-screen">
 
             {/* 1단계: 난이도 선택 */}
             {status === 'SETTING' && (
@@ -346,7 +341,7 @@ export default function FlipCard() {
             {/* 3단계: 실제 게임 화면 */}
             {status === 'PLAYING' && (
                 /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
-                <div className="flex flex-col items-center w-full">
+                <div className="flex flex-col items-center w-full min-h-full">
 
                     {countDown &&
                         <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
@@ -368,25 +363,26 @@ export default function FlipCard() {
                     }
 
                     <div className="title-area text-center mb-6">
-                        <div className="space-y-1 mb-5">
-                            <h1 className="text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
+                        <div className="space-y-2 mb-5">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
                                 햇살반 <span className="text-purple-700">친구 찾기 놀이</span>
                             </h1>
-                            <p className="sub-title">"카드 속에 누가 숨었을까? 🧐"</p>
+                            <p className="sm:text-lg md:text-xl">"카드 속에 누가 숨었을까? 🧐"</p>
                         </div>
                     </div>
 
 
-                    <div className="flex gap-8 mb-4 text-2xl font-bold text-slate-700">
-                        <div className="flex items-center">
-                            <i data-lucide="timer" className="w-6 h-6 mr-2 text-blue-500"></i>
-                            시간: <span id="live-timer" className="ml-2 text-blue-600">{playTime}</span> 초
-                        </div>
-                        <div className="flex items-center">
-                            <i data-lucide="help-circle" className="w-6 h-6 mr-2 text-amber-500"></i>
-                            힌트: <span id="hint-count" className="ml-2 text-amber-600">{hintCount}</span>번
-                        </div>
-                    </div>
+                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
+  <div className="flex items-center justify-start">
+    <Timer className="mr-2 text-blue-500" />
+    시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
+  </div>
+
+  <div className="flex items-center justify-start">
+    <HelpCircle className="mr-2 text-amber-500" />
+    힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+  </div>
+</div>
 
 
                     {/* 카드 판 */}
@@ -409,11 +405,13 @@ export default function FlipCard() {
 
                                         {/* 앞면 (사진) */}
                                         <div className={`card-front ${card.isMatched ? "matched" : ""}`}>
-                                            <img
-                                                src={card.kid.imagePath}
-                                                alt={card.kid.name}
-                                                className="w-full h-[80%] object-cover rounded-xl"
-                                            />
+                                            <div className="relative w-full flex-1 min-h-0 overflow-hidden rounded-[0.5em]">
+                                                <img
+                                                    src={card.kid.imagePath}
+                                                    alt={card.kid.name}
+                                                    className="w-full h-full object-cover rounded-xl"
+                                                />
+                                            </div>
                                             {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
                                             <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
                                                 {card.kid.name}
@@ -435,15 +433,15 @@ export default function FlipCard() {
                     </div>
 
                     {/* 하단 버튼 */}
-                    <div className="button-group flex flex-row gap-5 mt-10 w-full max-w-2xl px-4">
+                    <div className="flex gap-5 md:gap-8 mt-10 w-full justify-center">
                         <button onClick={() => setupGame(difficulty)}
-                            className="flex-1 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                            <RefreshCw className="w-8 h-8 mr-3" /> 다시 하기
+                            className="p-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-lg md:tex-xl lg:text-2xl rounded-2xl font-semibold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                            <RefreshCw className="mr-2" />다시 하기
                         </button>
 
                         <button onClick={() => handleHintClick()}
-                            className="flex-1 py-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                            <HelpCircle className="w-8 h-8 mr-3" /> 힌트 보기
+                            className="p-3 px-4 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-lg md:tex-xl lg:text-2xl rounded-2xl font-semibold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                            <HelpCircle className="mr-2" />힌트 보기
                         </button>
                     </div>
                 </div>
