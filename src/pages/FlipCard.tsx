@@ -75,6 +75,15 @@ function preloadImages(imagePaths: string[]): Promise<void[]> {
     );
 }
 
+function waitForPaint() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        resolve();
+      });
+    });
+  });
+}
 
 export default function FlipCard() {
 
@@ -140,6 +149,7 @@ export default function FlipCard() {
         await preloadImages(randomKids.map((kid) => kid.imagePath));
         // 6. 카드 업데이트
         setCards(shuffledCards);
+        await waitForPaint();
         // 7. 로딩 끝
         setStatus('PLAYING');
         // 8. 외우기 카운트 다운
@@ -315,7 +325,7 @@ export default function FlipCard() {
 
 
     return (
-        <div className="bg-slate-100 flex flex-col items-center justify-center min-h-screen">
+        <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center justify-center min-h-screen">
 
             {/* 1단계: 난이도 선택 */}
             {status === 'SETTING' && (
