@@ -7,9 +7,6 @@
   aspect-ratio: 3 / 4;
   /* 4:3비율 유지 */
   perspective: 1000px;
-  /* 3D 느낌 */
-  width: 120px;
-  height: 160px;
 }
 
 .card-inner {

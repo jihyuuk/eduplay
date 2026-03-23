@@ -15,6 +15,13 @@ export type Card = {
     isMatched: boolean;
 }
 
+//난이도, 넓이별 그리드
+const GRID_CONFIG = {
+    EASY: "grid-cols-4",
+    NORMAL: "grid-cols-4 md:grid-cols-5",
+    HARD: "grid-cols-5 md:grid-cols-6 xl:grid-cols-10"
+}
+
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
 const DIFFICULTY_CONFIG = {
     EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1 },
@@ -302,7 +309,7 @@ export default function FlipCard() {
 
 
     return (
-        <div className="bg-slate-100 flex items-center justify-center p-4">
+        <div className="bg-slate-100 flex items-center justify-center">
 
             {/* 1단계: 난이도 선택 */}
             {status === 'SETTING' && (
@@ -334,7 +341,7 @@ export default function FlipCard() {
             {/* 3단계: 실제 게임 화면 */}
             {status === 'PLAYING' && (
                 /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
-                <div className="flex flex-col items-center w-full max-w-[95vw] lg:max-w-6xl mx-auto p-4">
+                <div className="flex flex-col items-center w-full">
 
                     {countDown &&
                         <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
@@ -379,11 +386,10 @@ export default function FlipCard() {
 
                     {/* 카드 판 */}
                     <div
-                        className="grid gap-2 sm:gap-4 justify-center" // justify-center로 중앙 정렬
-                        style={{
-                            gridTemplateColumns: `repeat(${DIFFICULTY_CONFIG[difficulty].cols}, minmax(0, 1fr))`
-
-                        }}
+                        className="grid 
+                        gap-2 px-3 grid-cols-4 w-full max-w-lg
+                        sm:gap-4
+                        justify-center"
                     >
                         {cards.map((card) => {
                             const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
@@ -427,17 +433,17 @@ export default function FlipCard() {
                     </div>
 
                     {/* 하단 버튼 */}
-                           <div className="button-group flex flex-row gap-5 mt-10 w-full max-w-2xl px-4">
-            <button  onClick={() => setupGame(difficulty)}
-                className="flex-1 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                <RefreshCw className="w-8 h-8 mr-3" /> 다시 하기
-            </button>
+                    <div className="button-group flex flex-row gap-5 mt-10 w-full max-w-2xl px-4">
+                        <button onClick={() => setupGame(difficulty)}
+                            className="flex-1 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                            <RefreshCw className="w-8 h-8 mr-3" /> 다시 하기
+                        </button>
 
-            <button onClick={() => handleHintClick()}
-                className="flex-1 py-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                <HelpCircle className="w-8 h-8 mr-3" /> 힌트 보기
-            </button>
-        </div>
+                        <button onClick={() => handleHintClick()}
+                            className="flex-1 py-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-2xl rounded-2xl font-bold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
+                            <HelpCircle className="w-8 h-8 mr-3" /> 힌트 보기
+                        </button>
+                    </div>
                 </div>
             )}
 
