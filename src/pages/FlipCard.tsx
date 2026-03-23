@@ -14,7 +14,7 @@ export type Card = {
     isFlipped: boolean;
     isMatched: boolean;
 }
-                      
+
 //난이도, 넓이별 그리드
 const GRID_CONFIG = {
     EASY: "grid-cols-4 gap-2 px-3 max-w-lg sm:gap-4",
@@ -160,7 +160,7 @@ export default function FlipCard() {
             if (currentCount <= 0) {
                 stopCountDown(); // 타이머 종료
                 setCountDown("시작!");
-                
+
                 setTimeout(() => {
                     setCountDown(null);
                     setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
@@ -349,24 +349,7 @@ export default function FlipCard() {
                 /* 1. 여기에 '울타리' 역할을 하는 부모 div를 추가합니다. */
                 <div className="flex flex-col items-center w-full min-h-full">
 
-                    {countDown &&
-                        <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
-                            {/* AnimatePresence는 요소가 사라질 때(exit)의 애니메이션을 처리해줍니다 */}
-                            <motion.span
-                                key={countDown} // 숫자가 바뀔 때마다 "새로운 요소"로 인식해 애니메이션을 재실행함
-                                initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }} // 등장 시작
-                                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}    // 등장 끝
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 250,
-                                    damping: 15
-                                }}
-                                className="text-[12rem] font-bold text-pink-500 drop-shadow-[0_0_30px_white] whitespace-nowrap"
-                            >
-                                {countDown}
-                            </motion.span>
-                        </div>
-                    }
+
 
                     <div className="title-area text-center mb-6">
                         <div className="space-y-2 mb-5">
@@ -379,63 +362,81 @@ export default function FlipCard() {
 
 
                     <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
-  <div className="flex items-center justify-start">
-    <Timer className="mr-2 text-blue-500" />
-    시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
-  </div>
+                        <div className="flex items-center justify-start">
+                            <Timer className="mr-2 text-blue-500" />
+                            시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
+                        </div>
 
-  <div className="flex items-center justify-start">
-    <HelpCircle className="mr-2 text-amber-500" />
-    힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
-  </div>
-</div>
+                        <div className="flex items-center justify-start">
+                            <HelpCircle className="mr-2 text-amber-500" />
+                            힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+                        </div>
+                    </div>
 
-
-                    {/* 카드 판 */}
-                    <div
-                        className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}`}
-                    >
-                        {cards.map((card) => {
-                            const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
-                            return (
-                                <div
-                                    key={card.instanceId}
-                                    onClick={() => handleCardClick(card)}
-                                    className={`card ${isWrong ? "wrong" : ""}`}
-                                >
-                                    <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
-                                        {/* 뒷면 (물음표) */}
-                                        <div className="card-back">
-                                            <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
-                                        </div>
-
-                                        {/* 앞면 (사진) */}
-                                        <div className={`card-front ${card.isMatched ? "matched" : ""}`}>
-                                            <div className="relative w-full flex-1 min-h-0 overflow-hidden rounded-[0.5em]">
-                                                <img
-                                                    src={card.kid.imagePath}
-                                                    alt={card.kid.name}
-                                                    className="w-full h-full object-cover rounded-xl"
-                                                />
+                    {/* --- [여기서부터 카드 영역 시작] --- */}
+                    <div className="relative w-full flex justify-center items-center">
+                        {/* 카드 판 */}
+                        <div
+                            className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}`}
+                        >
+                            {cards.map((card) => {
+                                const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
+                                return (
+                                    <div
+                                        key={card.instanceId}
+                                        onClick={() => handleCardClick(card)}
+                                        className={`card ${isWrong ? "wrong" : ""}`}
+                                    >
+                                        <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
+                                            {/* 뒷면 (물음표) */}
+                                            <div className="card-back">
+                                                <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
                                             </div>
-                                            {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
-                                            <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
-                                                {card.kid.name}
-                                            </p>
 
-                                            {/* 정답일 때 나타나는 체크 표시 뱃지 */}
-                                            {card.isMatched && (
-                                                <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg badge-appear">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
+                                            {/* 앞면 (사진) */}
+                                            <div className={`card-front ${card.isMatched ? "matched" : ""}`}>
+                                                <div className="relative w-full flex-1 min-h-0 overflow-hidden rounded-[0.5em]">
+                                                    <img
+                                                        src={card.kid.imagePath}
+                                                        alt={card.kid.name}
+                                                        className="w-full h-full object-cover rounded-xl"
+                                                    />
                                                 </div>
-                                            )}
+                                                {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
+                                                <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
+                                                    {card.kid.name}
+                                                </p>
+
+                                                {/* 정답일 때 나타나는 체크 표시 뱃지 */}
+                                                {card.isMatched && (
+                                                    <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg badge-appear">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
+
+                        {/* 1. 카운트다운 숫자가 이 영역의 정중앙에 옵니다 */}
+                        {countDown && (
+                            <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
+                                <motion.span
+                                    key={countDown}
+                                    initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
+                                    animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                                    transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                                    /* 숫자가 너무 크면 카드 영역을 넘어가므로 살짝 줄였습니다 */
+                                    className="text-[6rem] md:text-[11rem] font-black text-pink-500 drop-shadow-[0_0_20px_white]"
+                                >
+                                    {countDown}
+                                </motion.span>
+                            </div>
+                        )}
                     </div>
 
                     {/* 하단 버튼 */}
