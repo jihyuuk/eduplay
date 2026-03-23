@@ -26,7 +26,7 @@ const GRID_CONFIG = {
 const DIFFICULTY_CONFIG = {
     EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1 },
     NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 2 },
-    HARD: { kids: 15, cols: 10, rows: 3, countdown: 20, hintTime: 3 },
+    HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 3 },
 }
 
 //임시 아이들 목록
