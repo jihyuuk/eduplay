@@ -14,12 +14,17 @@ export type Card = {
     isFlipped: boolean;
     isMatched: boolean;
 }
-
+                      
+                       
+                       
+                       
+                           
+                        
 //난이도, 넓이별 그리드
 const GRID_CONFIG = {
-    EASY: "grid-cols-4",
-    NORMAL: "grid-cols-4 md:grid-cols-5",
-    HARD: "grid-cols-5 md:grid-cols-6 xl:grid-cols-10"
+    EASY: "grid-cols-4 gap-2 px-3 max-w-lg sm:gap-4",
+    NORMAL: "grid-cols-5 gap-2 px-3 max-w-xl sm:gap-3",
+    HARD: "grid-cols-5 md:grid-cols-6 lg:grid-cols-10 gap-2 md:gap-4 px-3 md:px-4 max-w-7xl"
 }
 
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
@@ -386,10 +391,7 @@ export default function FlipCard() {
 
                     {/* 카드 판 */}
                     <div
-                        className="grid 
-                        gap-2 px-3 grid-cols-4 w-full max-w-lg
-                        sm:gap-4
-                        justify-center"
+                        className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}`}
                     >
                         {cards.map((card) => {
                             const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
