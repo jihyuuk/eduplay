@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
 import { HelpCircle, RefreshCw, Timer } from "lucide-react";
@@ -94,11 +94,20 @@ export default function FlipCard() {
     const [wrongCards, setWrongCards] = useState<Card[]>([]);
     // 처음 카운트 다운
     const [countDown, setCountDown] = useState<string | null>(null);
+    const countDownRef = useRef<number | null>(null);
     // 플레이타임
     const [playTime, setPlayTime] = useState(0);
     const playTimerRef = useRef<number | null>(null);
     // 힌트 사용 횟수
     const [hintCount, setHintCount] = useState(0);
+
+    // [중요] 컴포넌트 언마운트 시 모든 타이머 정리
+    useEffect(() => {
+        return () => {
+            stopPlayTimer();
+            stopCountDown();
+        };
+    }, []);
 
 
     // 게임 셋업
@@ -112,6 +121,9 @@ export default function FlipCard() {
         setIsLock(true);
         setWrongCards([]);
         setPlayTime(0);
+        //타이머 초기화
+        stopPlayTimer();
+        stopCountDown();
 
         //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
@@ -136,49 +148,43 @@ export default function FlipCard() {
 
     //카운트 다운
     const startCountDown = (count: number) => {
+        // 1. 이미 실행 중인 카운트다운이 있다면 제거 (중복 방지)
+        stopCountDown();
 
-        setCountDown(count.toString());
+        let currentCount = count;
+        setCountDown(currentCount.toString());
 
-        //카운트 다운
-        const timer = setInterval(() => {
+        countDownRef.current = window.setInterval(() => {
+            currentCount--;
 
-            count--;
-
-            if (count <= 0) {
-                //타이머 해제
-                clearInterval(timer);
-                //시작 멘트
+            if (currentCount <= 0) {
+                stopCountDown(); // 타이머 종료
                 setCountDown("시작!");
-                //카드 뒤집기
+                
                 setTimeout(() => {
-                    //멘트 초기화
                     setCountDown(null);
-                    //뒤집기
-                    setCards(prev =>
-                        prev.map(card => ({
-                            ...card,
-                            isFlipped: false
-                        }))
-                    );
-                    //락풀기
+                    setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
                     setIsLock(false);
-                    //플레이타이머 작동
-                    startPlayTimer();
+                    startPlayTimer(); // 게임 타이머 시작
                 }, 500);
-
                 return;
             }
 
-            setCountDown(count.toString());
-
+            setCountDown(currentCount.toString());
         }, 1000);
-    }
+    };
+
+    // 카운트다운 정지 함수
+    const stopCountDown = () => {
+        if (countDownRef.current) {
+            clearInterval(countDownRef.current);
+            countDownRef.current = null;
+        }
+    };
 
     //플레이 타임 타이머 작동
     const startPlayTimer = () => {
-        if (playTimerRef.current) {
-            clearInterval(playTimerRef.current);
-        }
+        stopPlayTimer();
 
         setPlayTime(0);
 
