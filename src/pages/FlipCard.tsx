@@ -351,8 +351,8 @@ export default function FlipCard() {
 
 
 
-                    <div className="title-area text-center mb-6">
-                        <div className="space-y-2 mb-5">
+                    <div className="title-area text-center py-4 mb-6">
+                        <div className="space-y-2">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
                                 햇살반 <span className="text-purple-700">친구 찾기 놀이</span>
                             </h1>
@@ -440,7 +440,7 @@ export default function FlipCard() {
                     </div>
 
                     {/* 하단 버튼 */}
-                    <div className="flex gap-5 md:gap-8 mt-10 w-full justify-center">
+                    <div className="flex gap-5 md:gap-8 mt-6 p-4 w-full justify-center">
                         <button onClick={() => setupGame(difficulty)}
                             className="p-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-lg md:tex-xl lg:text-2xl rounded-2xl font-semibold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
                             <RefreshCw className="mr-2" />다시 하기
