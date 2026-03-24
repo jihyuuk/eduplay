@@ -441,6 +441,9 @@ export default function FlipCard() {
                                                         src={card.kid.imagePath}
                                                         alt={card.kid.name}
                                                         className="w-full h-full object-cover rounded-md"
+                                                        // loading="eager"
+                                                        //decoding="async"
+                                                        decoding="sync"
                                                     />
                                                 </div>
                                                 {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
