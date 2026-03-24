@@ -286,6 +286,9 @@ export default function FlipCard() {
     const handleMatch = (card: Card) => {
 
         addTimeout(() => {
+            //클리어 판별
+            const isClearGame = (matchedIds.size+1) === (cards.length / 2)
+
             // matched 추가
             setMatchedIds(prev => {
                 const next = new Set(prev);
@@ -296,8 +299,8 @@ export default function FlipCard() {
             // flipped 제거 (선택사항, 안 해도 matched가 앞면 유지함 - resetTurn)
             resetTurn();
 
-            //2. 클리어 판별 - 최적화
-            if (matchedIds.size === cards.length / 2) {
+            //2. 클리어 효과
+            if (isClearGame) {
                 stopPlayTimer();
                 addTimeout(() => setIsClear(true), 600);
             }
