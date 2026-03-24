@@ -11,8 +11,6 @@ type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
 export type Card = {
     instanceId: string;
     kid: Kid;
-    isFlipped: boolean;
-    isMatched: boolean;
 }
 
 //난이도, 넓이별 그리드
@@ -92,18 +90,22 @@ export default function FlipCard() {
 
     //클리어 여부
     const [isClear, setIsClear] = useState(false);
+    //카드 클릭 가능 여부
+    const [isLock, setIsLock] = useState(false);
+
     //현재 상태 - 난이도 선택 -> 로딩 -> 실행
     const [status, setStatus] = useState<GameStatus>('SETTING');
     //난이도 - EASY, NORMAL, HARD
     const [difficulty, setDifficulty] = useState<Difficulty>('EASY');
+
     //카드
     const [cards, setCards] = useState<Card[]>([]);
-    //뒤집힌 카드 - 최대 2개
-    const [flippedCards, setFlippedCards] = useState<Card[]>([]);
-    //카드 클릭 가능 여부
-    const [isLock, setIsLock] = useState(false);
-    // 1. 틀린 카드들을 저장할 상태 추가 (애니메이션 적용 대상)
-    const [wrongCards, setWrongCards] = useState<Card[]>([]);
+    // Set 기반 상태
+    const [flippedIds, setFlippedIds] = useState<Set<string>>(new Set());
+    const [matchedIds, setMatchedIds] = useState<Set<string>>(new Set());
+    const [wrongIds, setWrongIds] = useState<Set<string>>(new Set());
+
+
     // 처음 카운트 다운
     const [countDown, setCountDown] = useState<string | null>(null);
     const countDownRef = useRef<number | null>(null);
@@ -112,6 +114,7 @@ export default function FlipCard() {
     const playTimerRef = useRef<number | null>(null);
     // 힌트 사용 횟수
     const [hintCount, setHintCount] = useState(0);
+
     // 모든 setTimeout 이걸로 대신 관리
     const timeoutRefs = useRef<number[]>([]);
 
@@ -145,9 +148,10 @@ export default function FlipCard() {
     //전체 변수 초기화
     const resetAll = () => {
         setIsClear(false);
-        setFlippedCards([]);
+        setFlippedIds(new Set());
+        setMatchedIds(new Set());
+        setWrongIds(new Set());
         setIsLock(true);
-        setWrongCards([]);
         setPlayTime(0);
         setCountDown(null);
         //타이머 초기화
@@ -169,21 +173,23 @@ export default function FlipCard() {
 
         //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
         const pairCards: Card[] = randomKids.flatMap((kid) => [
-            { instanceId: `${kid.id}-a`, kid, isFlipped: true, isMatched: false },
-            { instanceId: `${kid.id}-b`, kid, isFlipped: true, isMatched: false }
+            { instanceId: `${kid.id}-a`, kid },
+            { instanceId: `${kid.id}-b`, kid }
         ]);
 
-        // 4. 카드 섞기
+        // 4. 처음엔 앞면 보여주기
+        setFlippedIds(new Set(pairCards.map(card => card.instanceId)))
+        // 5. 카드 섞기
         const shuffledCards = shuffleCards(pairCards);
-        // 5. 이미지 미리 로드
+        // 6. 이미지 미리 로드
         await preloadImages(randomKids.map((kid) => kid.imagePath));
-        // 6. 카드 업데이트
-        setCards(shuffledCards);
-        // 7. 랜더링 기다리기
+        // 7. 카드 업데이트
+        setCards(shuffledCards); 
+        // 8. 랜더링 기다리기
         await waitForPaint();
-        // 8. 로딩 끝
+        // 9. 로딩 끝
         setStatus('PLAYING');
-        // 9. 외우기 카운트 다운
+        // 20. 외우기 카운트 다운
         startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
     };
 
@@ -205,6 +211,7 @@ export default function FlipCard() {
                 addTimeout(() => {
                     setCountDown(null);
                     setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
+                    setFlippedIds(new Set());
                     setIsLock(false);
                     startPlayTimer(); // 게임 타이머 시작
                 }, 500);
@@ -247,57 +254,54 @@ export default function FlipCard() {
     const handleCardClick = (clickedCard: Card) => {
 
         //1. 클릭 무시 - 비교중, 이미 뒤집힘, 이미 맞춤, 이미 2장 이상 뒤집음
-        if (isLock || clickedCard.isFlipped || clickedCard.isMatched || flippedCards.length === 2) return;
+        if (isLock || flippedIds.has(clickedCard.instanceId) || matchedIds.has(clickedCard.kid.id) || flippedIds.size === 2) return;
 
-        // 2. 해당 카드의 isFlipped를 true로 변경 (UI 업데이트)
-        setCards((prev) =>
-            prev.map((card) =>
-                card.instanceId === clickedCard.instanceId
-                    ? { ...card, isFlipped: true }
-                    : card
-            )
-        );
+        //2. 예전에 뒤집힌 카드
+        const prevFlipped = [...flippedIds];
 
-        // 3. 비교 로직 시작
-        const newFlippedCards = [...flippedCards, clickedCard];
+        //3. 클릭된 카드 뒤집기
+        setFlippedIds(prev => {
+            const next = new Set(prev);
+            next.add(clickedCard.instanceId);
+            return next;
+        });
 
-        if (newFlippedCards.length === 1) {
-            // 첫 번째 카드를 뒤집은 경우
-            setFlippedCards(newFlippedCards);
+        //4. 예전에 뒤집힌 카드 있으면 즉, 현재 뒤집힌 카드가 2개면
+        if (prevFlipped.length === 1) {
+            const first = cards.find(c => c.instanceId === prevFlipped[0])!;
+            const second = clickedCard;
 
-        } else if (newFlippedCards.length === 2) {
-            // 두 번째 카드를 뒤집은 경우
-            setIsLock(true); // 판정 끝날 때까지 클릭 잠금
+            setIsLock(true);
 
-            const [firstCard, secondCard] = newFlippedCards;
-
-            if (firstCard.kid.id === secondCard.kid.id) {
-                // 정답 (Matched 상태로 변경, 클리어 판별)
-                handleMatch(firstCard, secondCard);
+            if (first.kid.id === second.kid.id) {
+                handleMatch(first);
             } else {
-                // 오답
-                handleMismatch(firstCard, secondCard);
+                handleMismatch(first, second);
             }
         }
+
     };
 
     // 정답 처리 함수
-    const handleMatch = (first: Card, second: Card) => {
-
-        //1. Matched로 상태 변경
-        const updatedCards = cards.map(card =>
-            card.kid.id === first.kid.id ? { ...card, isMatched: true } : card
-        );
+    const handleMatch = (card: Card) => {
 
         addTimeout(() => {
-            setCards(updatedCards);
+            // matched 추가
+            setMatchedIds(prev => {
+                const next = new Set(prev);
+                next.add(card.kid.id);
+                return next;
+            });
+
+            // flipped 제거 (선택사항, 안 해도 matched가 앞면 유지함 - resetTurn)
             resetTurn();
 
-            //2. 클리어 판별
-            if (updatedCards.every(card => card.isMatched)) {
+            //2. 클리어 판별 - 최적화
+            if (matchedIds.size === cards.length / 2) {
                 stopPlayTimer();
                 addTimeout(() => setIsClear(true), 600);
             }
+
         }, 600);
     };
 
@@ -305,24 +309,20 @@ export default function FlipCard() {
     const handleMismatch = (first: Card, second: Card) => {
         //틀린 카드 상태 저장
         addTimeout(() => {
-            setWrongCards([first, second]);
+            setWrongIds(new Set([first.instanceId, second.instanceId]));
         }, 600);
 
         //1초 뒤 다시 뒤집기
         addTimeout(() => {
-            setCards(prev => prev.map(card =>
-                (card.instanceId === first.instanceId || card.instanceId === second.instanceId)
-                    ? { ...card, isFlipped: false } : card
-            ));
             resetTurn();
         }, 1200);
     };
 
     //턴 초기화
     const resetTurn = () => {
-        setFlippedCards([]);
+        setFlippedIds(new Set());
         setIsLock(false);
-        setWrongCards([]);
+        setWrongIds(new Set());
     };
 
     //힌트 클릭
@@ -332,24 +332,18 @@ export default function FlipCard() {
         if (isLock) return;
         // 턴 초기화
         resetTurn();
-        //클릭 막기
+        //클릭 막기 - 무조건 resetTurn() 뒤에
         setIsLock(true);
 
         //힌트 사용 횟수 증가
         setHintCount(prev => prev + 1);
 
-        // 1. 모든 카드 앞면으로 뒤집기 
-        setCards(prev => prev.map(card => ({
-            ...card,
-            isFlipped: true
-        })));
+        // 전체 뒤집기 - 최적화
+        setFlippedIds(new Set(cards.map(card => card.instanceId)));
 
-        // 2. 2초 뒤에 다시 덮기
+        // 2. n초 뒤에 다시 덮기
         addTimeout(() => {
-            setCards(prev => prev.map(card => ({
-                ...card,
-                isFlipped: card.isMatched ? true : false // 맞춘 카드만 앞면 유지
-            })));
+            setFlippedIds(new Set());
             setIsLock(false); // 다시 클릭 가능하게 풀기
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
@@ -421,21 +415,24 @@ export default function FlipCard() {
                             className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}`}
                         >
                             {cards.map((card) => {
-                                const isWrong = wrongCards.some(wc => wc.instanceId === card.instanceId);
+                                const isMatched = matchedIds.has(card.kid.id);
+                                const isFlipped = flippedIds.has(card.instanceId) || isMatched;
+                                const isWrong = wrongIds.has(card.instanceId);
+
                                 return (
                                     <div
                                         key={card.instanceId}
                                         onClick={() => handleCardClick(card)}
                                         className={`card ${isWrong ? "wrong" : ""}`}
                                     >
-                                        <div className={`card-inner ${card.isFlipped || card.isMatched ? "flipped" : ""}`}>
+                                        <div className={`card-inner ${isFlipped ? "flipped" : ""}`}>
                                             {/* 뒷면 (물음표) */}
                                             <div className="card-back">
                                                 <span className="text-white text-3xl sm:text-5xl font-bold">?</span>
                                             </div>
 
                                             {/* 앞면 (사진) */}
-                                            <div className={`card-front gap-1 ${card.isMatched ? "matched" : ""}`}>
+                                            <div className={`card-front gap-1 ${isMatched ? "matched" : ""}`}>
                                                 <div className="relative w-full flex-1  min-h-0 overflow-hidden">
                                                     <img
                                                         src={card.kid.imagePath}
@@ -452,7 +449,7 @@ export default function FlipCard() {
                                                 </p>
 
                                                 {/* 정답일 때 나타나는 체크 표시 뱃지 */}
-                                                {card.isMatched && (
+                                                {isMatched && (
                                                     <div className="
                                                         absolute top-1 right-1 
                                                         w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-8 lg:h-8 
