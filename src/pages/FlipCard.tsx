@@ -77,13 +77,13 @@ function preloadImages(imagePaths: string[]): Promise<void[]> {
 
 //랜더링 기다리기
 function waitForPaint() {
-  return new Promise<void>((resolve) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        resolve();
-      });
+    return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                resolve();
+            });
+        });
     });
-  });
 }
 
 
@@ -112,12 +112,33 @@ export default function FlipCard() {
     const playTimerRef = useRef<number | null>(null);
     // 힌트 사용 횟수
     const [hintCount, setHintCount] = useState(0);
+    // 모든 setTimeout 이걸로 대신 관리
+    const timeoutRefs = useRef<number[]>([]);
+
+    //타이머 등록
+    const addTimeout = (callback: () => void, delay: number) => {
+        const id = window.setTimeout(() => {
+            // 실행 끝난 timeout은 배열에서 제거
+            timeoutRefs.current = timeoutRefs.current.filter(timeoutId => timeoutId !== id);
+            callback();
+        }, delay);
+
+        timeoutRefs.current.push(id);
+        return id;
+    };
+    //전체 타이머 초기화
+    const clearAllTimeouts = () => {
+        timeoutRefs.current.forEach(id => clearTimeout(id));
+        timeoutRefs.current = [];
+    };
+
 
     // [중요] 컴포넌트 언마운트 시 모든 타이머 정리
     useEffect(() => {
         return () => {
             stopPlayTimer();
             stopCountDown();
+            clearAllTimeouts();
         };
     }, []);
 
@@ -132,6 +153,7 @@ export default function FlipCard() {
         //타이머 초기화
         stopPlayTimer();
         stopCountDown();
+        clearAllTimeouts();
     }
 
     // 게임 셋업
@@ -180,7 +202,7 @@ export default function FlipCard() {
                 stopCountDown(); // 타이머 종료
                 setCountDown("시작!");
 
-                setTimeout(() => {
+                addTimeout(() => {
                     setCountDown(null);
                     setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
                     setIsLock(false);
@@ -267,14 +289,14 @@ export default function FlipCard() {
             card.kid.id === first.kid.id ? { ...card, isMatched: true } : card
         );
 
-        setTimeout(() => {
+        addTimeout(() => {
             setCards(updatedCards);
             resetTurn();
 
             //2. 클리어 판별
             if (updatedCards.every(card => card.isMatched)) {
                 stopPlayTimer();
-                setTimeout(() => setIsClear(true), 600);
+                addTimeout(() => setIsClear(true), 600);
             }
         }, 600);
     };
@@ -282,12 +304,12 @@ export default function FlipCard() {
     // 오답 처리 함수
     const handleMismatch = (first: Card, second: Card) => {
         //틀린 카드 상태 저장
-        setTimeout(() => {
+        addTimeout(() => {
             setWrongCards([first, second]);
         }, 600);
 
         //1초 뒤 다시 뒤집기
-        setTimeout(() => {
+        addTimeout(() => {
             setCards(prev => prev.map(card =>
                 (card.instanceId === first.instanceId || card.instanceId === second.instanceId)
                     ? { ...card, isFlipped: false } : card
@@ -314,7 +336,7 @@ export default function FlipCard() {
         setIsLock(true);
 
         //힌트 사용 횟수 증가
-        setHintCount(hintCount + 1);
+        setHintCount(prev => prev + 1);
 
         // 1. 모든 카드 앞면으로 뒤집기 
         setCards(prev => prev.map(card => ({
@@ -323,7 +345,7 @@ export default function FlipCard() {
         })));
 
         // 2. 2초 뒤에 다시 덮기
-        setTimeout(() => {
+        addTimeout(() => {
             setCards(prev => prev.map(card => ({
                 ...card,
                 isFlipped: card.isMatched ? true : false // 맞춘 카드만 앞면 유지
@@ -436,7 +458,7 @@ export default function FlipCard() {
                                                         flex items-center justify-center border border-white/50"
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M5 13l4 4L19 7"/>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M5 13l4 4L19 7" />
                                                         </svg>
                                                     </div>
                                                 )}
@@ -491,7 +513,7 @@ export default function FlipCard() {
                             다시하기
                         </button>
                         <button
-                            onClick={() => {resetAll(); setStatus('SETTING'); }}
+                            onClick={() => { resetAll(); setStatus('SETTING'); }}
                             className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
                         >
                             난이도 선택
