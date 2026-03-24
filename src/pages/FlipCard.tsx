@@ -3,6 +3,11 @@ import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
 import { HelpCircle, RefreshCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
+import LoadingShuffle from "../components/LoadingShuffle";
+import LoadingShuffle2 from "../components/LoadingShuffle-2";
+import LoadingShuffle3 from "../components/LoadingShuffle-3";
+import LoadingShuffle4 from "../components/LoadingShuffle-4";
+import LoadingShuffle5 from "../components/LoadingShuffle-5";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -189,7 +194,7 @@ export default function FlipCard() {
         // 8. 랜더링 기다리기
         await waitForPaint();
         // 9. 로딩 끝
-        setStatus('PLAYING');
+        //setStatus('PLAYING');
         // 20. 외우기 카운트 다운
         startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
     };
@@ -374,13 +379,104 @@ export default function FlipCard() {
             )}
 
             {/* 2단계: 로딩 화면 (준비 중...) */}
-            {status === 'LOADING' && (
+            {/* {status === 'LOADING' && (
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-xl font-bold text-slate-700">카드를 섞고 있어요...</p>
                     <p className="text-slate-400">잠시만 기다려주세요!</p>
                 </div>
-            )}
+            )} */}
+
+            {/* {status === 'LOADING' && (
+                <div className="flex flex-col items-center w-full min-h-full">
+                    <div className="title-area text-center py-4 mb-6">
+                        <div className="space-y-2">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
+                                햇살반 <span className="text-purple-700">친구 찾기 놀이</span>
+                            </h1>
+                            <p className="sm:text-lg md:text-xl">카드를 섞고 있어요... 🎴</p>
+                        </div>
+                    </div>
+
+                    <div className="relative w-full flex justify-center items-center">
+                        <div className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}`}>
+                            {Array.from({ length: DIFFICULTY_CONFIG[difficulty].kids * 2 }).map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.8,
+                                        rotate: 0,
+                                        x: 0,
+                                        y: 0,
+                                    }}
+                                    // animate={{
+                                    //     opacity: [0.7, 1, 0.85, 1],
+                                    //     scale: [0.95, 1.03, 0.98, 1],
+                                    //     rotate: [-4, 4, -2, 0],
+                                    //     x: [0, -8, 8, 0],
+                                    //     y: [0, 6, -6, 0],
+                                    // }}
+                                    animate={{
+    opacity: [0.6, 1, 0.9],
+    scale: [1, 0.92, 1],
+    x: [0, (i % 2 === 0 ? -12 : 12), 0],
+    y: [0, (i % 3 === 0 ? -10 : 10), 0],
+    rotate: [0, (i % 2 === 0 ? -8 : 8), 0],
+}}
+                                    transition={{
+                                        duration: 1.2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        delay: i * 0.03,
+                                    }}
+                                    className="aspect-[3/4] rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-400 via-pink-400 to-amber-300 shadow-md border-2 border-white/50 flex items-center justify-center"
+                                >
+                                    <span className="text-white text-3xl sm:text-5xl font-black drop-shadow-md">
+                                        ?
+                                    </span>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0.4, scale: 0.95 }}
+                                animate={{ opacity: [0.4, 1, 0.4], scale: [0.95, 1.05, 0.95] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm shadow-lg"
+                            >
+                                <p className="text-lg md:text-2xl font-bold text-slate-700">
+                                    카드 섞는 중...
+                                </p>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
+            )} */}
+
+            {status === 'LOADING' && (
+    <div className="flex flex-col items-center w-full">
+        <div className="text-center mb-8">
+            <motion.p 
+                animate={{ y: [0, -5, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="text-2xl font-bold text-pink-600"
+            >
+                카드를 열심히 섞고 있어요! 🪄
+            </motion.p>
+            <p className="text-slate-500">누가 나올지 기대되지 않나요?</p>
+        </div>
+
+        {/* 실제 게임판과 동일한 그리드 설정을 사용하여 시각적 이질감을 줄입니다 */}
+        <LoadingShuffle
+            count={DIFFICULTY_CONFIG[difficulty].kids * 3} 
+            gridConfig={GRID_CONFIG[difficulty]} 
+        />
+    </div>
+)}
+
+
 
             {/* 3단계: 실제 게임 화면 */}
             {status === 'PLAYING' && (
