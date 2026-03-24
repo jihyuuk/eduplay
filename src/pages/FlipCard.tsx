@@ -24,9 +24,9 @@ const GRID_CONFIG = {
 
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
 const DIFFICULTY_CONFIG = {
-    EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1 },
-    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 2 },
-    HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 3 },
+    EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1000 },
+    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 1500 },
+    HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 2000 },
 }
 
 //임시 아이들 목록
@@ -75,6 +75,7 @@ function preloadImages(imagePaths: string[]): Promise<void[]> {
     );
 }
 
+//랜더링 기다리기
 function waitForPaint() {
   return new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -84,6 +85,8 @@ function waitForPaint() {
     });
   });
 }
+
+
 
 export default function FlipCard() {
 
@@ -118,21 +121,26 @@ export default function FlipCard() {
         };
     }, []);
 
-
-    // 게임 셋업
-    const setupGame = async (selectedDiffi: Difficulty) => {
-
-        //1. 로딩 적용 및 난이도 업데이트
+    //전체 변수 초기화
+    const resetAll = () => {
         setIsClear(false);
-        setStatus('LOADING');
-        setDifficulty(selectedDiffi);
         setFlippedCards([]);
         setIsLock(true);
         setWrongCards([]);
         setPlayTime(0);
+        setCountDown(null);
         //타이머 초기화
         stopPlayTimer();
         stopCountDown();
+    }
+
+    // 게임 셋업
+    const setupGame = async (selectedDiffi: Difficulty) => {
+
+        //1. 로딩 적용 및 초기화
+        setStatus('LOADING');
+        resetAll();
+        setDifficulty(selectedDiffi);
 
         //2. 랜덤 n명 뽑기
         const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
@@ -149,10 +157,11 @@ export default function FlipCard() {
         await preloadImages(randomKids.map((kid) => kid.imagePath));
         // 6. 카드 업데이트
         setCards(shuffledCards);
+        // 7. 랜더링 기다리기
         await waitForPaint();
-        // 7. 로딩 끝
+        // 8. 로딩 끝
         setStatus('PLAYING');
-        // 8. 외우기 카운트 다운
+        // 9. 외우기 카운트 다운
         startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
     };
 
@@ -320,7 +329,7 @@ export default function FlipCard() {
                 isFlipped: card.isMatched ? true : false // 맞춘 카드만 앞면 유지
             })));
             setIsLock(false); // 다시 클릭 가능하게 풀기
-        }, 2000);
+        }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
 
@@ -404,24 +413,30 @@ export default function FlipCard() {
                                             </div>
 
                                             {/* 앞면 (사진) */}
-                                            <div className={`card-front ${card.isMatched ? "matched" : ""}`}>
-                                                <div className="relative w-full flex-1 min-h-0 overflow-hidden rounded-[0.5em]">
+                                            <div className={`card-front gap-1 ${card.isMatched ? "matched" : ""}`}>
+                                                <div className="relative w-full flex-1  min-h-0 overflow-hidden">
                                                     <img
                                                         src={card.kid.imagePath}
                                                         alt={card.kid.name}
-                                                        className="w-full h-full object-cover rounded-xl"
+                                                        className="w-full h-full object-cover rounded-md"
                                                     />
                                                 </div>
                                                 {/* 이름이 너무 길면 깨질 수 있으니 텍스트 크기 조절 */}
-                                                <p className="text-center mt-1 font-bold text-slate-700 text-xs sm:text-sm truncate w-full">
+                                                <p className="text-center font-bold text-xs sm:text-base md:text-lg  truncate w-full">
                                                     {card.kid.name}
                                                 </p>
 
                                                 {/* 정답일 때 나타나는 체크 표시 뱃지 */}
                                                 {card.isMatched && (
-                                                    <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg badge-appear">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    <div className="
+                                                        absolute top-1 right-1 
+                                                        w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-8 lg:h-8 
+                                                        p-1 sm:p-1.5 
+                                                        bg-green-500 rounded-full shadow-lg badge-appear z-10 
+                                                        flex items-center justify-center border border-white/50"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M5 13l4 4L19 7"/>
                                                         </svg>
                                                     </div>
                                                 )}
@@ -470,13 +485,13 @@ export default function FlipCard() {
                     <div className="bg-white rounded-3xl p-8 text-center shadow-xl">
                         <h2 className="text-3xl font-bold mb-3">🎉 모두 맞췄어요!</h2>
                         <button
-                            onClick={() => { setupGame(difficulty); setIsClear(false) }}
+                            onClick={() => { setupGame(difficulty); }}
                             className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
                         >
                             다시하기
                         </button>
                         <button
-                            onClick={() => { setStatus('SETTING'); setIsClear(false) }}
+                            onClick={() => {resetAll(); setStatus('SETTING'); }}
                             className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
                         >
                             난이도 선택
