@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { HelpCircle, RefreshCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
 import LoadingShuffle from "../components/LoadingShuffle";
+import FlipCardClearModal from "../components/FlipCardClearModal";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -511,23 +512,13 @@ export default function FlipCard() {
 
             {/* 4단계: 클리어 화면 */}
             {isClear && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="bg-white rounded-3xl p-8 text-center shadow-xl">
-                        <h2 className="text-3xl font-bold mb-3">🎉 모두 맞췄어요!</h2>
-                        <button
-                            onClick={() => { setupGame(difficulty); }}
-                            className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
-                        >
-                            다시하기
-                        </button>
-                        <button
-                            onClick={() => { resetAll(); }}
-                            className="mt-4 px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold"
-                        >
-                            난이도 선택
-                        </button>
-                    </div>
-                </div>
+               <FlipCardClearModal
+                    playTime={playTime}
+                    hintCount={hintCount}
+                    playAgain={()=>setupGame(difficulty)}//다시하기
+                    goSetting={resetAll} //난이도선택
+                    goHome={()=>{}} //홈으로
+               />
             )}
         </div>
     );
