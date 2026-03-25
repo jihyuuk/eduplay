@@ -5,6 +5,7 @@ import { HelpCircle, RefreshCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
 import LoadingShuffle from "../components/LoadingShuffle";
 import FlipCardClearModal from "../components/FlipCardClearModal";
+import { useNavigate } from "react-router-dom";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -108,6 +109,9 @@ function waitForPaint() {
 
 
 export default function FlipCard() {
+
+    //네비게이션
+    const navigate = useNavigate();
 
     //클리어 여부
     const [isClear, setIsClear] = useState(false);
@@ -388,6 +392,11 @@ export default function FlipCard() {
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
+    //홈으로 이동
+    const handleGoHome = () => {
+        navigate('/');
+    }
+
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center justify-center min-h-screen">
@@ -517,7 +526,7 @@ export default function FlipCard() {
                     hintCount={hintCount}
                     playAgain={()=>setupGame(difficulty)}//다시하기
                     goSetting={resetAll} //난이도선택
-                    goHome={()=>{}} //홈으로
+                    goHome={handleGoHome} //홈으로
                />
             )}
         </div>
