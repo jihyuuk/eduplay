@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+body {
+  font-family: 'Jua', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
 /* 카드 뒤집기 */
 .card {
   width: 100%;
