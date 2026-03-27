@@ -40,13 +40,13 @@ interface ChunkyButtonProps {
 }
 
 const VARIANTS: Record<string, string> = {
-    primary: "bg-pink-400 border-pink-600 text-white shadow-[0_4px_0_0_#db2777] md:shadow-[0_6px_0_0_#db2777] hover:shadow-[0_8px_0_0_#db2777] md:hover:shadow-[0_10px_0_0_#db2777] hover:brightness-120",
-    secondary: "bg-purple-400 border-purple-600 text-white shadow-[0_4px_0_0_#9333ea] md:shadow-[0_6px_0_0_#9333ea] hover:shadow-[0_8px_0_0_#9333ea] md:hover:shadow-[0_10px_0_0_#9333ea] hover:brightness-120",
-    success: "bg-green-400 border-green-600 text-white shadow-[0_4px_0_0_#16a34a] md:shadow-[0_6px_0_0_#16a34a] hover:shadow-[0_8px_0_0_#16a34a] md:hover:shadow-[0_10px_0_0_#16a34a] hover:brightness-120",
-    warning: "bg-amber-400 border-amber-600 text-white shadow-[0_4px_0_0_#d97706] md:shadow-[0_6px_0_0_#d97706] hover:shadow-[0_8px_0_0_#d97706] md:hover:shadow-[0_10px_0_0_#d97706] hover:brightness-120",
-    error: "bg-red-400 border-red-600 text-white shadow-[0_4px_0_0_#dc2626] md:shadow-[0_6px_0_0_#dc2626] hover:shadow-[0_8px_0_0_#dc2626] md:hover:shadow-[0_10px_0_0_#dc2626] hover:brightness-120",
-    info: "bg-sky-400 border-sky-600 text-white shadow-[0_4px_0_0_#0284c7] md:shadow-[0_6px_0_0_#0284c7] hover:shadow-[0_8px_0_0_#0284c7] md:hover:shadow-[0_10px_0_0_#0284c7] hover:brightness-120",
-    white: "bg-white border-pink-100 text-pink-500 shadow-[0_4px_0_0_#fce7f3] md:shadow-[0_6px_0_0_#fce7f3] hover:shadow-[0_8px_0_0_#fce7f3] md:hover:shadow-[0_10px_0_0_#fce7f3] hover:brightness-120",
+    primary: "bg-pink-400 border-pink-600 text-white shadow-[0_4px_0_0_#db2777] md:shadow-[0_6px_0_0_#db2777] hover:shadow-[0_8px_0_0_#db2777] md:hover:shadow-[0_10px_0_0_#db2777] hover:brightness-110",
+    secondary: "bg-purple-400 border-purple-600 text-white shadow-[0_4px_0_0_#9333ea] md:shadow-[0_6px_0_0_#9333ea] hover:shadow-[0_8px_0_0_#9333ea] md:hover:shadow-[0_10px_0_0_#9333ea] hover:brightness-110",
+    success: "bg-green-400 border-green-600 text-white shadow-[0_4px_0_0_#16a34a] md:shadow-[0_6px_0_0_#16a34a] hover:shadow-[0_8px_0_0_#16a34a] md:hover:shadow-[0_10px_0_0_#16a34a] hover:brightness-110",
+    warning: "bg-amber-400 border-amber-600 text-white shadow-[0_4px_0_0_#d97706] md:shadow-[0_6px_0_0_#d97706] hover:shadow-[0_8px_0_0_#d97706] md:hover:shadow-[0_10px_0_0_#d97706] hover:brightness-110",
+    error: "bg-red-400 border-red-600 text-white shadow-[0_4px_0_0_#dc2626] md:shadow-[0_6px_0_0_#dc2626] hover:shadow-[0_8px_0_0_#dc2626] md:hover:shadow-[0_10px_0_0_#dc2626] hover:brightness-110",
+    info: "bg-sky-400 border-sky-600 text-white shadow-[0_4px_0_0_#0284c7] md:shadow-[0_6px_0_0_#0284c7] hover:shadow-[0_8px_0_0_#0284c7] md:hover:shadow-[0_10px_0_0_#0284c7] hover:brightness-110",
+    white: "bg-white border-pink-100 text-pink-500 shadow-[0_4px_0_0_#fce7f3] md:shadow-[0_6px_0_0_#fce7f3] hover:shadow-[0_8px_0_0_#fce7f3] md:hover:shadow-[0_10px_0_0_#fce7f3] hover:brightness-100",
     disabled: "bg-slate-200 border-slate-300 text-slate-400 shadow-[0_4px_0_0_#cbd5e1] md:shadow-[0_6px_0_0_#cbd5e1] cursor-not-allowed"
 };
 
