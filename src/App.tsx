@@ -1,6 +1,7 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import FlipCard from "./pages/FlipCard";
+import { ChunkyButtonExample } from "./components/ChunkyButtonExample";
 
 export default function App() {
 
@@ -15,6 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/flip-card" element={<FlipCard />} />
+        <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>
   );

@@ -7,9 +7,12 @@ import { type LucideIcon } from 'lucide-react';
 export const GlobalStyles: React.FC = () => (
     <style dangerouslySetInnerHTML={{
         __html: `
-    /* 호버 시 살짝 위로 뜨는 효과와 그림자 깊이 조절 */
-    .chunky-hover:hover:not(:disabled) {
-      transform: translateY(-4px);
+
+    /*진짜 마우스가 있는 기기(PC)에서만 호버 효과 적용! => 모바일 터치환경에서 Sticky Hover 방지 */
+    @media (hover: hover) and (pointer: fine) {
+      .chunky-hover:hover:not(:disabled) {
+        transform: translateY(-4px);
+      }
     }
 
     /* 클릭 시 꾹 눌리는 효과 (그림자 높이만큼 내려가기) */
@@ -81,7 +84,6 @@ export default function ChunkyButton({
                 chunky-transition
                 chunky-hover
                 chunky-active
-                font-jua
                 border-2
                 flex items-center justify-center gap-2
                 select-none

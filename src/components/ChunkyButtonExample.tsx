@@ -1,12 +1,15 @@
 import { AlertCircle, CheckCircle2, ChevronLeft, Heart, Info, Play, RotateCcw, Settings, Star, XCircle } from "lucide-react";
 import { useState } from "react";
 import ChunkyButton, { GlobalStyles } from "./ChunkyButton";
+import { useNavigate } from "react-router-dom";
 
 export function ChunkyButtonExample() {
 
     const [lastAction, setLastAction] = useState<string>("마우스를 버튼 위로 가져가보세요!");
 
-    const handleBack = () => setLastAction("뒤로가기 클릭!");
+    const navigate = useNavigate();
+
+    const handleBack = () => navigate("/");
 
     return (
         <div className="min-h-screen bg-pink-50/30 pb-20">

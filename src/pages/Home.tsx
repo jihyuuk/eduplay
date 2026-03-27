@@ -11,7 +11,7 @@ interface Game {
 
 const gameList: Game[] = [
     { id: 1, title: "카드 뒤집기", icon: <LayoutGrid />, color: "text-purple-500", path: "/flip-card" },
-    { id: 2, title: "숫자 맞추기", icon: <Gamepad2 />, color: "text-blue-500", path: "/game1" },
+    { id: 2, title: "버튼 예제", icon: <Gamepad2 />, color: "text-blue-500", path: "/chunkybutton-example" },
     { id: 3, title: "얼굴 맞추기", icon: <UserCircle />, color: "text-green-500", path: "/game3" },
 ];
 
