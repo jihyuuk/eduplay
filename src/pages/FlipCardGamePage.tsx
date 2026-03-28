@@ -170,6 +170,10 @@ export default function FlipCardGamePage() {
     const [hintCount, setHintCount] = useState(0);
     const [playTime, setPlayTime] = useState(0);
 
+    //버튼 상태 관리
+    const [isHinting, setIsHinting] = useState(true);
+    const [isStarting, setIsStarting] = useState(true);
+
     //타이머 관련 ref
     const timeoutRefs = useRef<number[]>([]); // 모든 setTimeout 이걸로 대신 관리
     const countDownRef = useRef<number | null>(null);
@@ -196,6 +200,11 @@ export default function FlipCardGamePage() {
 
     //전체 변수 초기화
     const resetAll = () => {
+        //타이머 초기화
+        clearAllTimeouts();
+        stopPlayTimer();
+        stopCountDown();
+
         //게임상태
         setStatus("LOADING");
         setIsDataLoaded(false);
@@ -208,15 +217,14 @@ export default function FlipCardGamePage() {
         setMatchedIds(new Set());
         setWrongIds(new Set());
 
+        //버튼 상태 관리
+        setIsHinting(true);
+        setIsStarting(true);
+
         //카운트다운 및 플레이타임, 힌트
         setCountDown(null);
         setHintCount(0);
         setPlayTime(0);
-
-        //타이머 초기화
-        stopPlayTimer();
-        stopCountDown();
-        clearAllTimeouts();
     }
 
     // 게임 셋업
@@ -257,8 +265,9 @@ export default function FlipCardGamePage() {
         setFlippedIds(new Set(pairCards.map(card => card.instanceId)))
 
         //12. 1초 뒤 카운트 다운 시작
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        startCountDown(DIFFICULTY_CONFIG[difficulty].countdown);
+        addTimeout(() => {
+            startCountDown(DIFFICULTY_CONFIG[difficulty].countdown);
+        }, 1000);
     };
 
     //카운트 다운
@@ -280,6 +289,8 @@ export default function FlipCardGamePage() {
                     setCountDown(null);
                     setFlippedIds(new Set());
                     setIsLock(false);
+                    setIsHinting(false);
+                    setIsStarting(false);
                     startPlayTimer(); // 게임 타이머 시작
                 }, 500);
                 return;
@@ -335,10 +346,10 @@ export default function FlipCardGamePage() {
 
         //4. 예전에 뒤집힌 카드 있으면 즉, 현재 뒤집힌 카드가 2개면
         if (prevFlipped.length === 1) {
+            setIsLock(true);
+
             const first = cards.find(c => c.instanceId === prevFlipped[0])!;
             const second = clickedCard;
-
-            setIsLock(true);
 
             if (first.kid.id === second.kid.id) {
                 handleMatch(first);
@@ -404,6 +415,7 @@ export default function FlipCardGamePage() {
         resetTurn();
         //클릭 막기 - 무조건 resetTurn() 뒤에
         setIsLock(true);
+        setIsHinting(true);
 
         //힌트 사용 횟수 증가
         setHintCount(prev => prev + 1);
@@ -415,6 +427,7 @@ export default function FlipCardGamePage() {
         addTimeout(() => {
             setFlippedIds(new Set());
             setIsLock(false); // 다시 클릭 가능하게 풀기
+            setIsHinting(false);
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
@@ -431,7 +444,7 @@ export default function FlipCardGamePage() {
             <SubHeader
                 title={headerTitle}
                 onBack={handleGoBack}
-                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame}/>}
+                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame} disabled={isStarting} />}
             />
 
             <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
@@ -521,7 +534,7 @@ export default function FlipCardGamePage() {
                     icon={<HelpCircle />}
                 /> */}
 
-                    <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick} disabled={isLock}>
+                    <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick} disabled={isHinting}>
                         힌트 보기
                     </ChunkyButton>
 
