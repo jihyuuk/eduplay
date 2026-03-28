@@ -5,15 +5,17 @@ import { Bell, Heart, HelpCircle, RefreshCw, RotateCcw, RotateCw, Settings, Time
 import GameCard from "../components/GameCard";
 import LoadingShuffle from "../components/LoadingShuffle";
 import FlipCardClearModal from "../components/FlipCardClearModal";
-import { useNavigate } from "react-router-dom";
-import KidButton from "../components/KidButton";
+import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
 import ChunkyIconButton from "../components/ChunkyIconButton";
 import ChunkyButton from "../components/ChunkyButton";
 
-//상태, 난이도
-type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
-type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
+//상태
+type GameStatus = 'LOADING' | 'PLAYING';
+
+//난이도
+export type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
+const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 
 //카드 타입
 export type Card = {
@@ -112,41 +114,66 @@ function waitForPaint() {
 
 
 
-export default function FlipCard() {
+export default function FlipCardGamePage() {
 
-    //네비게이션
+    // 네비게이션
     const navigate = useNavigate();
 
-    //클리어 여부
+    // url에서 난이도 가져오기
+    const { difficultyParam } = useParams<{ difficultyParam: string }>();
+
+    //난이도 - EASY, NORMAL, HARD
+    const difficulty = (difficultyParam?.toUpperCase() as Difficulty) || 'EASY';
+    // 헤더 제목 핸들러
+    const headerTitle = `짝 맞추기 - ${difficulty === 'EASY' ? '쉬움' : difficulty === 'NORMAL' ? '보통' : '어려움'}`;
+
+
+    // difficulty 값이 이상하면 튕겨내기 (방어 코드)
+    useEffect(() => {
+        const upperDifficulty = difficultyParam?.toUpperCase() as Difficulty;
+
+        // 값이 없거나, 유효한 난이도가 아니면 튕겨냄
+        if (!upperDifficulty || !VALID_DIFFICULTIES.includes(upperDifficulty)) {
+            navigate('/flip-card', { replace: true });
+            return;
+        }
+
+        // 검사를 무사히 통과했다면 게임 세팅!
+        startGame();
+
+    }, [difficultyParam]);
+
+    // [중요] 컴포넌트 언마운트 시 모든 타이머 정리
+    useEffect(() => {
+        return () => {
+            stopPlayTimer();
+            stopCountDown();
+            clearAllTimeouts();
+        };
+    }, []);
+
+
+    // 게임 상태 관리
+    const [status, setStatus] = useState<GameStatus>('LOADING');
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isClear, setIsClear] = useState(false);
-    //카드 클릭 가능 여부
     const [isLock, setIsLock] = useState(false);
 
-    //현재 상태 - 난이도 선택 -> 로딩 -> 실행
-    const [status, setStatus] = useState<GameStatus>('SETTING');
-    const [isDataLoaded, setIsDataLoaded] = useState(false); // 초기화-초기화할때 넣는 리팩토링 필요
-    //난이도 - EASY, NORMAL, HARD
-    const [difficulty, setDifficulty] = useState<Difficulty>('EASY');
-
-    //카드
+    // 카드 및 카드 상태 관리
     const [cards, setCards] = useState<Card[]>([]);
-    // Set 기반 상태
     const [flippedIds, setFlippedIds] = useState<Set<string>>(new Set());
     const [matchedIds, setMatchedIds] = useState<Set<string>>(new Set());
     const [wrongIds, setWrongIds] = useState<Set<string>>(new Set());
 
-
-    // 처음 카운트 다운
+    // 카운트다운, 힌트 횟수, 플레이 시간
     const [countDown, setCountDown] = useState<string | null>(null);
-    const countDownRef = useRef<number | null>(null);
-    // 플레이타임
-    const [playTime, setPlayTime] = useState(0);
-    const playTimerRef = useRef<number | null>(null);
-    // 힌트 사용 횟수
     const [hintCount, setHintCount] = useState(0);
+    const [playTime, setPlayTime] = useState(0);
 
-    // 모든 setTimeout 이걸로 대신 관리
-    const timeoutRefs = useRef<number[]>([]);
+    //타이머 관련 ref
+    const timeoutRefs = useRef<number[]>([]); // 모든 setTimeout 이걸로 대신 관리
+    const countDownRef = useRef<number | null>(null);
+    const playTimerRef = useRef<number | null>(null);
 
     //타이머 등록
     const addTimeout = (callback: () => void, delay: number) => {
@@ -159,6 +186,7 @@ export default function FlipCard() {
         timeoutRefs.current.push(id);
         return id;
     };
+
     //전체 타이머 초기화
     const clearAllTimeouts = () => {
         timeoutRefs.current.forEach(id => clearTimeout(id));
@@ -166,45 +194,39 @@ export default function FlipCard() {
     };
 
 
-    // [중요] 컴포넌트 언마운트 시 모든 타이머 정리
-    useEffect(() => {
-        return () => {
-            stopPlayTimer();
-            stopCountDown();
-            clearAllTimeouts();
-        };
-    }, []);
-
     //전체 변수 초기화
     const resetAll = () => {
+        //게임상태
+        setStatus("LOADING");
+        setIsDataLoaded(false);
         setIsClear(false);
+        setIsLock(true);
+
+        //카드 및 카드 상태
+        setCards([]);
         setFlippedIds(new Set());
         setMatchedIds(new Set());
         setWrongIds(new Set());
-        setIsLock(true);
-        setPlayTime(0);
+
+        //카운트다운 및 플레이타임, 힌트
         setCountDown(null);
+        setHintCount(0);
+        setPlayTime(0);
+
         //타이머 초기화
         stopPlayTimer();
         stopCountDown();
         clearAllTimeouts();
-        setHintCount(0);
-        setIsDataLoaded(false);
-        setStatus("SETTING");
-        setDifficulty('EASY');
-        setCards([]);
     }
 
     // 게임 셋업
-    const setupGame = async (selectedDiffi: Difficulty) => {
+    const startGame = async () => {
 
         //1. 로딩 적용 및 초기화
         resetAll();
-        setStatus('LOADING');
-        setDifficulty(selectedDiffi);
 
         //2. 랜덤 n명 뽑기
-        const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[selectedDiffi].kids);
+        const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[difficulty].kids);
 
         //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
         const pairCards: Card[] = randomKids.flatMap((kid) => [
@@ -236,7 +258,7 @@ export default function FlipCard() {
 
         //12. 1초 뒤 카운트 다운 시작
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        startCountDown(DIFFICULTY_CONFIG[selectedDiffi].countdown);
+        startCountDown(DIFFICULTY_CONFIG[difficulty].countdown);
     };
 
     //카운트 다운
@@ -396,141 +418,125 @@ export default function FlipCard() {
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
-    //홈으로 이동
-    const handleGoHome = () => {
-        navigate('/');
+    //뒤로가기
+    const handleGoBack = () => {
+        navigate(-1);
     }
 
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen">
 
+            {/* 서브헤더 */}
             <SubHeader
-                title="짝 맞추기 - 어려움"
-                onBack={handleGoHome}
-                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={()=>setupGame(difficulty)}/>}
+                title={headerTitle}
+                onBack={handleGoBack}
+                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame}/>}
             />
 
-            <div className="mt-10"></div>
-
-            {/* 난이도 선택 */}
-            {status === 'SETTING' && (
-                <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-sm w-full">
-                    <h2 className="text-2xl font-bold mb-6">난이도를 골라보세요!</h2>
-                    <div className="flex flex-col gap-3">
-                        {(['EASY', 'NORMAL', 'HARD'] as Difficulty[]).map((diffi) => (
-                            <button
-                                key={diffi}
-                                onClick={() => setupGame(diffi)}
-                                className="py-4 rounded-2xl border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all font-bold text-lg"
-                            >
-                                {diffi === 'EASY' ? '쉬움 (6명)' : diffi === 'NORMAL' ? '보통 (10명)' : '어려움 (15명)'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* 시간, 힌트 - PLAYING 일때만 보임 */}
-            <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
-                <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
-                    <div className="flex items-center justify-start">
-                        <Timer className="mr-2 text-blue-500" />
-                        시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
-                    </div>
-
-                    <div className="flex items-center justify-start">
-                        <HelpCircle className="mr-2 text-amber-500" />
-                        힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
-                    </div>
-                </div>
-            </div>
-
-
-            {/* 3단계: 실제 게임 화면 */}
-            <div className={`flex flex-col items-center w-full min-h-full transition-opacity duration-500`}>
-
-                {/* --- [여기서부터 카드 영역 시작] --- */}
-                <div className="relative w-full flex justify-center items-center">
-
-                    {/* 가짜 로딩 카드 */}
-                    {status === 'LOADING' && (
-                        <>
-                            {/* 실제 게임판과 동일한 그리드 설정을 사용하여 시각적 이질감을 줄입니다 */}
-                            <LoadingShuffle
-                                count={DIFFICULTY_CONFIG[difficulty].kids * 2}
-                                gridConfig={GRID_CONFIG[difficulty]}
-                                isDataReady={isDataLoaded} />
-                        </>
-                    )}
-
-                    {/* 카드 판 */}
-                    <div
-                        className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}
-                        ${status === 'PLAYING'
-                                ? 'opacity-100'
-                                : 'opacity-0 pointer-events-none absolute'
-                            }`}
-                    >
-                        {cards.map((card) => {
-                            const isMatched = matchedIds.has(card.kid.id);
-                            const isFlipped = flippedIds.has(card.instanceId) || isMatched;
-                            const isWrong = wrongIds.has(card.instanceId);
-
-                            return (
-                                <GameCard
-                                    key={card.instanceId}
-                                    card={card}
-                                    isFlipped={isFlipped}
-                                    isMatched={isMatched}
-                                    isWrong={isWrong}
-                                    onClick={handleCardClick}
-                                />
-                            );
-                        })}
-                    </div>
-
-                    {/* 카운트 다운 */}
-                    {countDown && (
-                        <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
-                            <motion.span
-                                key={countDown}
-                                initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
-                                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                                transition={{ type: "spring", stiffness: 250, damping: 20 }}
-                                className="text-[6rem] md:text-[8rem] font-black text-pink-500 drop-shadow-[0_0_20px_white]"
-                            >
-                                {countDown}
-                            </motion.span>
+            <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
+                {/* 게임 지표 (시간, 힌트) - PLAYING 일때만 보임 */}
+                <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
+                        <div className="flex items-center justify-start">
+                            <Timer className="mr-2 text-blue-500" />
+                            시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
                         </div>
-                    )}
+
+                        <div className="flex items-center justify-start">
+                            <HelpCircle className="mr-2 text-amber-500" />
+                            힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+                        </div>
+                    </div>
                 </div>
-            </div>
 
 
-            {/* 하단 버튼 - PLAYING 일떄만 */}
-            <div className={`flex gap-5 md:gap-8 mt-6 p-4 w-full justify-center transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
-                {/* <KidButton onClick={handleHintClick}
+                {/* 게임 컨텐츠 화면 */}
+                <div className={`flex flex-col items-center w-full min-h-full transition-opacity duration-500`}>
+
+                    {/* --- [여기서부터 카드 영역 시작] --- */}
+                    <div className="relative w-full flex justify-center items-center">
+
+                        {/* 가짜 로딩 카드 */}
+                        {status === 'LOADING' && (
+                            <>
+                                {/* 실제 게임판과 동일한 그리드 설정을 사용하여 시각적 이질감을 줄입니다 */}
+                                <LoadingShuffle
+                                    count={DIFFICULTY_CONFIG[difficulty].kids * 2}
+                                    gridConfig={GRID_CONFIG[difficulty]}
+                                    isDataReady={isDataLoaded} />
+                            </>
+                        )}
+
+                        {/* 카드 판 */}
+                        <div
+                            className={`grid justify-center w-full ${GRID_CONFIG[difficulty]}
+                        ${status === 'PLAYING'
+                                    ? 'opacity-100'
+                                    : 'opacity-0 pointer-events-none absolute'
+                                }`}
+                        >
+                            {cards.map((card) => {
+                                const isMatched = matchedIds.has(card.kid.id);
+                                const isFlipped = flippedIds.has(card.instanceId) || isMatched;
+                                const isWrong = wrongIds.has(card.instanceId);
+
+                                return (
+                                    <GameCard
+                                        key={card.instanceId}
+                                        card={card}
+                                        isFlipped={isFlipped}
+                                        isMatched={isMatched}
+                                        isWrong={isWrong}
+                                        onClick={handleCardClick}
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        {/* 카운트 다운 */}
+                        {countDown && (
+                            <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
+                                <motion.span
+                                    key={countDown}
+                                    initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
+                                    animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                                    transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                                    className="text-[6rem] md:text-[8rem] font-black text-pink-500 drop-shadow-[0_0_20px_white]"
+                                >
+                                    {countDown}
+                                </motion.span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+
+                {/* 하단 버튼 - PLAYING 일떄만 */}
+                <div className={`flex gap-5 md:gap-8 mt-6 p-4 w-full justify-center transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
+                    {/* <KidButton onClick={handleHintClick}
                     variant="warning"
                     label="힌트보기"
                     className="text-white"
                     icon={<HelpCircle />}
                 /> */}
 
-                        <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick}>
-                            힌트 보기
-                        </ChunkyButton>
+                    <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick} disabled={isLock}>
+                        힌트 보기
+                    </ChunkyButton>
 
-            </div>
+                </div>
+            </main>
 
-            {/* 4단계: 클리어 화면 */}
+
+            {/*  클리어 모달 */}
             {isClear && (
                 <FlipCardClearModal
                     playTime={playTime}
                     hintCount={hintCount}
-                    playAgain={() => setupGame(difficulty)}//다시하기
-                    goSetting={resetAll} //난이도선택
-                    goHome={handleGoHome} //홈으로
+                    playAgain={startGame}//다시하기
+                    goSetting={handleGoBack} //난이도선택
+                    goHome={handleGoBack} //홈으로
                 />
             )}
         </div>

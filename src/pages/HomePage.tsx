@@ -16,7 +16,7 @@ const gameList: Game[] = [
 ];
 
 
-export default function Home() {
+export default function HomePage() {
 
     const navigate = useNavigate();
 
