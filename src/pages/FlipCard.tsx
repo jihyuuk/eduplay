@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
-import { HelpCircle, RefreshCw, Timer } from "lucide-react";
+import { Bell, Heart, HelpCircle, RefreshCw, RotateCcw, RotateCw, Settings, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
 import LoadingShuffle from "../components/LoadingShuffle";
 import FlipCardClearModal from "../components/FlipCardClearModal";
 import { useNavigate } from "react-router-dom";
+import KidButton from "../components/KidButton";
+import SubHeader from "../components/SubHeader";
+import ChunkyIconButton from "../components/ChunkyIconButton";
+import ChunkyButton from "../components/ChunkyButton";
 
 //상태, 난이도
 type GameStatus = 'SETTING' | 'LOADING' | 'PLAYING';
@@ -399,7 +403,15 @@ export default function FlipCard() {
 
 
     return (
-        <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center justify-center min-h-screen">
+        <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen">
+
+            <SubHeader
+                title="짝 맞추기 - 어려움"
+                onBack={handleGoHome}
+                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={()=>setupGame(difficulty)}/>}
+            />
+
+            <div className="mt-10"></div>
 
             {/* 난이도 선택 */}
             {status === 'SETTING' && (
@@ -418,16 +430,6 @@ export default function FlipCard() {
                     </div>
                 </div>
             )}
-
-            {/* 제목 */}
-            <div className="title-area text-center py-4 mb-6">
-                <div className="space-y-2">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-pink-500 tracking-tight drop-shadow-sm">
-                        햇살반 <span className="text-purple-700">친구 찾기 놀이</span>
-                    </h1>
-                    <p className="sm:text-lg md:text-xl">"카드 속에 누가 숨었을까? 🧐"</p>
-                </div>
-            </div>
 
             {/* 시간, 힌트 - PLAYING 일때만 보임 */}
             <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
@@ -508,26 +510,28 @@ export default function FlipCard() {
 
             {/* 하단 버튼 - PLAYING 일떄만 */}
             <div className={`flex gap-5 md:gap-8 mt-6 p-4 w-full justify-center transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
-                <button onClick={() => setupGame(difficulty)}
-                    className="p-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-lg md:tex-xl lg:text-2xl rounded-2xl font-semibold shadow-[0_10px_20px_rgba(124,58,237,0.3)] hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                    <RefreshCw className="mr-2" />다시 하기
-                </button>
+                {/* <KidButton onClick={handleHintClick}
+                    variant="warning"
+                    label="힌트보기"
+                    className="text-white"
+                    icon={<HelpCircle />}
+                /> */}
 
-                <button onClick={() => handleHintClick()}
-                    className="p-3 px-4 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-lg md:tex-xl lg:text-2xl rounded-2xl font-semibold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:from-amber-500 hover:to-orange-600 transition-all transform hover:scale-[1.02] active:scale-[0.95] flex items-center justify-center cursor-pointer">
-                    <HelpCircle className="mr-2" />힌트 보기
-                </button>
+                        <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick}>
+                            힌트 보기
+                        </ChunkyButton>
+
             </div>
 
             {/* 4단계: 클리어 화면 */}
             {isClear && (
-               <FlipCardClearModal
+                <FlipCardClearModal
                     playTime={playTime}
                     hintCount={hintCount}
-                    playAgain={()=>setupGame(difficulty)}//다시하기
+                    playAgain={() => setupGame(difficulty)}//다시하기
                     goSetting={resetAll} //난이도선택
                     goHome={handleGoHome} //홈으로
-               />
+                />
             )}
         </div>
     );
