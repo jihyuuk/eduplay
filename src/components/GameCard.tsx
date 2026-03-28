@@ -1,5 +1,5 @@
 import React from "react";
-import type { Card } from "../pages/FlipCardSettingPage";
+import type { Card } from "../pages/FlipCardGamePage";
 
 type GameCardProps = {
   card: Card;

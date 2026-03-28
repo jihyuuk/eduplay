@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
-import { Bell, Heart, HelpCircle, RefreshCw, RotateCcw, RotateCw, Settings, Timer } from "lucide-react";
+import { HelpCircle, RotateCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
 import LoadingShuffle from "../components/LoadingShuffle";
 import FlipCardClearModal from "../components/FlipCardClearModal";
@@ -438,7 +438,7 @@ export default function FlipCardGamePage() {
 
 
     return (
-        <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen">
+        <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
 
             {/* 서브헤더 */}
             <SubHeader
@@ -526,18 +526,10 @@ export default function FlipCardGamePage() {
 
 
                 {/* 하단 버튼 - PLAYING 일떄만 */}
-                <div className={`flex gap-5 md:gap-8 mt-6 p-4 w-full justify-center transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
-                    {/* <KidButton onClick={handleHintClick}
-                    variant="warning"
-                    label="힌트보기"
-                    className="text-white"
-                    icon={<HelpCircle />}
-                /> */}
-
+                <div className={`mt-10 mb-5 transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
                     <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick} disabled={isHinting}>
-                        힌트 보기
+                        힌트 사용
                     </ChunkyButton>
-
                 </div>
             </main>
 
