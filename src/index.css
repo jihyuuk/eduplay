@@ -140,17 +140,30 @@ body {
 /* 작은 화면 (모바일: 768px 이하) */
 @media (max-width: 767px) {
   .wrong .card-front {
-    border: 2px solid #ef4444; 
+    border: 2px solid #ef4444;
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
   }
 }
 
 /* 1. 정답 시 살짝 커졌다가 돌아오는 효과 */
 @keyframes bounce-matched {
-    0% { transform: rotateY(180deg) scale(1); }
-    40% { transform: rotateY(180deg) scale(1.1); }
-    60% { transform: rotateY(180deg) scale(1.03); }
-    100% { transform: rotateY(180deg) scale(1.05); } /* 마지막에 살짝 커진 상태 유지 */
+  0% {
+    transform: rotateY(180deg) scale(1);
+  }
+
+  40% {
+    transform: rotateY(180deg) scale(1.1);
+  }
+
+  60% {
+    transform: rotateY(180deg) scale(1.03);
+  }
+
+  100% {
+    transform: rotateY(180deg) scale(1.05);
+  }
+
+  /* 마지막에 살짝 커진 상태 유지 */
 }
 
 
@@ -163,8 +176,8 @@ body {
 
 @media (max-width: 767px) {
   .matched {
-    border-width: 2px !important; 
-    box-shadow: 0 0 12px #22c55e; 
+    border-width: 2px !important;
+    box-shadow: 0 0 12px #22c55e;
   }
 }
 
@@ -184,4 +197,24 @@ body {
 
 .badge-appear {
   animation: badge-scale-up-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/*chunky button 관련 css*/
+
+/*진짜 마우스가 있는 기기(PC)에서만 호버 효과 적용! => 모바일 터치환경에서 Sticky Hover 방지 */
+@media (hover: hover) and (pointer: fine) {
+  .chunky-hover:hover:not(:disabled) {
+    transform: translateY(-4px);
+  }
+}
+
+/* 클릭 시 꾹 눌리는 효과 (그림자 높이만큼 내려가기) */
+.chunky-active:active:not(:disabled) {
+  transform: translateY(6px) !important;
+  box-shadow: none !important;
+}
+
+/* 부드러운 전환 효과 */
+.chunky-transition {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
 }

@@ -1,11 +1,11 @@
 import { AlertCircle, CheckCircle2, ChevronLeft, Heart, Info, Play, RotateCcw, Settings, Star, XCircle } from "lucide-react";
 import { useState } from "react";
-import ChunkyButton, { GlobalStyles } from "./ChunkyButton";
+import ChunkyButton from "./ChunkyButton";
 import { useNavigate } from "react-router-dom";
 
 export function ChunkyButtonExample() {
 
-    const [lastAction, setLastAction] = useState<string>("마우스를 버튼 위로 가져가보세요!");
+    const [lastAction, setLastAction] = useState<string>("버튼을 눌러보세요!");
 
     const navigate = useNavigate();
 
@@ -13,8 +13,6 @@ export function ChunkyButtonExample() {
 
     return (
         <div className="min-h-screen bg-pink-50/30 pb-20">
-            <GlobalStyles />
-
             <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b-4 border-pink-100 px-4 py-4 font-jua">
                 <div className="flex items-center justify-between max-w-4xl mx-auto">
                     <div className="flex-1 flex justify-start">
