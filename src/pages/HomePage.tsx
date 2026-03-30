@@ -104,7 +104,7 @@ export default function HomePage() {
       description: '알록달록 그려요',
       icon: "flip-match-crop.png",
       variant: 'info',
-      url:"/flip-card"
+      url:"/flip-card-battle/normal"
     },
      {
       id: 'face-quiz',

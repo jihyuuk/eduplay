@@ -6,7 +6,8 @@ type GameCardProps = {
   isFlipped: boolean;
   isMatched: boolean;
   isWrong: boolean;
-  onClick: (card: Card) => void;
+  onPointerDown?: (card: Card) => void;
+  onClick?: (card: Card) => void;
 };
 
 function GameCardComponent({
@@ -14,11 +15,13 @@ function GameCardComponent({
   isFlipped,
   isMatched,
   isWrong,
-  onClick,
+  onClick = ()=>{},
+  onPointerDown = ()=>{},
 }: GameCardProps) {
   return (
     <div
       onClick={() => onClick(card)}
+      onPointerDown={() => onPointerDown(card)}
       className={`card ${isWrong ? "wrong" : ""}`}
     >
       <div className={`card-inner ${isFlipped ? "flipped" : ""}`}>

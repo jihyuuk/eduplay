@@ -4,6 +4,7 @@ import FlipCardSettingPage from "./pages/FlipCardSettingPage";
 import FlipCardGamePage from "./pages/FlipCardGamePage";
 import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
+import FlipCardBattlePage from "./pages/FlipCardBattlePage";
 
 export default function App() {
 
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/flip-card" element={<FlipCardSettingPage />} />
         <Route path="/flip-card/:difficultyParam" element={<FlipCardGamePage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
+        <Route path="/flip-card-battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>
