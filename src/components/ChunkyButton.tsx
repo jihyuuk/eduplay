@@ -23,6 +23,19 @@ export const CHUNKY_VARIANTS: Record<string, string> = {
     disabled: "bg-slate-200 border-slate-300 text-slate-400 shadow-[0_4px_0_0_#cbd5e1] md:shadow-[0_6px_0_0_#cbd5e1]"
 };
 
+// 캔디 느낌의 그라데이션과 3D 그림자 효과 적용
+// export const CHUNKY_VARIANTS: Record<string, string> = {
+//     primary: "bg-gradient-to-b from-pink-300 to-pink-500 border-pink-600 text-white shadow-[0_4px_0_0_#be123c] md:shadow-[0_6px_0_0_#be123c] active:shadow-[0_0px_0_0_#be123c] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     secondary: "bg-gradient-to-b from-purple-300 to-purple-500 border-purple-600 text-white shadow-[0_4px_0_0_#7e22ce] md:shadow-[0_6px_0_0_#7e22ce] active:shadow-[0_0px_0_0_#7e22ce] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     success: "bg-gradient-to-b from-green-300 to-green-500 border-green-600 text-white shadow-[0_4px_0_0_#15803d] md:shadow-[0_6px_0_0_#15803d] active:shadow-[0_0px_0_0_#15803d] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     warning: "bg-gradient-to-b from-yellow-300 to-amber-500 border-amber-600 text-white shadow-[0_4px_0_0_#b45309] md:shadow-[0_6px_0_0_#b45309] active:shadow-[0_0px_0_0_#b45309] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     error: "bg-gradient-to-b from-red-300 to-red-500 border-red-600 text-white shadow-[0_4px_0_0_#b91c1c] md:shadow-[0_6px_0_0_#b91c1c] active:shadow-[0_0px_0_0_#b91c1c] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     info: "bg-gradient-to-b from-sky-300 to-sky-500 border-sky-600 text-white shadow-[0_4px_0_0_#0369a1] md:shadow-[0_6px_0_0_#0369a1] active:shadow-[0_0px_0_0_#0369a1] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-110",
+//     white: "bg-gradient-to-b from-white to-pink-50 border-pink-200 text-pink-500 shadow-[0_4px_0_0_#fbcfe8] md:shadow-[0_6px_0_0_#fbcfe8] active:shadow-[0_0px_0_0_#fbcfe8] active:translate-y-[4px] md:active:translate-y-[6px] hover:brightness-105",
+//     disabled: "bg-gradient-to-b from-slate-100 to-slate-200 border-slate-300 text-slate-400 shadow-[0_4px_0_0_#cbd5e1] md:shadow-[0_6px_0_0_#cbd5e1] cursor-not-allowed opacity-80"
+// };
+
+
 // 반응형 잼미니
 const SIZES: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
     sm: "px-3 py-1.5 text-base md:text-lg rounded-xl",
