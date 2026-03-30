@@ -104,7 +104,7 @@ export default function HomePage() {
       description: '알록달록 그려요',
       icon: "flip-match-crop.png",
       variant: 'info',
-      url:"/flip-card-battle/normal"
+      url:"/flip-card-battle/hard"
     },
      {
       id: 'face-quiz',
@@ -164,7 +164,7 @@ export default function HomePage() {
             <div className="mb-4 transform hover:scale-110 transition-transform">
               <img src={game.icon} alt={game.title} className="w-20 h-20 md:w-28 md:h-28 object-contain" />
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white drop-shadow-sm">
               {game.title}
             </h3>
           </div>

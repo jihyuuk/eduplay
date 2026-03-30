@@ -32,27 +32,32 @@ const GRID_CONFIG = {
 
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
 const DIFFICULTY_CONFIG = {
-    EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1000 },
-    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 1500 },
-    HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 2000 },
+    EASY: { kids: 6, cols: 4, rows: 3, countdown: 5, hintTime: 1000 },
+    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 5, hintTime: 1500 },
+    HARD: { kids: 15, cols: 10, rows: 3, countdown: 5, hintTime: 2000 },
 }
 
 const kids: Kid[] = [
-  { id: "1", name: "사과", imagePath: "/fruits/apple.png" },
-  { id: "2", name: "아보카도", imagePath: "/fruits/avocado.png" },
-  { id: "3", name: "바나나", imagePath: "/fruits/banana.png" },
-  { id: "4", name: "블루베리", imagePath: "/fruits/blueberry.png" },
-  { id: "5", name: "체리", imagePath: "/fruits/cherry.png" },
-  { id: "6", name: "코코넛", imagePath: "/fruits/coconut.png" },
-  { id: "7", name: "포도", imagePath: "/fruits/grape.png" },
-  { id: "8", name: "청포도", imagePath: "/fruits/green-grape.png" },
-  { id: "9", name: "키위", imagePath: "/fruits/kiwi.png" },
-  { id: "10", name: "망고", imagePath: "/fruits/mango.png" },
-  { id: "11", name: "멜론", imagePath: "/fruits/melon.png" },
-  { id: "12", name: "오렌지", imagePath: "/fruits/orange.png" },
-  { id: "13", name: "복숭아", imagePath: "/fruits/peach.png" },
-  { id: "14", name: "레몬", imagePath: "/fruits/lemon.png" },
-  { id: "15", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "1", name: "사과", imagePath: "/fruits/apple.png" },
+    { id: "2", name: "아보카도", imagePath: "/fruits/avocado.png" },
+    { id: "3", name: "바나나", imagePath: "/fruits/banana.png" },
+    { id: "4", name: "블루베리", imagePath: "/fruits/blueberry.png" },
+    { id: "5", name: "체리", imagePath: "/fruits/cherry.png" },
+    { id: "6", name: "코코넛", imagePath: "/fruits/coconut.png" },
+    { id: "7", name: "포도", imagePath: "/fruits/grape.png" },
+    { id: "8", name: "청포도", imagePath: "/fruits/green-grape.png" },
+    { id: "9", name: "키위", imagePath: "/fruits/kiwi.png" },
+    { id: "10", name: "망고", imagePath: "/fruits/mango.png" },
+    { id: "11", name: "멜론", imagePath: "/fruits/melon.png" },
+    { id: "12", name: "오렌지", imagePath: "/fruits/orange.png" },
+    { id: "13", name: "복숭아", imagePath: "/fruits/peach.png" },
+    { id: "14", name: "레몬", imagePath: "/fruits/lemon.png" },
+    { id: "15", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "16", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "17", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "18", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "19", name: "딸기", imagePath: "/fruits/strawberry.png" },
+    { id: "20", name: "딸기", imagePath: "/fruits/strawberry.png" },
 ];
 
 //카드 섞는 함수
@@ -65,21 +70,6 @@ function shuffleCards<T>(array: T[]): T[] {
     }
 
     return copied;
-}
-
-//이미지 미리 로딩
-function preloadImages(imagePaths: string[]): Promise<void[]> {
-    return Promise.all(
-        imagePaths.map(
-            (path) =>
-                new Promise<void>((resolve) => {
-                    const img = new Image();
-                    img.src = path;
-                    img.onload = () => resolve();
-                    img.onerror = () => resolve(); //실패시에도 일단 진행
-                })
-        )
-    );
 }
 
 //랜더링 기다리기
@@ -159,6 +149,7 @@ export default function FlipCardBattlePage() {
     const timeoutRefs = useRef<number[]>([]); // 모든 setTimeout 이걸로 대신 관리
     const countDownRef = useRef<number | null>(null);
     const playTimerRef = useRef<number | null>(null);
+    const cpuTimerRef = useRef<number | null>(null);
 
     //타이머 등록
     const addTimeout = (callback: () => void, delay: number) => {
@@ -185,6 +176,7 @@ export default function FlipCardBattlePage() {
         clearAllTimeouts();
         stopPlayTimer();
         stopCountDown();
+        stopCpuTimer();
 
         //게임상태
         setStatus("LOADING");
@@ -214,41 +206,28 @@ export default function FlipCardBattlePage() {
         //1. 로딩 적용 및 초기화
         resetAll();
 
-        //2. 랜덤 n명 뽑기
-        const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[difficulty].kids);
-
-        //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
-        const pairCards: Card[] = randomKids.flatMap((kid) => [
+        //2. 카드 생성
+        const cards: Card[] = kids.flatMap((kid) => [
             { instanceId: `${kid.id}-a`, kid },
             { instanceId: `${kid.id}-b`, kid }
         ]);
 
-        //4. 카드 섞기
-        const shuffledCards = shuffleCards(pairCards);
-        //5. 카드 업데이트
-        setCards(shuffledCards);
+        setCards(cards);
 
-        //6.실제 카드 랜더링 기다리기
-        await Promise.all([
-            preloadImages(randomKids.map((kid) => kid.imagePath)), // 실제 데이터 로딩
-            waitForPaint(),//  랜더링 기다리기
-            new Promise((resolve) => setTimeout(resolve, 4000)),// 최소 대기 타이머
-        ]);
+        //2. 랜덤으로 절반 뽑기
+        const randomHalf = shuffleCards(cards).slice(0, cards.length / 2);
+
+        //3. 랜덤 절반 뒤집기
+        setFlippedIds(new Set(randomHalf.map(card => card.instanceId)))
 
         // 9. 로딩 끝
         setIsDataLoaded(true);
 
         // 10. 잠깐 딜레이 줬다가 시작 <- 안줘도 될 것 같기도
-        //await new Promise((resolve) => setTimeout(resolve, 800));
         setStatus("PLAYING");
 
-        // 11. 카드 앞면으로 뒤집기
-        setFlippedIds(new Set(pairCards.map(card => card.instanceId)))
-
-        //12. 1초 뒤 카운트 다운 시작
-        addTimeout(() => {
-            startCountDown(DIFFICULTY_CONFIG[difficulty].countdown);
-        }, 1000);
+        //12. 운트 다운 시작
+        startCountDown(DIFFICULTY_CONFIG[difficulty].countdown);
     };
 
     //카운트 다운
@@ -268,11 +247,11 @@ export default function FlipCardBattlePage() {
 
                 addTimeout(() => {
                     setCountDown(null);
-                    setFlippedIds(new Set());
                     setIsLock(false);
                     setIsHinting(false);
                     setIsStarting(false);
                     startPlayTimer(); // 게임 타이머 시작
+                    startCpuTimer();
                 }, 500);
                 return;
             }
@@ -307,6 +286,31 @@ export default function FlipCardBattlePage() {
             playTimerRef.current = null;
         }
     };
+
+    const startCpuTimer = () => {
+        stopCpuTimer();
+
+        cpuTimerRef.current = window.setInterval(() => {
+            setFlippedIds((prev) => {
+                const next = new Set(prev);
+                const idsArray = Array.from(next);
+
+                if (idsArray.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * idsArray.length);
+                    next.delete(idsArray[randomIndex]); // 랜덤으로 하나 삭제
+                }
+
+                return next;
+            });
+        }, 300);
+    }
+
+    const stopCpuTimer = () => {
+        if (cpuTimerRef.current) {
+            clearInterval(cpuTimerRef.current);
+            cpuTimerRef.current = null;
+        }
+    }
 
 
     //카드 뒤집기 
@@ -428,17 +432,23 @@ export default function FlipCardBattlePage() {
             />
 
             <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
+                
+                
                 {/* 게임 지표 (시간, 힌트) - PLAYING 일때만 보임 */}
-                <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
-                        <div className="flex items-center justify-start">
+                <div className={`w-full px-8 pt-4 transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="grid grid-cols-3 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700 w-full">
+                        
+                        <div className="w-full">
+                            빨간색: {kids.length*2 - flippedIds.size}
+                        </div>
+
+                        <div className="flex items-center justify-center">
                             <Timer className="mr-2 text-blue-500" />
                             시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
                         </div>
 
-                        <div className="flex items-center justify-start">
-                            <HelpCircle className="mr-2 text-amber-500" />
-                            힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+                        <div className="text-end">
+                            파란색: {flippedIds.size}
                         </div>
                     </div>
                 </div>
@@ -498,14 +508,6 @@ export default function FlipCardBattlePage() {
                             </div>
                         )}
                     </div>
-                </div>
-
-
-                {/* 하단 버튼 - PLAYING 일떄만 */}
-                <div className={`mt-10 mb-5 transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'} `}>
-                    <ChunkyButton variant="warning" icon={HelpCircle} onClick={handleHintClick} disabled={isHinting}>
-                        힌트 사용
-                    </ChunkyButton>
                 </div>
             </main>
 
