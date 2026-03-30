@@ -443,7 +443,6 @@ export default function FlipCardGamePage() {
             {/* 서브헤더 */}
             <SubHeader
                 title={headerTitle}
-                onBack={handleGoBack}
                 rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame} disabled={isStarting} />}
             />
 

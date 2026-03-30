@@ -1,21 +1,28 @@
 import React, { type ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import ChunkyIconButton from './ChunkyIconButton';
+import { useNavigate } from 'react-router-dom';
 
 interface SubHeaderProps {
   title: string;
-  onBack?: () => void;
   rightElement?: ReactNode;
 }
 
-const SubHeader: React.FC<SubHeaderProps> = ({ title, onBack, rightElement }) => {
+const SubHeader: React.FC<SubHeaderProps> = ({ title, rightElement }) => {
+
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate(-1);
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b-2 md:border-b-4 border-pink-50 px-3 py-3 sm:px-4 sm:py-4">
       <div className="flex items-center justify-between max-w-4xl mx-auto relative">
 
         {/* 왼쪽: 뒤로가기 (고정 너비 확보) */}
         <div className="z-10">
-          <ChunkyIconButton onClick={onBack} variant='white' icon={ChevronLeft} className='!px-3' strokeWidth={3} />
+          <ChunkyIconButton onClick={handleGoBack} variant='white' icon={ChevronLeft} className='!px-3' strokeWidth={3} />
         </div>
 
         {/* 중앙: 타이틀 (절대 위치로 중앙 정렬 보장) */}
