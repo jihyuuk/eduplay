@@ -6,11 +6,12 @@ import HomeChunkyButton from '../components/HomeChunkyButton';
 interface GameMenu {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   icon: string;
   variant: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
   badge?: string;
   url: string;
+  disabled?: boolean;
 }
 
 // --- 애니메이션 및 글로벌 스타일 (TS Template Literal) ---
@@ -53,107 +54,50 @@ export default function HomePage() {
 
   const games: GameMenu[] = [
     {
-      id: 'face-quiz',
+      id: 'flip-kid',
       title: '친구들 뒤집기',
-      description: '누구일까~요?',
-      icon: "flip-kid-crop.png",
+      icon: "/game-icons/flip-kid.png",
       variant: 'primary',
-      badge: '인기',
       url: "/flip-card"
     },
     {
-      id: 'music-play',
+      id: 'flip-fruit',
       title: '과일 뒤집기',
-      description: '신나게 불러요',
-      icon: "flip-fruit-crop.png",
+      icon: "/game-icons/flip-fruit.png",
       variant: 'secondary',
-      badge: '신규',
       url: "/flip-card-fruit/hard"
     },
     {
-      id: 'art-play',
+      id: 'flip-battle',
       title: '뒤집기 대결',
-      description: '알록달록 그려요',
-      icon: "flip-match-crop.png",
+      icon: "/game-icons/flip-match.png",
       variant: 'info',
       url: "/flip-card-battle/level5"
     },
     {
       id: 'face-quiz',
       title: '너의 눈코입',
-      description: '알록달록 그려요',
-      icon: "face-quiz.png",
-      variant: 'success',
-      url: "/flip-card"
+      icon: "/game-icons/face-quiz.png",
+      variant: 'disabled',
+      url: "/",
+      disabled: true
     },
     {
-      id: 'face-quiz',
-      title: '친구들 뒤집기',
-      description: '누구일까~요?',
-      icon: "flip-kid-crop.png",
-      variant: 'primary',
-      badge: '인기',
-      url: "/flip-card"
+      id: 'journey-rabbit',
+      title: '토끼의 모험',
+      icon: "/game-icons/rabbit-coding.png",
+      variant: 'disabled',
+      url: "/",
+      disabled: true
     },
     {
-      id: 'music-play',
-      title: '과일 뒤집기',
-      description: '신나게 불러요',
-      icon: "flip-fruit-crop.png",
-      variant: 'secondary',
-      badge: '신규',
-      url: "/flip-card-fruit/hard"
-    },
-    {
-      id: 'art-play',
-      title: '뒤집기 대결',
-      description: '알록달록 그려요',
-      icon: "flip-match-crop.png",
-      variant: 'info',
-      url: "/flip-card-battle/level5"
-    },
-    {
-      id: 'face-quiz',
-      title: '너의 눈코입',
-      description: '알록달록 그려요',
-      icon: "face-quiz.png",
-      variant: 'success',
-      url: "/flip-card"
-    },
-    {
-      id: 'face-quiz',
-      title: '친구들 뒤집기',
-      description: '누구일까~요?',
-      icon: "flip-kid-crop.png",
-      variant: 'primary',
-      badge: '인기',
-      url: "/flip-card"
-    },
-    {
-      id: 'music-play',
-      title: '과일 뒤집기',
-      description: '신나게 불러요',
-      icon: "flip-fruit-crop.png",
-      variant: 'secondary',
-      badge: '신규',
-      url: "/flip-card-fruit/hard"
-    },
-    {
-      id: 'art-play',
-      title: '뒤집기 대결',
-      description: '알록달록 그려요',
-      icon: "flip-match-crop.png",
-      variant: 'info',
-      url: "/flip-card-battle/level5"
-    },
-    {
-      id: 'face-quiz',
-      title: '너의 눈코입',
-      description: '알록달록 그려요',
-      icon: "face-quiz.png",
-      variant: 'success',
-      url: "/flip-card"
-    },
+      id: 'train-puzzle',
+      title: '기차 퍼즐',
+      icon: "/game-icons/train-puzzle.png",
+      variant: 'disabled',
+      url: "/",
+      disabled: true
+    }
   ];
 
   return (
@@ -180,7 +124,7 @@ export default function HomePage() {
         </div>
 
         {/* 메인 게임 메뉴 그리드: 내부 아이템들을 중앙 정렬 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 w-full max-w-md sm:max-w-xl md:max-w-4xl">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full max-w-md sm:max-w-xl md:max-w-2xl">
           {games.map((game, index) => (
             <HomeChunkyButton
               key={index}
@@ -189,11 +133,12 @@ export default function HomePage() {
               icon={game.icon}
               badge={game.badge}
               url={game.url}
+              disabled={game.disabled}
             />
           ))}
         </div>
 
-        <footer className="w-full flex flex-col items-center justify-center mt-12 pb-12 md:mt-20 md:pb-20 text-center z-10">
+        <footer className="w-full flex flex-col items-center justify-center mt-12 pb-5 md:mt-20 md:pb-10 text-center z-10">
 
           {/* 1. 메인 슬로건 (모바일 줄바꿈 최적화) */}
             <p className="text-purple-400/80 text-sm md:text-base font-bold tracking-wide leading-relaxed break-keep select-none">
