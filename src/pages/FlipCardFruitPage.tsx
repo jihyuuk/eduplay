@@ -54,6 +54,7 @@ const kids: Kid[] = [
   { id: "14", name: "레몬", imagePath: "/fruits/lemon.png" },
   { id: "15", name: "딸기", imagePath: "/fruits/strawberry.png" },
   { id: "16", name: "수박", imagePath: "/fruits/watermelon.png" },
+  { id: "17", name: "파인애플", imagePath: "/fruits/pineapple.png" },
 ];
 
 //카드 섞는 함수
