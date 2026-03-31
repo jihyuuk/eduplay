@@ -61,7 +61,7 @@ export default function HomeChunkyButton({
                     {/* bg-[repeating-linear-gradient(...)]로 임의의 스트라이프 패턴 적용 */}
                     <div className="absolute w-[150%] h-8 bg-[repeating-linear-gradient(-45deg,#fdd835_0px,#fdd835_10px,#212121_10px,#212121_20px)] shadow-lg rotate-[-15deg] flex items-center justify-center border-y-2 border-[#212121]/50">
                         {/*  테이프 중앙에 글자가 잘 보이게 노란 바탕을 깔고 멘트를 줄임 */}
-                        <div className="bg-[#fdd835] px-4 py-0.5 rounded-sm shadow-inner">
+                        <div className="bg-[#fdd835] px-3 rounded-sm shadow-inner">
                             <span className="text-[#212121] font-black text-sm whitespace-nowrap tracking-wider drop-shadow-sm">
                                 🚧 준비중.. 🚧
                             </span>
