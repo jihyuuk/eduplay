@@ -32,7 +32,7 @@ export default function App() {
       {/* 2. 주소에 따라 갈아끼워질 화면들 */}
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/flip-card/:difficultyParam" element={<FlipCardKidPage />} />
+        <Route path="/flip-card-kid/:difficultyParam" element={<FlipCardKidPage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
         <Route path="/flip-card-battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />

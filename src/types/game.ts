@@ -24,7 +24,7 @@ export const games: GameOption[] = [
     title: '친구들 뒤집기',
     icon: "/game-icons/flip-kid.png",
     variant: 'primary',
-    url: "/flip-card",
+    url: "/flip-card-kid",
     settings: [
       { label: '쉬움', path: '/easy', variant: 'success' },
       { label: '보통', path: '/normal', variant: 'warning' },
