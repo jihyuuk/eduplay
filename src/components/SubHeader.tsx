@@ -18,7 +18,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({ title, rightElement }) => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b-2 md:border-b-4 border-pink-50 px-3 py-3 sm:px-4 sm:py-4">
-      <div className="flex items-center justify-between max-w-4xl mx-auto relative">
+      <div className="flex items-center justify-between max-w-6xl mx-auto relative">
 
         {/* 왼쪽: 뒤로가기 (고정 너비 확보) */}
         <div className="z-10">
