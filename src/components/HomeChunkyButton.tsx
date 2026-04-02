@@ -34,14 +34,14 @@ export default function HomeChunkyButton({
             disabled={disabled}            
             className='relative !p-0 aspect-square flex items-center justify-center overflow-hidden'
         >
-            <div className={`flex flex-col items-center justify-center text-center p-2 w-full h-full transition-all duration-300 ${variant === 'disabled' ? ' grayscale optical-80' : ''}`}>
+            <div className={`flex flex-col items-center justify-center text-center p-2 w-full h-full transition-all duration-300 ${variant === 'disabled' ? ' grayscale opacity-80' : ''}`}>
                 {badge && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-sm px-3 py-1 rounded-full font-bold shadow-md animate-bounce z-20">
                         {badge}
                     </span>
                 )}
                 <div className="mb-4 transform hover:scale-110 transition-transform">
-                    <img src={icon} alt={title} className="w-20 h-20 md:w-28 md:h-28 object-contain" />
+                    <img src={icon} alt={title} className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain" />
                 </div>
                 <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white drop-shadow-sm">
                     {title}

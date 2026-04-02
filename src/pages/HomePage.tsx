@@ -136,22 +136,24 @@ export default function HomePage() {
 
 
   return (
-    <div className="min-h-screen !min-h-[100dvh] bg-gradient-to-b from-[#e0f2fe] to-[#f5f3ff] flex flex-col items-center relative p-4">
+    <div className="min-h-screen !min-h-[100dvh] bg-gradient-to-b from-[#e0f2fe] to-[#f5f3ff] flex flex-col items-center relative">
       <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       <CloudDecoration />
+
       {/* --- 상단 내비게이션 (Sticky 적용) --- */}
       <nav className="sticky top-0 w-full z-50 transition-all duration-300 bg-[#e0f2fe]/80 backdrop-blur-md border-b border-white/40 shadow-sm">
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-6 py-3">
+        <div className="max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-2 md:py-3">
           {/* 좌측: 로고 */}
           <div
             className="flex items-center cursor-pointer group transition-transform hover:scale-105 active:scale-95"
-            onClick={() => window.location.href = '/'}
+            onClick={() => (window.location.href = "/")}
           >
-            <div className="relative w-24 md:w-32"> {/* 크기를 약간 줄여 콘텐츠 영역 확보 */}
+            {/* 모바일에서는 w-24, 태블릿 이상에서는 w-28, PC에서는 w-32로 가변 조정 */}
+            <div className="relative w-24 sm:w-28 md:w-32 transition-all duration-300">
               <img
-                src="/eduplay-logo.png"
+                src="/eduplay-logo.webp"
                 alt="에듀플레이 로고"
-                className="w-full h-full object-contain"
+                className="w-full h-auto object-contain" // h-full 대신 h-auto가 비율 유지에 좋습니다.
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             </div>
@@ -160,15 +162,17 @@ export default function HomePage() {
           {/* 우측: 설정 버튼 */}
           <button
             onClick={() => alert('설정 창을 열게요!')}
-            className="p-2.5 bg-white/60 rounded-full shadow-sm border border-white/50 hover:bg-white/90 transition-all active:scale-95 group"
+            // 모바일에서는 버튼 크기를 살짝 줄여서 공간을 확보합니다 (p-2 -> md:p-2.5)
+            className="p-2 md:p-2.5 bg-white/60 backdrop-blur-sm rounded-full shadow-sm border border-white/50 hover:bg-white/90 transition-all active:scale-95 group cursor-pointer"
           >
-            <Settings className="w-5 h-5 text-purple-500 group-hover:rotate-90 transition-transform duration-300" />
+            {/* 아이콘 크기도 반응형으로 조절 (w-5 -> md:w-6) */}
+            <Settings className="w-5 h-5 md:w-6 md:h-6 text-purple-500 group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
       </nav>
 
       {/* 메인 콘텐츠 영역: flex-col로 제목과 그리드를 묶음 */}
-      <div className="max-w-5xl w-full z-10 flex flex-col items-center gap-12 md:gap-16 mb-10">
+      <div className="max-w-5xl w-full z-10 flex flex-col items-center gap-12 md:gap-16 mb-10 p-4">
 
         {/* 헤더 섹션: 상단 고정이 아니라 콘텐츠와 함께 중앙에 위치 */}
         <div className="text-center relative mt-10">
