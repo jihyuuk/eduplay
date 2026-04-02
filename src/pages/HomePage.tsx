@@ -1,19 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Cloud, Github, Home, Mail, Settings, Share2, Sparkles } from 'lucide-react';
 import HomeChunkyButton from '../components/HomeChunkyButton';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import GameSettingModal from '../components/GameSettingModal';
+import { games, type GameOption } from '../types/game';
 
-// --- 타입 정의 ---
-interface GameMenu {
-  id: string;
-  title: string;
-  description?: string;
-  icon: string;
-  variant: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
-  badge?: string;
-  url: string;
-  disabled?: boolean;
-}
 
 // --- 애니메이션 및 글로벌 스타일 (TS Template Literal) ---
 const globalStyles: string = `
@@ -53,54 +45,24 @@ const CloudDecoration: React.FC = () => (
 
 export default function HomePage() {
 
-  const games: GameMenu[] = [
-    {
-      id: 'flip-kid',
-      title: '친구들 뒤집기',
-      icon: "/game-icons/flip-kid.png",
-      variant: 'primary',
-      url: "/flip-card"
-    },
-    {
-      id: 'flip-fruit',
-      title: '과일 뒤집기',
-      icon: "/game-icons/flip-fruit.png",
-      variant: 'secondary',
-      url: "/flip-card-fruit/hard"
-    },
-    {
-      id: 'flip-battle',
-      title: '뒤집기 대결',
-      icon: "/game-icons/flip-match.png",
-      variant: 'info',
-      url: "/flip-card-battle/level5"
-    },
-    {
-      id: 'face-quiz',
-      title: '너의 눈코입',
-      icon: "/game-icons/face-quiz.png",
-      variant: 'disabled',
-      url: "/",
-      disabled: true
-    },
-    {
-      id: 'journey-rabbit',
-      title: '토끼의 모험',
-      icon: "/game-icons/rabbit-coding.png",
-      variant: 'disabled',
-      url: "/",
-      disabled: true
-    },
-    {
-      id: 'train-puzzle',
-      title: '기차 퍼즐',
-      icon: "/game-icons/train-puzzle.png",
-      variant: 'disabled',
-      url: "/",
-      disabled: true
-    }
-  ];
+  const navigate = useNavigate();
 
+  const [selectedGame, setSelectedGame] = useState<GameOption | null>(null);
+
+  //게임 클릭시 난이도 선택 모달
+const handleGameClick = (game: GameOption) => {
+    if (game.disabled) return; // 비활성화된 게임은 무시
+
+    // 2. 설정(난이도 등)이 있는 게임이면 모달을 열고, 없으면 바로 이동
+    if (game.settings && game.settings.length > 0) {
+      setSelectedGame(game);
+    } else {
+      navigate(game.url);
+    }
+  };
+
+
+  // 이메일 복사 버튼
   const handleCopyEmail = async () => {
     const email = "jihyuk.dev@gmail.com";
     try {
@@ -111,7 +73,7 @@ export default function HomePage() {
     }
   };
 
-
+  // 공유하기 버튼
   const handleShare = async () => {
     const url = "https://eduplay.kr";
 
@@ -198,7 +160,7 @@ export default function HomePage() {
               title={game.title}
               icon={game.icon}
               badge={game.badge}
-              url={game.url}
+              onClick={()=>handleGameClick(game)}
               disabled={game.disabled}
             />
           ))}
@@ -259,6 +221,13 @@ export default function HomePage() {
 
       </div>
 
+{/* 4. selectedGame에 데이터가 있을 때만 모달을 렌더링 */}
+      {selectedGame && (
+        <GameSettingModal 
+          game={selectedGame} 
+          onClose={() => setSelectedGame(null)} // 닫기 누르면 다시 null로
+        />
+      )}
 
       {/* 하단 바닥 잔디 데코레이션 */}
       <div className="fixed bottom-0 left-0 w-full h-16 pointer-events-none z-0 overflow-hidden">
