@@ -40,7 +40,7 @@ export default function GameSettingModal({ game, onClose }: { game: GameOption; 
         </div>
 
         {/* 난이도 리스트 */}
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {game.settings?.map((opt: any) => (
             <ChunkyButton
               key={opt.path}

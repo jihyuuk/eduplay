@@ -96,7 +96,7 @@ function waitForPaint() {
 
 
 
-export default function FlipCardGamePage() {
+export default function FlipCardKidPage() {
 
     // 네비게이션
     const navigate = useNavigate();
@@ -107,7 +107,7 @@ export default function FlipCardGamePage() {
     //난이도 - EASY, NORMAL, HARD
     const difficulty = (difficultyParam?.toUpperCase() as Difficulty) || 'EASY';
     // 헤더 제목 핸들러
-    const headerTitle = `짝 맞추기 - ${difficulty === 'EASY' ? '쉬움' : difficulty === 'NORMAL' ? '보통' : '어려움'}`;
+    const headerTitle = `친구들 뒤집기 (${difficulty === 'EASY' ? '쉬움' : difficulty === 'NORMAL' ? '보통' : '어려움'})`;
 
 
     // difficulty 값이 이상하면 튕겨내기 (방어 코드)

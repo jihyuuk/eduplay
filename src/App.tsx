@@ -1,7 +1,6 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { ChunkyButtonExample } from "./components/ChunkyButtonExample";
-import FlipCardSettingPage from "./pages/FlipCardSettingPage";
-import FlipCardGamePage from "./pages/FlipCardGamePage";
+import FlipCardKidPage from "./pages/FlipCardKidPage";
 import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
 import FlipCardBattlePage from "./pages/FlipCardBattlePage";
@@ -33,8 +32,7 @@ export default function App() {
       {/* 2. 주소에 따라 갈아끼워질 화면들 */}
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/flip-card" element={<FlipCardSettingPage />} />
-        <Route path="/flip-card/:difficultyParam" element={<FlipCardGamePage />} />
+        <Route path="/flip-card/:difficultyParam" element={<FlipCardKidPage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
         <Route path="/flip-card-battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
