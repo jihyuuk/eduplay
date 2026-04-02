@@ -38,24 +38,6 @@ const DIFFICULTY_CONFIG = {
 }
 
 //임시 아이들 목록
-// const kids: Kid[] = [
-//     { id: "1", name: "기서윤", imagePath: "/images/giseoyun.jpg" },
-//     { id: "2", name: "김 단", imagePath: "/images/gim-dan.jpg" },
-//     { id: "3", name: "김로운", imagePath: "/images/gim-rowoon.jpg" },
-//     { id: "4", name: "김태린", imagePath: "/images/gim-taerin.jpg" },
-//     { id: "5", name: "김하윤", imagePath: "/images/gim-hayun.jpg" },
-//     { id: "6", name: "박시현", imagePath: "/images/park-sihyeon.jpg" },
-//     { id: "7", name: "손예령", imagePath: "/images/son-yeryeong.jpg" },
-//     { id: "8", name: "신희재", imagePath: "/images/sin-huijae.jpg" },
-//     { id: "9", name: "오성준", imagePath: "/images/oh-seongjun.jpg" },
-//     { id: "10", name: "윤태연", imagePath: "/images/yun-taeyeon.jpg" },
-//     { id: "11", name: "윤혜리", imagePath: "/images/yun-hyeri.jpg" },
-//     { id: "12", name: "이태연", imagePath: "/images/i-taeyeon.jpg" },
-//     { id: "13", name: "최시윤", imagePath: "/images/choi-siyun.jpg" },
-//     { id: "14", name: "최우담", imagePath: "/images/choi-udam.jpg" },
-//     { id: "15", name: "한서율", imagePath: "/images/han-seoyul.jpg" }
-// ];
-
 const kids: Kid[] = [
     { id: "1", name: "기서윤", imagePath: "/lower-images/giseoyun.webp" },
     { id: "2", name: "김 단", imagePath: "/lower-images/gim-dan.webp" },
@@ -157,7 +139,7 @@ export default function FlipCardGamePage() {
     const [status, setStatus] = useState<GameStatus>('LOADING');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isClear, setIsClear] = useState(false);
-    const [isLock, setIsLock] = useState(false);
+    const [isLock, setIsLock] = useState(true);
 
     // 카드 및 카드 상태 관리
     const [cards, setCards] = useState<Card[]>([]);
