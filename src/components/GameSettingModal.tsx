@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { GameOption } from "../types/game";
 import ChunkyButton from "./ChunkyButton";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 
 
@@ -14,6 +15,15 @@ export default function GameSettingModal({ game, onClose }: { game: GameOption; 
   const handleClick = (url: string) => {
     navigate(url);
   }
+
+  // 💡 스크롤 방지 로직: 모달이 떠 있을 때 뒷배경 스크롤을 막습니다.
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100] p-6 transition-all overflow-hidden">

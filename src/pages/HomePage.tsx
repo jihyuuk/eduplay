@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cloud, Github, Home, Mail, Settings, Share2, Sparkles } from 'lucide-react';
+import { Cloud, Github, Home, Mail, Settings, Share2, Sparkles, Star } from 'lucide-react';
 import HomeChunkyButton from '../components/HomeChunkyButton';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -142,7 +142,7 @@ const handleGameClick = (game: GameOption) => {
             <h1 className="text-5xl md:text-7xl font-black text-purple-600 drop-shadow-md mb-4">
               우리반 <span className="text-pink-500">놀이터</span>
             </h1>
-            <div className="absolute -top-6 -right-10 md:-top-8 md:-right-12 text-yellow-400 animate-bounce">
+            <div className="absolute -top-6 -right-10 md:-top-8 md:-right-12 text-yellow-400 floating">
               <Sparkles className="fill-current w-10 h-10 md:w-14 md:h-14" />
             </div>
           </div>
