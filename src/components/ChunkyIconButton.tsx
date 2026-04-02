@@ -1,10 +1,10 @@
 import { type LucideIcon } from 'lucide-react';
-import { CHUNKY_VARIANTS } from './ChunkyButton';
+import { CHUNKY_VARIANTS, type ButtonVariant } from './ChunkyButton';
 
 // 버튼 속성(Props)에 대한 타입 정의
 interface ChunkyButtonProps {
     onClick?: () => void;
-    variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
+    variant?: ButtonVariant;
     disabled?: boolean;
     className?: string;
     icon: LucideIcon;

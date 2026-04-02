@@ -1,11 +1,14 @@
 import React from 'react';
 import { type LucideIcon } from 'lucide-react';
 
+
+export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
+
 // 버튼 속성(Props)에 대한 타입 정의
 interface ChunkyButtonProps {
     children?: React.ReactNode;
     onClick?: () => void;
-    variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
+    variant?: ButtonVariant;
     size?: 'sm' | 'md' | 'lg' | 'xl';
     disabled?: boolean;
     className?: string;

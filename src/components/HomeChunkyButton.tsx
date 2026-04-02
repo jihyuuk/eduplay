@@ -1,13 +1,12 @@
-import { useNavigate } from "react-router-dom";
-import ChunkyButton from "./ChunkyButton";
+import ChunkyButton, { type ButtonVariant } from "./ChunkyButton";
 
 type HomeChunkyButtonProps = {
-    variant: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'white' | 'disabled';
+    variant: ButtonVariant;
     title: string;
     icon: string;
     badge?: string;
-    url: string;
     disabled?: boolean;
+    onClick: () => void;
 }
 
 export default function HomeChunkyButton({
@@ -15,22 +14,16 @@ export default function HomeChunkyButton({
     title,
     icon,
     badge,
-    url,
     disabled = false,
+    onClick
 }: HomeChunkyButtonProps) {
-
-    const navigate = useNavigate();
-
-    const handleClick = () => {
-        navigate(url);
-    }
 
 
     return (
         <ChunkyButton
             variant={variant}
             size='xl'
-            onClick={handleClick}
+            onClick={onClick}
             disabled={disabled}            
             className='relative !p-0 aspect-square flex items-center justify-center overflow-hidden'
         >
@@ -49,7 +42,7 @@ export default function HomeChunkyButton({
             </div>
 
             {/* 🚧 공사 중 테이프 오버레이 🚧 */}
-            {variant === 'disabled' && (
+            {disabled === true && (
                 <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-30 pointer-events-none">
                     
                     {/* 얇은 테이프 */}
