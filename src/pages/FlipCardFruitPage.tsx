@@ -14,11 +14,11 @@ import ChunkyButton from "../components/ChunkyButton";
 type GameStatus = 'LOADING' | 'PLAYING';
 
 //난이도
-export type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
+type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
 const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 
 //카드 타입
-export type Card = {
+type Card = {
     instanceId: string;
     kid: Kid;
 }
@@ -140,7 +140,7 @@ export default function FlipCardFruitPage() {
     const [status, setStatus] = useState<GameStatus>('LOADING');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isClear, setIsClear] = useState(false);
-    const [isLock, setIsLock] = useState(false);
+    const [isLock, setIsLock] = useState(true);
 
     // 카드 및 카드 상태 관리
     const [cards, setCards] = useState<Card[]>([]);
@@ -483,7 +483,7 @@ export default function FlipCardFruitPage() {
                                         isFlipped={isFlipped}
                                         isMatched={isMatched}
                                         isWrong={isWrong}
-                                        onClick={handleCardClick}
+                                        onPointerDown={handleCardClick}
                                     />
                                 );
                             })}

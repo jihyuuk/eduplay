@@ -14,7 +14,7 @@ import ChunkyButton from "../components/ChunkyButton";
 type GameStatus = 'LOADING' | 'PLAYING';
 
 //난이도
-export type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
+type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
 const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 
 //카드 타입
@@ -482,7 +482,7 @@ export default function FlipCardGamePage() {
                                         isFlipped={isFlipped}
                                         isMatched={isMatched}
                                         isWrong={isWrong}
-                                        onClick={handleCardClick}
+                                        onPointerDown={handleCardClick}
                                     />
                                 );
                             })}
