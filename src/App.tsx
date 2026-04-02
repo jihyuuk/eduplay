@@ -5,11 +5,26 @@ import FlipCardGamePage from "./pages/FlipCardGamePage";
 import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
 import FlipCardBattlePage from "./pages/FlipCardBattlePage";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
 
   return (
     <BrowserRouter>
+      {/* 토스트 */}
+      <Toaster 
+        position="bottom-center" 
+        reverseOrder={false} 
+        toastOptions={{
+          style: {
+            background: "#fff",
+            color: "#6b21a8",
+            borderRadius: "12px",
+            padding: "12px 16px",
+          },
+        }}
+      />
+    
       {/* 1. 공통 네비게이션 (모든 페이지에서 보임) */}
       {/* <nav className="p-4 bg-white shadow-sm flex gap-4">
         <Link to="/" className="hover:text-blue-500">홈</Link>
