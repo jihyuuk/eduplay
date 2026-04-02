@@ -102,9 +102,9 @@ const handleGameClick = (game: GameOption) => {
       <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       <CloudDecoration />
 
-      {/* --- 상단 내비게이션 (Sticky 적용) --- */}
-      <nav className="sticky top-0 w-full z-50 transition-all duration-300 bg-[#e0f2fe]/80 backdrop-blur-md border-b border-white/40 shadow-sm">
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-2 md:py-3">
+      {/* --- 상단 내비게이션 (Sticky 적용 x) --- */}
+     <nav className="w-full transition-all duration-300 bg-transparent">
+        <div className="max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-3 md:py-4">
           {/* 좌측: 로고 */}
           <div
             className="flex items-center cursor-pointer group transition-transform hover:scale-105 active:scale-95"
@@ -137,7 +137,7 @@ const handleGameClick = (game: GameOption) => {
       <div className="max-w-5xl w-full z-10 flex flex-col items-center gap-12 md:gap-16 mb-10 p-4">
 
         {/* 헤더 섹션: 상단 고정이 아니라 콘텐츠와 함께 중앙에 위치 */}
-        <div className="text-center relative mt-10">
+        <div className="text-center relative mt-6">
           <div className="inline-block relative">
             <h1 className="text-5xl md:text-7xl font-black text-purple-600 drop-shadow-md mb-4">
               우리반 <span className="text-pink-500">놀이터</span>
