@@ -413,12 +413,6 @@ export default function FlipCardKidPage() {
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
-    //뒤로가기
-    const handleGoBack = () => {
-        navigate(-1);
-    }
-
-
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
 
@@ -521,8 +515,7 @@ export default function FlipCardKidPage() {
                     playTime={playTime}
                     hintCount={hintCount}
                     playAgain={startGame}//다시하기
-                    goSetting={handleGoBack} //난이도선택
-                    goHome={handleGoBack} //홈으로
+                    description="우리 반 친구들을 모두 찾았어요!"
                 />
             )}
         </div>

@@ -414,11 +414,6 @@ export default function FlipCardFruitPage() {
         }, DIFFICULTY_CONFIG[difficulty].hintTime);
     }
 
-    //뒤로가기
-    const handleGoBack = () => {
-        navigate(-1);
-    }
-
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
@@ -522,8 +517,7 @@ export default function FlipCardFruitPage() {
                     playTime={playTime}
                     hintCount={hintCount}
                     playAgain={startGame}//다시하기
-                    goSetting={handleGoBack} //난이도선택
-                    goHome={handleGoBack} //홈으로
+                    description="새콤달콤 과일 찾기 성공!"
                 />
             )}
         </div>
