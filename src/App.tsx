@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
 import FlipCardBattlePage from "./pages/FlipCardBattlePage";
 import { Toaster } from "react-hot-toast";
+import SettingPage from "./pages/SettingPage";
 
 export default function App() {
 
@@ -32,6 +33,7 @@ export default function App() {
       {/* 2. 주소에 따라 갈아끼워질 화면들 */}
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/setting" element={<SettingPage/>} />
         <Route path="/flip-card-kid/:difficultyParam" element={<FlipCardKidPage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
         <Route path="/flip-card-battle/:difficultyParam" element={<FlipCardBattlePage />} />

@@ -49,17 +49,21 @@ export default function HomePage() {
 
   const [selectedGame, setSelectedGame] = useState<GameOption | null>(null);
 
-  //게임 클릭시 난이도 선택 모달
-const handleGameClick = (game: GameOption) => {
-    if (game.disabled) return; // 비활성화된 게임은 무시
+  const moveToSettingPage = () => {
+    navigate("/setting");
+  }
 
-    // 2. 설정(난이도 등)이 있는 게임이면 모달을 열고, 없으면 바로 이동
-    if (game.settings && game.settings.length > 0) {
-      setSelectedGame(game);
-    } else {
-      navigate(game.url);
-    }
-  };
+  //게임 클릭시 난이도 선택 모달
+  const handleGameClick = (game: GameOption) => {
+      if (game.disabled) return; // 비활성화된 게임은 무시
+
+      // 2. 설정(난이도 등)이 있는 게임이면 모달을 열고, 없으면 바로 이동
+      if (game.settings && game.settings.length > 0) {
+        setSelectedGame(game);
+      } else {
+        navigate(game.url);
+      }
+    };
 
 
   // 이메일 복사 버튼
@@ -123,7 +127,7 @@ const handleGameClick = (game: GameOption) => {
 
           {/* 우측: 설정 버튼 */}
           <button
-            onClick={() => alert('설정 창을 열게요!')}
+            onClick={moveToSettingPage}
             // 모바일에서는 버튼 크기를 살짝 줄여서 공간을 확보합니다 (p-2 -> md:p-2.5)
             className="p-2 md:p-2.5 bg-white/60 backdrop-blur-sm rounded-full shadow-sm border border-white/50 hover:bg-white/90 transition-all active:scale-95 group cursor-pointer"
           >
