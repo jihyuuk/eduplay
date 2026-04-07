@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Trash, Trash2, X } from 'lucide-react';
 
 interface KidCardProps {
@@ -14,6 +14,8 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
 
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 이미지 객체가 바뀔 때마다 새로운 URL 생성
@@ -26,6 +28,11 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
       URL.revokeObjectURL(url);
     };
   }, [image]);
+
+  const handleClearName = () => {
+    onNameChange("");
+    inputRef.current?.focus();
+  }
 
   return (
     <div className="relative w-full bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-md transition-all duration-300 h-fit">
@@ -75,6 +82,7 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
 
           <div className="relative flex items-center">
             <input
+              ref={inputRef}
               type="text"
               value={kidName}
               onChange={(e) => onNameChange(e.target.value)}
@@ -87,8 +95,8 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
             {/* 텍스트 전체 삭제 버튼 */}
             {kidName.length > 0 && (
               <button
-                onClick={() => onNameChange("")}
-                className="absolute right-1.5 p-0.5 bg-purple-200 hover:bg-purple-300 rounded-full transition-colors"
+                onClick={handleClearName}
+                className="absolute right-1.5 p-0.5 bg-purple-200 hover:bg-purple-300 rounded-full transition-colors cursor-pointer"
                 title="이름 지우기"
               >
                 <X className="w-3 h-3 text-purple-600" />
