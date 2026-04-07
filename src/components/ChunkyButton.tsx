@@ -9,7 +9,7 @@ interface ChunkyButtonProps {
     children?: React.ReactNode;
     onClick?: () => void;
     variant?: ButtonVariant;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     disabled?: boolean;
     className?: string;
     icon?: LucideIcon;
@@ -40,7 +40,8 @@ export const CHUNKY_VARIANTS: Record<string, string> = {
 
 
 // 반응형 잼미니
-const SIZES: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
+const SIZES: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
+    xs: "px-2 py-1 text-sm md:text-base rounded-lg",
     sm: "px-3 py-1.5 text-base md:text-lg rounded-xl",
     md: "px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl rounded-2xl",
     lg: "px-6 py-3 md:px-8 md:py-4 text-xl md:text-2xl rounded-[24px]",
