@@ -53,6 +53,12 @@ export default function SettingPage() {
             return;
         }
 
+        const hasEmptyName = uploadedFiles.some(file => file.kidName.trim() === "");
+        if (hasEmptyName) {
+            toast.error("모든 아이들의 이름을 입력해주세요!");
+            return;
+        }
+
         setIsUploading(true);
 
         try {

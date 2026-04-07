@@ -14,7 +14,7 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
 
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,6 +33,11 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
     onNameChange("");
     inputRef.current?.focus();
   }
+
+  const handleBlur = () => {
+    // 앞뒤 공백을 제거한 값을 상위 컴포넌트로 전달
+    onNameChange(kidName.trim());
+  };
 
   return (
     <div className="relative w-full bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-md transition-all duration-300 h-fit">
@@ -86,11 +91,19 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
               type="text"
               value={kidName}
               onChange={(e) => onNameChange(e.target.value)}
+              onBlur={handleBlur}
               onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
               maxLength={maxLength}
               placeholder="이름 입력..."
               // 노란색(yellow)을 버리고 보라색(purple)과 분홍색(pink) 계열로 교체
-              className="w-full bg-purple-50/50 border-2 border-dashed border-purple-200 py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-purple-700 focus:bg-white focus:border-solid focus:border-purple-400 placeholder-purple-300 text-[13px]"
+              //className="w-full bg-purple-50/50 border-2 border-dashed border-purple-200 py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-purple-700 focus:bg-white focus:border-solid focus:border-purple-400 placeholder-purple-300 text-[13px]"
+              className={`
+                  w-full py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-[13px]
+                  ${kidName.length === 0
+                  ? "bg-red-50 border-2 border-dashed border-red-300 placeholder-red-300 focus:bg-white focus:border-solid focus:border-red-400"
+                  : "bg-purple-50/50 border-2 border-dashed border-purple-200 text-purple-700 placeholder-purple-300 focus:bg-white focus:border-solid focus:border-purple-400"
+                }
+  `}
             />
             {/* 텍스트 전체 삭제 버튼 */}
             {kidName.length > 0 && (
