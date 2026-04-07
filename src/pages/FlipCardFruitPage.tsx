@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
 import { HelpCircle, RotateCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
@@ -9,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
 import ChunkyIconButton from "../components/ChunkyIconButton";
 import ChunkyButton from "../components/ChunkyButton";
+import type { GameKid } from "./FlipCardKidPage";
 
 //상태
 type GameStatus = 'LOADING' | 'PLAYING';
@@ -20,7 +20,7 @@ const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 //카드 타입
 type Card = {
     instanceId: string;
-    kid: Kid;
+    kid: GameKid;
 }
 
 //난이도, 넓이별 그리드
@@ -37,24 +37,24 @@ const DIFFICULTY_CONFIG = {
     HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 2000 },
 }
 
-const kids: Kid[] = [
-  { id: "1", name: "사과", imagePath: "/fruits/apple.png" },
-  { id: "2", name: "아보카도", imagePath: "/fruits/avocado.png" },
-  { id: "3", name: "바나나", imagePath: "/fruits/banana.png" },
-  { id: "4", name: "블루베리", imagePath: "/fruits/blueberry.png" },
-  { id: "5", name: "체리", imagePath: "/fruits/cherry.png" },
-  { id: "6", name: "코코넛", imagePath: "/fruits/coconut.png" },
-  { id: "7", name: "포도", imagePath: "/fruits/grape.png" },
-  { id: "8", name: "청포도", imagePath: "/fruits/green-grape.png" },
-  { id: "9", name: "키위", imagePath: "/fruits/kiwi.png" },
-  { id: "10", name: "망고", imagePath: "/fruits/mango.png" },
-  { id: "11", name: "멜론", imagePath: "/fruits/melon.png" },
-  { id: "12", name: "오렌지", imagePath: "/fruits/orange.png" },
-  { id: "13", name: "복숭아", imagePath: "/fruits/peach.png" },
-  { id: "14", name: "레몬", imagePath: "/fruits/lemon.png" },
-  { id: "15", name: "딸기", imagePath: "/fruits/strawberry.png" },
-  { id: "16", name: "수박", imagePath: "/fruits/watermelon.png" },
-  { id: "17", name: "파인애플", imagePath: "/fruits/pineapple.png" },
+const kids: GameKid[] = [
+  { id: 1, name: "사과", imageUrl: "/fruits/apple.png" },
+  { id: 2, name: "아보카도", imageUrl: "/fruits/avocado.png" },
+  { id: 3, name: "바나나", imageUrl: "/fruits/banana.png" },
+  { id:4, name: "블루베리", imageUrl: "/fruits/blueberry.png" },
+  { id: 5, name: "체리", imageUrl: "/fruits/cherry.png" },
+  { id: 6, name: "코코넛", imageUrl: "/fruits/coconut.png" },
+  { id: 7, name: "포도", imageUrl: "/fruits/grape.png" },
+  { id: 8, name: "청포도", imageUrl: "/fruits/green-grape.png" },
+  { id: 9, name: "키위", imageUrl: "/fruits/kiwi.png" },
+  { id: 10, name: "망고", imageUrl: "/fruits/mango.png" },
+  { id: 1, name: "멜론", imageUrl: "/fruits/melon.png" },
+  { id: 12, name: "오렌지", imageUrl: "/fruits/orange.png" },
+  { id: 13, name: "복숭아", imageUrl: "/fruits/peach.png" },
+  { id: 14, name: "레몬", imageUrl: "/fruits/lemon.png" },
+  { id: 15, name: "딸기", imageUrl: "/fruits/strawberry.png" },
+  { id: 16, name: "수박", imageUrl: "/fruits/watermelon.png" },
+  { id: 17, name: "파인애플", imageUrl: "/fruits/pineapple.png" },
 ];
 
 //카드 섞는 함수
@@ -232,7 +232,7 @@ export default function FlipCardFruitPage() {
 
         //6.실제 카드 랜더링 기다리기
         await Promise.all([
-            preloadImages(randomKids.map((kid) => kid.imagePath)), // 실제 데이터 로딩
+            preloadImages(randomKids.map((kid) => kid.imageUrl)), // 실제 데이터 로딩
             waitForPaint(),//  랜더링 기다리기
             new Promise((resolve) => setTimeout(resolve, 4000)),// 최소 대기 타이머
         ]);
@@ -315,7 +315,7 @@ export default function FlipCardFruitPage() {
     const handleCardClick = (clickedCard: Card) => {
 
         //1. 클릭 무시 - 비교중, 이미 뒤집힘, 이미 맞춤, 이미 2장 이상 뒤집음
-        if (isLock || flippedIds.has(clickedCard.instanceId) || matchedIds.has(clickedCard.kid.id) || flippedIds.size === 2) return;
+        if (isLock || flippedIds.has(clickedCard.instanceId) || matchedIds.has(clickedCard.instanceId) || flippedIds.size === 2) return;
 
         //2. 예전에 뒤집힌 카드
         const prevFlipped = [...flippedIds];
@@ -353,7 +353,7 @@ export default function FlipCardFruitPage() {
             // matched 추가
             setMatchedIds(prev => {
                 const next = new Set(prev);
-                next.add(card.kid.id);
+                next.add(card.instanceId);
                 return next;
             });
 
@@ -467,7 +467,7 @@ export default function FlipCardFruitPage() {
                                 }`}
                         >
                             {cards.map((card) => {
-                                const isMatched = matchedIds.has(card.kid.id);
+                                const isMatched = matchedIds.has(card.instanceId);
                                 const isFlipped = flippedIds.has(card.instanceId) || isMatched;
                                 const isWrong = wrongIds.has(card.instanceId);
 

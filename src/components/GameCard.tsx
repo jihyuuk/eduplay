@@ -31,7 +31,7 @@ function GameCardComponent({
         <div className={`card-front gap-1 ${isMatched ? "matched" : ""}`}>
           <div className="relative w-full flex-1  min-h-0 overflow-hidden">
             <img
-              src={card.kid.imagePath}
+              src={card.kid.imageUrl}
               alt={card.kid.name}
               className="w-full h-full object-cover rounded-md"
               // loading="eager"

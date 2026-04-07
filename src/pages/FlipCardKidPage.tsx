@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import type { Kid } from "../types/Kid"
 import { motion } from "framer-motion";
 import { HelpCircle, RotateCw, Timer } from "lucide-react";
 import GameCard from "../components/GameCard";
@@ -9,6 +8,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
 import ChunkyIconButton from "../components/ChunkyIconButton";
 import ChunkyButton from "../components/ChunkyButton";
+import { KidRepository } from "../repositories/kidRepository";
+import toast from "react-hot-toast";
 
 //상태
 type GameStatus = 'LOADING' | 'PLAYING';
@@ -17,10 +18,16 @@ type GameStatus = 'LOADING' | 'PLAYING';
 type Difficulty = 'EASY' | 'NORMAL' | 'HARD';
 const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 
-//카드 타입
+// 원본 Kid 말고 게임에서 쓸 정제된 타입
+export type GameKid = {
+    id: number; // DB의 id
+    name: string;
+    imageUrl: string; // Blob을 변환한 임시 URL
+}
+
 export type Card = {
     instanceId: string;
-    kid: Kid;
+    kid: GameKid; // 여기를 GameKid로 변경
 }
 
 //난이도, 넓이별 그리드
@@ -36,25 +43,6 @@ const DIFFICULTY_CONFIG = {
     NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 1500 },
     HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 2000 },
 }
-
-//임시 아이들 목록
-const kids: Kid[] = [
-    { id: "1", name: "기서윤", imagePath: "/lower-images/giseoyun.webp" },
-    { id: "2", name: "김 단", imagePath: "/lower-images/gim-dan.webp" },
-    { id: "3", name: "김로운", imagePath: "/lower-images/gim-rowoon.webp" },
-    { id: "4", name: "김태린", imagePath: "/lower-images/gim-taerin.webp" },
-    { id: "5", name: "김하윤", imagePath: "/lower-images/gim-hayun.webp" },
-    { id: "6", name: "박시현", imagePath: "/lower-images/park-sihyeon.webp" },
-    { id: "7", name: "손예령", imagePath: "/lower-images/son-yeryeong.webp" },
-    { id: "8", name: "신희재", imagePath: "/lower-images/sin-huijae.webp" },
-    { id: "9", name: "오성준", imagePath: "/lower-images/oh-seongjun.webp" },
-    { id: "10", name: "윤태연", imagePath: "/lower-images/yun-taeyeon.webp" },
-    { id: "11", name: "윤혜리", imagePath: "/lower-images/yun-hyeri.webp" },
-    { id: "12", name: "이태연", imagePath: "/lower-images/i-taeyeon.webp" },
-    { id: "13", name: "최시윤", imagePath: "/lower-images/choi-siyun.webp" },
-    { id: "14", name: "최우담", imagePath: "/lower-images/choi-udam.webp" },
-    { id: "15", name: "한서율", imagePath: "/lower-images/han-seoyul.webp" }
-];
 
 //카드 섞는 함수
 function shuffleCards<T>(array: T[]): T[] {
@@ -131,6 +119,7 @@ export default function FlipCardKidPage() {
             stopPlayTimer();
             stopCountDown();
             clearAllTimeouts();
+            clearObjectUrls(); //이미지
         };
     }, []);
 
@@ -160,6 +149,15 @@ export default function FlipCardKidPage() {
     const timeoutRefs = useRef<number[]>([]); // 모든 setTimeout 이걸로 대신 관리
     const countDownRef = useRef<number | null>(null);
     const playTimerRef = useRef<number | null>(null);
+
+    // 만들어둔 임시 이미지 URL들을 추적하는 ref
+    const objectUrlsRef = useRef<string[]>([]);
+
+    // 임시 URL 싹 다 지우기 (메모리 누수 방지)
+    const clearObjectUrls = () => {
+        objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+        objectUrlsRef.current = [];
+    };
 
     //타이머 등록
     const addTimeout = (callback: () => void, delay: number) => {
@@ -207,6 +205,9 @@ export default function FlipCardKidPage() {
         setCountDown(null);
         setHintCount(0);
         setPlayTime(0);
+
+        //이미지
+        clearObjectUrls();
     }
 
     // 게임 셋업
@@ -215,11 +216,33 @@ export default function FlipCardKidPage() {
         //1. 로딩 적용 및 초기화
         resetAll();
 
+        // 2. DB에서 전체 아이들 정보 가져오기
+        const dbKids = await KidRepository.findAll();
+        const requiredKidsCount = DIFFICULTY_CONFIG[difficulty].kids;
+
+        // 3. 예외 처리: DB에 저장된 아이들 수가 현재 난이도의 필요 인원보다 적은 경우
+        if (dbKids.length < requiredKidsCount) {
+            toast.error(`친구가 부족해요! (${dbKids.length } / ${requiredKidsCount})`);
+            navigate("/", { replace: true }); // 설정 페이지로 돌려보내기
+            return;
+        }
+
         //2. 랜덤 n명 뽑기
-        const randomKids = shuffleCards(kids).slice(0, DIFFICULTY_CONFIG[difficulty].kids);
+        const randomDbKids = shuffleCards(dbKids).slice(0, requiredKidsCount);
+
+        const gameKids: GameKid[] = randomDbKids.map(kid => {
+            const url = URL.createObjectURL(kid.image);
+            objectUrlsRef.current.push(url); // 나중에 지우기 위해 ref에 보관
+
+            return {
+                id: kid.id!, // DB에서 가져왔으니 무조건 id가 있음
+                name: kid.kidName,
+                imageUrl: url
+            };
+        });
 
         //3. 추출된 아이들로 카드 쌍 만들기 (총 kids * 2장)
-        const pairCards: Card[] = randomKids.flatMap((kid) => [
+        const pairCards: Card[] = gameKids.flatMap((kid) => [
             { instanceId: `${kid.id}-a`, kid },
             { instanceId: `${kid.id}-b`, kid }
         ]);
@@ -231,7 +254,7 @@ export default function FlipCardKidPage() {
 
         //6.실제 카드 랜더링 기다리기
         await Promise.all([
-            preloadImages(randomKids.map((kid) => kid.imagePath)), // 실제 데이터 로딩
+            preloadImages(gameKids.map((kid) => kid.imageUrl)),
             waitForPaint(),//  랜더링 기다리기
             new Promise((resolve) => setTimeout(resolve, 4000)),// 최소 대기 타이머
         ]);
@@ -314,7 +337,7 @@ export default function FlipCardKidPage() {
     const handleCardClick = (clickedCard: Card) => {
 
         //1. 클릭 무시 - 비교중, 이미 뒤집힘, 이미 맞춤, 이미 2장 이상 뒤집음
-        if (isLock || flippedIds.has(clickedCard.instanceId) || matchedIds.has(clickedCard.kid.id) || flippedIds.size === 2) return;
+        if (isLock || flippedIds.has(clickedCard.instanceId) || matchedIds.has(clickedCard.instanceId) || flippedIds.size === 2) return;
 
         //2. 예전에 뒤집힌 카드
         const prevFlipped = [...flippedIds];
@@ -352,7 +375,7 @@ export default function FlipCardKidPage() {
             // matched 추가
             setMatchedIds(prev => {
                 const next = new Set(prev);
-                next.add(card.kid.id);
+                next.add(card.instanceId);
                 return next;
             });
 
@@ -465,7 +488,7 @@ export default function FlipCardKidPage() {
                                 }`}
                         >
                             {cards.map((card) => {
-                                const isMatched = matchedIds.has(card.kid.id);
+                                const isMatched = matchedIds.has(card.instanceId);
                                 const isFlipped = flippedIds.has(card.instanceId) || isMatched;
                                 const isWrong = wrongIds.has(card.instanceId);
 
