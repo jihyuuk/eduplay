@@ -236,14 +236,14 @@ export default function SettingPage() {
                         <div
                             //className="flex rounded-2xl p-3 border-4 border-dashed border-purple-500 bg-purple-50"
 
-                            className={`flex rounded-2xl p-3 transition-all ${uploadedFiles.length === 0
-                                ? "border-4 border-dashed border-purple-500 bg-purple-50" // 비어있을 때 (기존 유지)
-                                : "border-2 border-solid border-purple-100 bg-white shadow-inner" // 이미지가 있을 때 (깔끔하게 변경)
+                            className={`rounded-2xl p-3 transition-all ${uploadedFiles.length === 0
+                                ? "border-4 border-dashed border-purple-500 bg-purple-50 h-[300px]" // 비어있을 때 (기존 유지)
+                                : "border-2 border-solid border-purple-100 bg-white shadow-inner max-h-[50vh] overflow-y-auto" // 이미지가 있을 때 (깔끔하게 변경)
                                 }`}
                         >
                             {uploadedFiles.length === 0 ? (
                                 // 업로드된 사진이 없을때
-                                <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer w-full flex flex-col items-center justify-center h-[300px]">
+                                <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                     <ImagePlus className="w-16 h-16 text-purple-400 mb-4" />
                                     <p className="text-lg text-purple-600 font-bold">사진을 선택하세요</p>
                                     {/* <p className="text-sm text-gray-500 mt-2">클릭하거나 드래그해서 업로드</p> */}
