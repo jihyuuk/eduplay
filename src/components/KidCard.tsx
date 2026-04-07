@@ -7,9 +7,10 @@ interface KidCardProps {
   onRemove: () => void;
   onNameChange: (newName: string) => void;
   isEditMode: boolean;
+  maxLength: number;
 }
 
-export default function KidCard({ kidName, image, onRemove, onNameChange, isEditMode }: KidCardProps) {
+export default function KidCard({ kidName, image, onRemove, onNameChange, isEditMode, maxLength }: KidCardProps) {
 
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -78,6 +79,7 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
               value={kidName}
               onChange={(e) => onNameChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+              maxLength={maxLength}
               placeholder="이름 입력..."
               // 노란색(yellow)을 버리고 보라색(purple)과 분홍색(pink) 계열로 교체
               className="w-full bg-purple-50/50 border-2 border-dashed border-purple-200 py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-purple-700 focus:bg-white focus:border-solid focus:border-purple-400 placeholder-purple-300 text-[13px]"

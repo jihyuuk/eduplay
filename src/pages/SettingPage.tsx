@@ -10,9 +10,9 @@ import ChunkyButton from "../components/ChunkyButton";
 interface UploadedFile {
     file: File;
     kidName: string;
-    image: string;
 }
 
+const MAX_LENGTH = 15;
 
 export default function SettingPage() {
 
@@ -35,8 +35,7 @@ export default function SettingPage() {
                     const defaultName = file.name.split('.').slice(0, -1).join('.') || file.name;
                     return {
                         file,
-                        kidName: defaultName,
-                        image: URL.createObjectURL(file),
+                        kidName: defaultName.slice(0, MAX_LENGTH) //15자 제한
                     };
                 });
 
@@ -95,40 +94,40 @@ export default function SettingPage() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-        const removeKidById = async (id : number, name: string) => {
-    // 1. 실수로 누르는 것을 방지하기 위한 안전장치
-    if (window.confirm(`${name}(을)를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.`)) {
-        try {
-            // 2. Repository의 deleteAll 호출
-            await KidRepository.delete(id);
-            
-            // 3. 성공 알림
-            toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
+    const removeKidById = async (id: number, name: string) => {
+        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
+        if (window.confirm(`${name}(을)를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.`)) {
+            try {
+                // 2. Repository의 deleteAll 호출
+                await KidRepository.delete(id);
 
-        } catch (error) {
-            console.error("삭제 실패:", error);
-            toast.error("삭제 중 오류가 발생했습니다.");
+                // 3. 성공 알림
+                toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
+
+            } catch (error) {
+                console.error("삭제 실패:", error);
+                toast.error("삭제 중 오류가 발생했습니다.");
+            }
         }
     }
-}
 
     const removeAllKids = async () => {
-    // 1. 실수로 누르는 것을 방지하기 위한 안전장치
-    if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
-        try {
-            // 2. Repository의 deleteAll 호출
-            await KidRepository.deleteAll();
-            
-            // 3. 성공 알림
-            toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
+        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
+        if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
+            try {
+                // 2. Repository의 deleteAll 호출
+                await KidRepository.deleteAll();
 
-            setIsEditMode(false);
-        } catch (error) {
-            console.error("전체 삭제 실패:", error);
-            toast.error("삭제 중 오류가 발생했습니다.");
+                // 3. 성공 알림
+                toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
+
+                setIsEditMode(false);
+            } catch (error) {
+                console.error("전체 삭제 실패:", error);
+                toast.error("삭제 중 오류가 발생했습니다.");
+            }
         }
-    }
-};
+    };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -170,13 +169,9 @@ export default function SettingPage() {
 
                         {/* 사진이 있을 때만 삭제 버튼 표시 */}
                         {uploadedFiles.length > 0 && (
-                            <button
-                                onClick={removeAllFiles}
-                                className="flex items-center px-3 py-1.5 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-500 hover:text-white border border-red-100 rounded-xl cursor-pointer"
-                            >
-                                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                                전체 삭제
-                            </button>
+                            <ChunkyButton onClick={removeAllFiles} size="xs" variant="error" icon={Trash2}>
+                                전체삭제
+                            </ChunkyButton>
                         )}
                     </div>
 
@@ -219,6 +214,7 @@ export default function SettingPage() {
                                             onRemove={() => removeFileByIndex(index)}
                                             onNameChange={(newName) => updateFileNameByIndex(index, newName)}
                                             isEditMode={true}
+                                            maxLength={MAX_LENGTH}
                                         />
                                     ))}
 
@@ -269,22 +265,22 @@ export default function SettingPage() {
                                 전체 삭제
                             </button>
                         )} */}
-                    {kids && kids.length > 0 && (
-                        isEditMode ? (
-                            <div className="flex gap-2">
-                                <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
-                                    전체삭제
+                        {kids && kids.length > 0 && (
+                            isEditMode ? (
+                                <div className="flex gap-2">
+                                    <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
+                                        전체삭제
+                                    </ChunkyButton>
+                                    <ChunkyButton onClick={() => setIsEditMode(false)} size="xs" variant="success" icon={Save}>
+                                        저장하기
+                                    </ChunkyButton>
+                                </div>
+                            ) : (
+                                <ChunkyButton onClick={() => setIsEditMode(true)} size="xs" variant="primary" icon={SquarePen}>
+                                    수정하기
                                 </ChunkyButton>
-                                <ChunkyButton onClick={() => setIsEditMode(false)} size="xs" variant="success" icon={Save}>
-                                    저장하기
-                                </ChunkyButton>
-                            </div>
-                        ) : (
-                            <ChunkyButton onClick={() => setIsEditMode(true)} size="xs" variant="primary" icon={SquarePen}>
-                                수정하기
-                            </ChunkyButton>
-                        )
-                    )}
+                            )
+                        )}
                     </div>
 
                     {kids && kids.length > 0 ? (
@@ -294,9 +290,10 @@ export default function SettingPage() {
                                     key={kid.id}
                                     kidName={kid.kidName}
                                     image={kid.image}
-                                    onRemove={()=>removeKidById(kid.id!, kid.kidName)}
+                                    onRemove={() => removeKidById(kid.id!, kid.kidName)}
                                     onNameChange={() => { }}
                                     isEditMode={isEditMode}
+                                    maxLength={MAX_LENGTH}
                                 />
                             )}
                         </div>
