@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import SubHeader from "../components/SubHeader";
 import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, X, Save, PencilLine, SquarePen } from 'lucide-react';
 import { useLiveQuery } from "dexie-react-hooks";
@@ -19,12 +19,88 @@ export default function SettingPage() {
     const [groupName, setGroupName] = useState('');
 
     //여긴 만든거
-    const kids = useLiveQuery(() => KidRepository.findAll());
-
+    //const kids = useLiveQuery(() => KidRepository.findAll());
     const [isUploading, setIsUploading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [isEditMode, setIsEditMode] = useState(false);
+
+    const [kids, setKids] = useState<any[]>([]);
+
+    useEffect(() => {
+
+        loadKids();
+    }, []);
+
+    const loadKids = async () => {
+        setIsLoading(true);
+        const data = await KidRepository.findAll();
+        setKids(data || []);
+        setIsLoading(false);
+    };
+
+
+    useEffect(() => {
+        if (kids.length === 0) {
+            setIsEditMode(false);
+        }
+    }, [kids])
+
+    // 3. 이름 변경 (리액트 상태만 업데이트)
+    const handleNameChange = (id: number, newName: string) => {
+        setKids(prev => prev.map(k => k.id === id ? { ...k, kidName: newName } : k));
+    };
+
+    // 4. 일괄 저장 (이때만 DB에 반영)
+    const handleSaveAll = async () => {
+
+        const hasEmptyName = kids.some(kid => kid.kidName.trim() === "");
+        if (hasEmptyName) {
+            toast.error("모든 아이들의 이름을 입력해주세요!");
+            return;
+        }
+
+        try {
+            await Promise.all(kids.map(k => KidRepository.updateKidName(k.id, k.kidName.trim())));
+            toast.success("모든 변경사항이 저장되었습니다!");
+            setIsEditMode(false);
+        } catch (error) {
+            toast.error("저장 중 오류가 발생했습니다.");
+        }
+    };
+
+    // 5. 삭제 (즉시 DB 반영 + 상태 반영)
+    const removeKidById = async (id: number, name: string) => {
+        if (window.confirm(`${name} 친구를 삭제할까요?`)) {
+            try {
+                await KidRepository.delete(id);
+                setKids(prev => prev.filter(k => k.id !== id)); // 화면에서도 즉시 제거
+                toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
+            } catch (error) {
+                console.error("삭제 실패:", error);
+                toast.error("삭제 중 오류가 발생했습니다.");
+            }
+        }
+    };
+
+    const removeAllKids = async () => {
+        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
+        if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
+            try {
+                // 2. Repository의 deleteAll 호출
+                await KidRepository.deleteAll();
+                setKids([]);
+                // 3. 성공 알림
+                toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
+
+                setIsEditMode(false);
+            } catch (error) {
+                console.error("전체 삭제 실패:", error);
+                toast.error("삭제 중 오류가 발생했습니다.");
+            }
+        }
+    };
 
     // 1. 파일 선택 시 실행
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +108,8 @@ export default function SettingPage() {
             const newFiles = Array.from(e.target.files)
                 .filter(file => file.type.startsWith('image/'))
                 .map(file => {
-                    const defaultName = file.name.split('.').slice(0, -1).join('.') || file.name;
+                    const normalizedFileName = file.name.normalize('NFC'); //한글 깨짐 방지
+                    const defaultName = normalizedFileName.split('.').slice(0, -1).join('.') || file.name;
                     return {
                         file,
                         kidName: defaultName.slice(0, MAX_LENGTH) //15자 제한
@@ -60,6 +137,7 @@ export default function SettingPage() {
         }
 
         setIsUploading(true);
+        setIsLoading(true);
 
         try {
             // Promise.all을 사용하여 모든 파일을 병렬로 저장
@@ -72,11 +150,13 @@ export default function SettingPage() {
 
             toast.success(`${uploadedFiles.length}명의 아이가 성공적으로 등록되었습니다!`);
             setUploadedFiles([]); // 선택 목록 초기화
+            loadKids();
         } catch (error) {
             console.error(error);
             toast.error("저장 중 오류가 발생했습니다.");
         } finally {
             setIsUploading(false);
+            setIsLoading(false);
         }
     };
 
@@ -100,40 +180,7 @@ export default function SettingPage() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const removeKidById = async (id: number, name: string) => {
-        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
-        if (window.confirm(`${name}(을)를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.`)) {
-            try {
-                // 2. Repository의 deleteAll 호출
-                await KidRepository.delete(id);
 
-                // 3. 성공 알림
-                toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
-
-            } catch (error) {
-                console.error("삭제 실패:", error);
-                toast.error("삭제 중 오류가 발생했습니다.");
-            }
-        }
-    }
-
-    const removeAllKids = async () => {
-        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
-        if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
-            try {
-                // 2. Repository의 deleteAll 호출
-                await KidRepository.deleteAll();
-
-                // 3. 성공 알림
-                toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
-
-                setIsEditMode(false);
-            } catch (error) {
-                console.error("전체 삭제 실패:", error);
-                toast.error("삭제 중 오류가 발생했습니다.");
-            }
-        }
-    };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -277,7 +324,7 @@ export default function SettingPage() {
                                     <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
                                         전체삭제
                                     </ChunkyButton>
-                                    <ChunkyButton onClick={() => setIsEditMode(false)} size="xs" variant="success" icon={Save}>
+                                    <ChunkyButton onClick={handleSaveAll} size="xs" variant="success" icon={Save}>
                                         저장하기
                                     </ChunkyButton>
                                 </div>
@@ -297,7 +344,7 @@ export default function SettingPage() {
                                     kidName={kid.kidName}
                                     image={kid.image}
                                     onRemove={() => removeKidById(kid.id!, kid.kidName)}
-                                    onNameChange={() => { }}
+                                    onNameChange={(newName) => handleNameChange(kid.id, newName)}
                                     isEditMode={isEditMode}
                                     maxLength={MAX_LENGTH}
                                 />
