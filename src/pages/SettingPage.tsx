@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import SubHeader from "../components/SubHeader";
-import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, X, Save } from 'lucide-react';
+import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, X, Save, PencilLine, SquarePen } from 'lucide-react';
 import { useLiveQuery } from "dexie-react-hooks";
 import { KidRepository } from "../repositories/kidRepository";
 import KidCard from "../components/KidCard";
@@ -23,6 +23,8 @@ export default function SettingPage() {
 
     const [isUploading, setIsUploading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
+    const [isEditMode, setIsEditMode] = useState(false);
 
     // 1. 파일 선택 시 실행
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +75,16 @@ export default function SettingPage() {
         }
     };
 
+    const updateFileNameByIndex = (indexToUpdate: number, newName: string) => {
+        setUploadedFiles(prev =>
+            prev.map((file, index) =>
+                index === indexToUpdate
+                    ? { ...file, kidName: newName } // 해당 인덱스면 이름을 교체한 새 객체 반환
+                    : file // 아니면 기존 객체 유지
+            )
+        );
+    };
+
     const removeFileByIndex = (indexToRemove: number) => {
         setUploadedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
     };
@@ -82,6 +94,41 @@ export default function SettingPage() {
         setIsUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
+
+        const removeKidById = async (id : number, name: string) => {
+    // 1. 실수로 누르는 것을 방지하기 위한 안전장치
+    if (window.confirm(`${name}(을)를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.`)) {
+        try {
+            // 2. Repository의 deleteAll 호출
+            await KidRepository.delete(id);
+            
+            // 3. 성공 알림
+            toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
+
+        } catch (error) {
+            console.error("삭제 실패:", error);
+            toast.error("삭제 중 오류가 발생했습니다.");
+        }
+    }
+}
+
+    const removeAllKids = async () => {
+    // 1. 실수로 누르는 것을 방지하기 위한 안전장치
+    if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
+        try {
+            // 2. Repository의 deleteAll 호출
+            await KidRepository.deleteAll();
+            
+            // 3. 성공 알림
+            toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
+
+            setIsEditMode(false);
+        } catch (error) {
+            console.error("전체 삭제 실패:", error);
+            toast.error("삭제 중 오류가 발생했습니다.");
+        }
+    }
+};
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,7 +140,7 @@ export default function SettingPage() {
             <SubHeader title="설정" />
 
             {/* 메인 콘텐츠 */}
-            <main className="w-full max-w-3xl p-4">
+            <main className="w-full max-w-4xl p-4">
                 {/* 기본 설정 카드 */}
                 <div className="bg-white rounded-3xl shadow-2xl p-5 mb-6 w-full mt-4">
                     {/* 그룹명 입력 */}
@@ -124,7 +171,7 @@ export default function SettingPage() {
                         {/* 사진이 있을 때만 삭제 버튼 표시 */}
                         {uploadedFiles.length > 0 && (
                             <button
-                                // onClick={handleResetUpload}
+                                onClick={removeAllFiles}
                                 className="flex items-center px-3 py-1.5 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-500 hover:text-white border border-red-100 rounded-xl cursor-pointer"
                             >
                                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
@@ -146,42 +193,39 @@ export default function SettingPage() {
                         />
 
                         {/* 업로드 영역 (미리보기) */}
-                        <div className="flex rounded-2xl p-3 border-4 border-dashed border-purple-500 bg-purple-50 min-h-[300px]">
+                        <div
+                            //className="flex rounded-2xl p-3 border-4 border-dashed border-purple-500 bg-purple-50"
+
+                            className={`flex rounded-2xl p-3 transition-all ${uploadedFiles.length === 0
+                                ? "border-4 border-dashed border-purple-500 bg-purple-50" // 비어있을 때 (기존 유지)
+                                : "border-2 border-solid border-purple-100 bg-white shadow-inner" // 이미지가 있을 때 (깔끔하게 변경)
+                                }`}
+                        >
                             {uploadedFiles.length === 0 ? (
                                 // 업로드된 사진이 없을때
-                                <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer w-full flex flex-col items-center justify-center">
+                                <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer w-full flex flex-col items-center justify-center h-[300px]">
                                     <ImagePlus className="w-16 h-16 text-purple-400 mb-4" />
                                     <p className="text-lg text-purple-600 font-bold">사진을 선택하세요</p>
                                     {/* <p className="text-sm text-gray-500 mt-2">클릭하거나 드래그해서 업로드</p> */}
                                 </div>
                             ) : (
                                 //업로드 된 사진이 있을떄
-                                <div className="w-full flex flex-wrap justify-center gap-4 max-h-80 overflow-y-auto p-1">
-                                    {uploadedFiles.map((fileItem, index) => (
-                                        <div key={index} className="group relative w-[30%] min-w-[110px] max-w-[160px] bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-md transition-all duration-300 flex flex-col">
-                                            <div className="relative aspect-square overflow-hidden bg-gray-50">
-                                                <img src={fileItem.image} alt={fileItem.kidName} className="w-full h-full object-cover" />
-                                                <div className="absolute top-1.5 right-1.5 z-10">
-                                                    <button onClick={() => removeFileByIndex(index)} className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all active:scale-90">
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="p-2 bg-white border-t border-purple-50">
-                                                <input
-                                                    type="text"
-                                                    value={fileItem.kidName}
-                                                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                                                    className={`w-full bg-gray-50 border text-[11px] text-center py-1.5 px-1 rounded-lg outline-none transition-all font-bold text-gray-700 }`}
-                                                />
-                                            </div>
-                                        </div>
+                                <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {uploadedFiles.map((uploadedFile, index) => (
+                                        <KidCard
+                                            key={`file-${index}`}
+                                            kidName={uploadedFile.kidName}
+                                            image={uploadedFile.file}
+                                            onRemove={() => removeFileByIndex(index)}
+                                            onNameChange={(newName) => updateFileNameByIndex(index, newName)}
+                                            isEditMode={true}
+                                        />
                                     ))}
 
                                     {/* 사진 추가 버튼 카드 */}
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="group relative w-[30%] min-w-[110px] max-w-[160px] aspect-square bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
+                                        className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
                                     >
                                         <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
                                             <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
@@ -225,12 +269,35 @@ export default function SettingPage() {
                                 전체 삭제
                             </button>
                         )} */}
+                    {kids && kids.length > 0 && (
+                        isEditMode ? (
+                            <div className="flex gap-2">
+                                <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
+                                    전체삭제
+                                </ChunkyButton>
+                                <ChunkyButton onClick={() => setIsEditMode(false)} size="xs" variant="success" icon={Save}>
+                                    저장하기
+                                </ChunkyButton>
+                            </div>
+                        ) : (
+                            <ChunkyButton onClick={() => setIsEditMode(true)} size="xs" variant="primary" icon={SquarePen}>
+                                수정하기
+                            </ChunkyButton>
+                        )
+                    )}
                     </div>
 
-                    {kids ? (
-                        <div className="flex flex-wrap gap-4 justify-start">
+                    {kids && kids.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {kids.map(kid =>
-                                <KidCard key={kid.id} kid={kid} />
+                                <KidCard
+                                    key={kid.id}
+                                    kidName={kid.kidName}
+                                    image={kid.image}
+                                    onRemove={()=>removeKidById(kid.id!, kid.kidName)}
+                                    onNameChange={() => { }}
+                                    isEditMode={isEditMode}
+                                />
                             )}
                         </div>
                     ) : (
