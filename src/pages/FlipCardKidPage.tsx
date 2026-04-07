@@ -39,9 +39,9 @@ const GRID_CONFIG = {
 
 //닌이도 별 아이들 수, 가로 배열, 카운트 다운, 힌트 시간
 const DIFFICULTY_CONFIG = {
-    EASY: { kids: 6, cols: 4, rows: 3, countdown: 10, hintTime: 1000 },
-    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 15, hintTime: 1500 },
-    HARD: { kids: 15, cols: 10, rows: 3, countdown: 15, hintTime: 2000 },
+    EASY: { kids: 6, cols: 4, rows: 3, countdown: 5, hintTime: 1000 },
+    NORMAL: { kids: 10, cols: 5, rows: 4, countdown: 10, hintTime: 1500 },
+    HARD: { kids: 15, cols: 10, rows: 3, countdown: 10, hintTime: 2000 },
 }
 
 //카드 섞는 함수
@@ -357,7 +357,7 @@ export default function FlipCardKidPage() {
             const second = clickedCard;
 
             if (first.kid.id === second.kid.id) {
-                handleMatch(first);
+                handleMatch(first, second);
             } else {
                 handleMismatch(first, second);
             }
@@ -366,16 +366,17 @@ export default function FlipCardKidPage() {
     };
 
     // 정답 처리 함수
-    const handleMatch = (card: Card) => {
+    const handleMatch = (first: Card, second: Card) => {
 
         addTimeout(() => {
             //클리어 판별
-            const isClearGame = (matchedIds.size + 1) === (cards.length / 2)
+            const isClearGame = matchedIds.size + 2  === cards.length;
 
             // matched 추가
             setMatchedIds(prev => {
                 const next = new Set(prev);
-                next.add(card.instanceId);
+                next.add(first.instanceId);
+                next.add(second.instanceId);
                 return next;
             });
 
