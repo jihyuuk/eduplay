@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import SubHeader from "../components/SubHeader";
-import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, X, Save, PencilLine, SquarePen } from 'lucide-react';
-import { useLiveQuery } from "dexie-react-hooks";
+import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, Save, SquarePen } from 'lucide-react';
 import { KidRepository } from "../repositories/kidRepository";
 import KidCard from "../components/KidCard";
 import toast from "react-hot-toast";
@@ -16,36 +15,31 @@ const MAX_LENGTH = 15;
 
 export default function SettingPage() {
 
+    // 아직 안씀(햇살반)
     const [groupName, setGroupName] = useState('');
-
-    //여긴 만든거
-    //const kids = useLiveQuery(() => KidRepository.findAll());
-    const [isUploading, setIsUploading] = useState(false);
+    // 업로드한 파일
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+    // 업로드한 파일 db에 저장중
+    const [isSaving, setIsSaving] = useState(false);
+    // db에서 아이들 불러오기
     const [isLoading, setIsLoading] = useState(true);
-
+    // 저장된 아이들 수정모드
     const [isEditMode, setIsEditMode] = useState(false);
-
+    // 저장된 아이들
     const [kids, setKids] = useState<any[]>([]);
 
     useEffect(() => {
-
         loadKids();
     }, []);
 
+    //db에서 저장된 아이들 불러오기
     const loadKids = async () => {
         setIsLoading(true);
+        setIsEditMode(false);
         const data = await KidRepository.findAll();
         setKids(data || []);
         setIsLoading(false);
     };
-
-
-    useEffect(() => {
-        if (kids.length === 0) {
-            setIsEditMode(false);
-        }
-    }, [kids])
 
     // 3. 이름 변경 (리액트 상태만 업데이트)
     const handleNameChange = (id: number, newName: string) => {
@@ -54,8 +48,8 @@ export default function SettingPage() {
 
     // 4. 일괄 저장 (이때만 DB에 반영)
     const handleSaveAll = async () => {
-
         const hasEmptyName = kids.some(kid => kid.kidName.trim() === "");
+
         if (hasEmptyName) {
             toast.error("모든 아이들의 이름을 입력해주세요!");
             return;
@@ -90,11 +84,9 @@ export default function SettingPage() {
             try {
                 // 2. Repository의 deleteAll 호출
                 await KidRepository.deleteAll();
-                setKids([]);
+                loadKids();
                 // 3. 성공 알림
                 toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
-
-                setIsEditMode(false);
             } catch (error) {
                 console.error("전체 삭제 실패:", error);
                 toast.error("삭제 중 오류가 발생했습니다.");
@@ -136,7 +128,7 @@ export default function SettingPage() {
             return;
         }
 
-        setIsUploading(true);
+        setIsSaving(true);
         setIsLoading(true);
 
         try {
@@ -148,14 +140,14 @@ export default function SettingPage() {
                 )
             );
 
+            await loadKids();
             toast.success(`${uploadedFiles.length}명의 아이가 성공적으로 등록되었습니다!`);
             setUploadedFiles([]); // 선택 목록 초기화
-            loadKids();
         } catch (error) {
             console.error(error);
             toast.error("저장 중 오류가 발생했습니다.");
         } finally {
-            setIsUploading(false);
+            setIsSaving(false);
             setIsLoading(false);
         }
     };
@@ -175,12 +167,12 @@ export default function SettingPage() {
     };
 
     const removeAllFiles = () => {
+        if (isSaving) return;
+
         setUploadedFiles([]);
-        setIsUploading(false);
+        setIsSaving(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
-
-
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -221,7 +213,7 @@ export default function SettingPage() {
                         </div>
 
                         {/* 사진이 있을 때만 삭제 버튼 표시 */}
-                        {uploadedFiles.length > 0 && (
+                        {uploadedFiles.length > 0 && !isSaving && (
                             <ChunkyButton onClick={removeAllFiles} size="xs" variant="error" icon={Trash2}>
                                 전체삭제
                             </ChunkyButton>
@@ -266,21 +258,23 @@ export default function SettingPage() {
                                             image={uploadedFile.file}
                                             onRemove={() => removeFileByIndex(index)}
                                             onNameChange={(newName) => updateFileNameByIndex(index, newName)}
-                                            isEditMode={true}
+                                            isEditMode={!isSaving}
                                             maxLength={MAX_LENGTH}
                                         />
                                     ))}
 
                                     {/* 사진 추가 버튼 카드 */}
-                                    <div
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
-                                    >
-                                        <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
-                                            <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
+                                    {!isSaving &&
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
+                                        >
+                                            <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
+                                                <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
+                                            </div>
+                                            <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
                                         </div>
-                                        <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
-                                    </div>
+                                    }
 
                                 </div>
                             )}
@@ -289,9 +283,9 @@ export default function SettingPage() {
 
                         {/* 저장 버튼 */}
                         {uploadedFiles.length > 0 &&
-                            <ChunkyButton onClick={handleFileSave} icon={Save} size="lg" className="w-full mt-4" variant="secondary" disabled={isUploading}>
+                            <ChunkyButton onClick={handleFileSave} icon={Save} size="lg" className="w-full mt-4" variant="secondary" disabled={isSaving}>
 
-                                {isUploading ? "저장중..." : `${uploadedFiles.length}명 저장하기`}
+                                {isSaving ? "저장중..." : `${uploadedFiles.length}명 저장하기`}
                             </ChunkyButton>
                         }
                     </div>
@@ -318,7 +312,7 @@ export default function SettingPage() {
                                 전체 삭제
                             </button>
                         )} */}
-                        {kids && kids.length > 0 && (
+                        {kids.length > 0 && (
                             isEditMode ? (
                                 <div className="flex gap-2">
                                     <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
@@ -336,23 +330,29 @@ export default function SettingPage() {
                         )}
                     </div>
 
-                    {kids && kids.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {kids.map(kid =>
-                                <KidCard
-                                    key={kid.id}
-                                    kidName={kid.kidName}
-                                    image={kid.image}
-                                    onRemove={() => removeKidById(kid.id!, kid.kidName)}
-                                    onNameChange={(newName) => handleNameChange(kid.id, newName)}
-                                    isEditMode={isEditMode}
-                                    maxLength={MAX_LENGTH}
-                                />
-                            )}
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-4" />
+                            <p className="text-purple-400 font-bold">친구들 목록을 불러오고 있어요...</p>
                         </div>
-                    ) : (
-                        <p className="text-gray-500 text-center py-10">아직 저장된 친구가 없어요</p>
-                    )}
+                    ) :
+                        kids.length > 0 ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                {kids.map(kid =>
+                                    <KidCard
+                                        key={kid.id}
+                                        kidName={kid.kidName}
+                                        image={kid.image}
+                                        onRemove={() => removeKidById(kid.id!, kid.kidName)}
+                                        onNameChange={(newName) => handleNameChange(kid.id, newName)}
+                                        isEditMode={isEditMode}
+                                        maxLength={MAX_LENGTH}
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-center py-10">아직 저장된 친구가 없어요</p>
+                        )}
                 </div>
             </main>
 
