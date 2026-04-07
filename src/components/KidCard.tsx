@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Trash, Trash2, X } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 
 interface KidCardProps {
   kidName: string;
@@ -18,8 +18,10 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // 이미지 객체가 바뀔 때마다 새로운 URL 생성
+
     setIsLoaded(false);
+
+    // 이미지 객체가 바뀔 때마다 새로운 URL 생성
     const url = URL.createObjectURL(image);
     setImageUrl(url);
 
@@ -29,15 +31,17 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
     };
   }, [image]);
 
+  //인풋 x 버튼
   const handleClearName = () => {
     onNameChange("");
     inputRef.current?.focus();
   }
 
+  //엔터 또는 포커스 벗어났을때 
   const handleBlur = () => {
-    // 앞뒤 공백을 제거한 값을 상위 컴포넌트로 전달
-    onNameChange(kidName.trim());
+    onNameChange(kidName.trim()); // 앞 뒤 공백 제거
   };
+
 
   return (
     <div className="relative w-full bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-md transition-all duration-300 h-fit">
@@ -74,17 +78,7 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
       {/* 이름 */}
       <div className="p-2 bg-white border-t border-purple-50">
 
-        {isEditMode
-          ?
-          // <input
-          //   type="text"
-          //   value={kidName}
-          //   onChange={(e) => onNameChange(e.target.value)}
-          //   onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-          //   //className="w-full bg-gray-50 border text-[11px] text-center py-1.5 px-1 rounded-lg outline-none transition-all font-bold text-gray-700"
-          // className="w-full bg-yellow-50 border-2 border-dashed border-yellow-300 text-[13px] text-center py-1.5 px-1 rounded-xl outline-none transition-all font-bold text-yellow-900 focus:bg-white focus:border-solid focus:border-purple-400 focus:ring-2 focus:ring-purple-100 placeholder-yellow-300"
-          // />
-
+        {isEditMode ?
           <div className="relative flex items-center">
             <input
               ref={inputRef}
@@ -95,15 +89,12 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
               onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
               maxLength={maxLength}
               placeholder="이름 입력..."
-              // 노란색(yellow)을 버리고 보라색(purple)과 분홍색(pink) 계열로 교체
-              //className="w-full bg-purple-50/50 border-2 border-dashed border-purple-200 py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-purple-700 focus:bg-white focus:border-solid focus:border-purple-400 placeholder-purple-300 text-[13px]"
               className={`
                   w-full py-1.5 pl-2 pr-7 rounded-xl outline-none transition-all font-bold text-[13px]
                   ${kidName.length === 0
                   ? "bg-red-50 border-2 border-dashed border-red-300 placeholder-red-300 focus:bg-white focus:border-solid focus:border-red-400"
                   : "bg-purple-50/50 border-2 border-dashed border-purple-200 text-purple-700 placeholder-purple-300 focus:bg-white focus:border-solid focus:border-purple-400"
-                }
-  `}
+                }`}
             />
             {/* 텍스트 전체 삭제 버튼 */}
             {kidName.length > 0 && (
