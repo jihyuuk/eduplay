@@ -240,7 +240,7 @@ export default function SettingPageNew() {
                         className="hidden"
                     />
 
-                    {/* 업로드 된 사진이 없을때 / 없을때 */}
+                    {/* 업로드 된 사진이 있을때 / 없을때 */}
                     {uploadedFiles.length > 0 ?
                         (
                             <div
@@ -261,15 +261,17 @@ export default function SettingPageNew() {
 
                                     {/* 사진 추가 버튼 카드 */}
                                     {!isSaving &&
-                                        <div
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
-                                        >
-                                            <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
-                                                <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
+                                        <>
+                                            <div
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
+                                            >
+                                                <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
+                                                    <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
+                                                </div>
+                                                <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
                                             </div>
-                                            <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
-                                        </div>
+                                        </>
                                     }
                                 </div>
                             </div>
@@ -277,19 +279,33 @@ export default function SettingPageNew() {
                         :
                         (
                             <div
-                                className="rounded-3xl p-3 transition-all border-4 border-dashed border-purple-200 bg-purple-50/30 h-[320px] flex flex-col items-center justify-center hover:bg-purple-50/50 hover:border-purple-300"
+                                className="relative rounded-3xl p-3 transition-all duration-500 border-4 border-dashed border-slate-200 bg-slate-50/30 h-[320px] flex flex-col items-center justify-center hover:bg-white hover:border-purple-300 group overflow-hidden"
                             >
+                                {/* 호버 시 배경에 살짝 퍼지는 보라색 광채 효과 */}
+                                <div className="absolute inset-0 bg-gradient-to-b from-purple-100/0 to-purple-100/0 group-hover:from-purple-50 group-hover:to-white transition-all duration-500" />
+
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="cursor-pointer w-full h-full flex flex-col items-center justify-center group"
+                                    className="relative z-10 cursor-pointer w-full h-full flex flex-col items-center justify-center"
                                 >
-                                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-xl flex items-center justify-center mb-7 group-hover:scale-110 transition-all duration-300">
-                                        <ImageUp className="w-12 h-12 text-purple-400" />
+                                    {/* 아이콘 박스: 평소엔 차분, 호버 시 공중에 뜨는 느낌 */}
+                                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] flex items-center justify-center mb-8 group-hover:scale-110 group-hover:-translate-y-3 group-hover:shadow-2xl group-hover:shadow-purple-200 group-hover:rotate-3 transition-all duration-500 ease-out">
+                                        <ImageUp className="w-12 h-12 text-slate-400 group-hover:text-purple-500 transition-colors duration-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-purple-600">친구 사진을 추가해 주세요</p>
-                                    <p className="text-purple-300 font-bold mt-2 italic text-center px-4">
-                                        여기에 클릭 또는 드래그
-                                    </p>
+
+                                    {/* 텍스트 영역 */}
+                                    <div className="text-center space-y-2">
+                                        <p className="text-2xl font-black text-slate-400 group-hover:text-purple-600 transition-colors duration-500 tracking-tight">
+                                            친구 사진을 추가해 주세요
+                                        </p>
+                                        <div className="flex items-center justify-center gap-2 text-slate-300 group-hover:text-purple-300 transition-colors duration-500">
+                                            <span className="h-px w-8 bg-current opacity-30"></span>
+                                            <p className="text-sm font-bold italic px-2">
+                                                여기에 클릭 또는 드래그
+                                            </p>
+                                            <span className="h-px w-8 bg-current opacity-30"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
