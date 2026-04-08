@@ -333,8 +333,7 @@ export default function SettingPageNew() {
             {/* 메인 콘텐츠 */}
             <main className="w-full max-w-4xl p-4">
                 {/* 기본 설정 카드 */}
-                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mt-4 mb-6 w-full">
-                    {/* 그룹명 입력 */}
+                {/* <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mt-4 mb-6 w-full">
                     <div className="flex items-center justify-between mb-5">
 
                         <div className="flex items-center gap-2">
@@ -361,10 +360,10 @@ export default function SettingPageNew() {
                         placeholder="예: 햇살반"
                         maxLength={15}
                     />
-                </div>
+                </div> */}
 
                 {/* 사진 업로드 카드 */}
-                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mb-6 w-full">
+                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mt-4 mb-6 w-full">
                     {/* 타이틀 영역 & 전체삭제 */}
                     <div className="flex items-center justify-between mb-5">
 
