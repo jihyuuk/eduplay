@@ -3,7 +3,6 @@ import { ChunkyButtonExample } from "./components/ChunkyButtonExample";
 import FlipCardKidPage from "./pages/FlipCardKidPage";
 import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
-import FlipCardBattlePage from "./pages/FlipCardBattlePage";
 import SettingPage from "./pages/SettingPage";
 import ToastProvider from "./components/ToastProvider";
 
@@ -25,7 +24,6 @@ export default function App() {
         <Route path="/setting" element={<SettingPage/>} />
         <Route path="/flip-card-kid/:difficultyParam" element={<FlipCardKidPage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
-        <Route path="/flip-card-battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>
