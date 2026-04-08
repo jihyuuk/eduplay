@@ -68,7 +68,7 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
           <div className="absolute top-1.5 right-1.5 z-10">
             <button
               onClick={onRemove}
-              className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all active:scale-90">
+              className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all active:scale-90 cursor-pointer">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
