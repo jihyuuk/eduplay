@@ -19,6 +19,7 @@ export default function SettingPageNew() {
     const [groupName, setGroupName] = useState('');
     // 업로드한 파일
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+    const [isDragging, setIsDragging] = useState(false);
     // 업로드한 파일 db에 저장중
     const [isSaving, setIsSaving] = useState(false);
     // db에서 아이들 불러오기
@@ -96,21 +97,13 @@ export default function SettingPageNew() {
 
     // 1. 파일 선택 시 실행
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newFiles = Array.from(e.target.files)
-                .filter(file => file.type.startsWith('image/'))
-                .map(file => {
-                    const normalizedFileName = file.name.normalize('NFC'); //한글 깨짐 방지
-                    const defaultName = normalizedFileName.split('.').slice(0, -1).join('.') || file.name;
-                    return {
-                        file,
-                        kidName: defaultName.slice(0, MAX_LENGTH) //15자 제한
-                    };
-                });
 
-            // 기존 파일 목록에 새로 선택한 파일들을 추가 (누적 방식)
-            setUploadedFiles((prev) => [...prev, ...newFiles]);
+        if (isSaving) return;
+
+        if (e.target.files?.length) {
+            appendUploadedFiles(e.target.files);
         }
+
 
         if (e.target.value) e.target.value = ''; // 같은 파일 재선택 가능하게 리셋
     };
@@ -175,6 +168,63 @@ export default function SettingPageNew() {
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // 1-1. 드래그 영역에 진입했을 때
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+        console.log("dragEnter");
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true); // 강조 시작
+    };
+
+    // 1-2. 드래그 영역에서 벗어났을 때
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        console.log("handleDragLeave");
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false); // 강조 해제
+    };
+
+    // 1-3. 드래그 중 (브라우저 기본 동작 방지)
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    // 1-4. 파일을 드롭했을 때
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false); // 강조 해제
+
+        if (isSaving) return;
+
+        if (e.dataTransfer.files?.length) {
+            const newFiles = appendUploadedFiles(e.dataTransfer.files);
+            toast.success(`${newFiles.length}개의 사진이 준비되었습니다!`);
+        }
+    };
+
+
+    //업로드 파일 추가함수 (클릭, 드래그 둘 다 사용)
+    const appendUploadedFiles = (files: FileList | File[]) => {
+        const newFiles: UploadedFile[] = Array.from(files)
+            .filter(file => file.type.startsWith('image/'))
+            .map(file => {
+                const normalizedFileName = file.name.normalize('NFC');
+                const defaultName =
+                    normalizedFileName.split('.').slice(0, -1).join('.') || file.name;
+
+                return {
+                    file,
+                    kidName: defaultName.slice(0, MAX_LENGTH),
+                };
+            });
+
+        setUploadedFiles(prev => [...prev, ...newFiles]);
+
+        return newFiles;
+    };
 
 
     return (
@@ -253,6 +303,10 @@ export default function SettingPageNew() {
                     {uploadedFiles.length > 0 ?
                         (
                             <div
+                                onDragOver={handleDragOver}
+                                onDragEnter={handleDragEnter}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
                                 className="rounded-3xl p-3 transition-all border-2 border-purple-100 bg-white shadow-inner max-h-[60vh] overflow-y-auto block scrollbar-hide"
                             >
                                 <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -286,26 +340,62 @@ export default function SettingPageNew() {
                         :
                         (
                             <div
-                                className="relative rounded-3xl p-3 transition-all duration-500 border-3  md:border-4 border-dashed border-slate-200 bg-slate-50/30 h-[250px] md:h-[300px] flex flex-col items-center justify-center hover:bg-white hover:border-purple-300 group overflow-hidden"
+                                onClick={() => fileInputRef.current?.click()}
+                                onDragOver={handleDragOver}
+                                onDragEnter={handleDragEnter}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                className={`relative rounded-3xl p-3 transition-all duration-500 border-3  md:border-4 border-dashed h-[250px] md:h-[300px] flex flex-col items-center justify-center group overflow-hidden cursor-pointer
+                                ${isDragging ? "bg-white border-purple-300" : "border-slate-200 bg-slate-50/30 hover:bg-white hover:border-purple-300 "}
+                                `}
                             >
                                 {/* 호버 시 배경에 살짝 퍼지는 보라색 광채 효과 */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-purple-100/0 to-purple-100/0 group-hover:from-purple-50 group-hover:to-white transition-all duration-500" />
-
                                 <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="relative z-10 cursor-pointer w-full h-full flex flex-col items-center justify-center"
+                                    className={`pointer-events-none absolute inset-0 bg-gradient-to-b transition-all duration-500
+                                        ${isDragging
+                                            ? "from-purple-50 to-white"
+                                            : "from-purple-100/0 to-purple-100/0 group-hover:from-purple-50 group-hover:to-white"
+                                        }
+                                `}
+                                />
+                                <div
+                                    className="pointer-events-none relative z-10 w-full h-full flex flex-col items-center justify-center"
                                 >
                                     {/* 아이콘 박스: 평소엔 차분, 호버 시 공중에 뜨는 느낌 */}
-                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-[2rem] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 group-hover:-translate-y-3 group-hover:shadow-2xl group-hover:shadow-purple-200 group-hover:rotate-3 transition-all duration-500 ease-out">
-                                        <ImageUp className="w-10 h-10 md:w-12 md:h-12 text-slate-400 group-hover:text-purple-500 transition-colors duration-500" />
+                                    <div
+                                        className={`w-20 h-20 md:w-24 md:h-24 bg-white rounded-[2rem]
+                                                flex items-center justify-center mb-6 md:mb-8 transition-all duration-500 ease-out
+                                                ${isDragging
+                                                ? "scale-110 -translate-y-3 rotate-3 shadow-2xl shadow-purple-200"
+                                                : "shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] group-hover:scale-110 group-hover:-translate-y-3 group-hover:shadow-2xl group-hover:shadow-purple-200 group-hover:rotate-3"
+                                            }
+                                        `}
+                                    >
+                                        <ImageUp
+                                            className={`w-10 h-10 md:w-12 md:h-12 transition-colors duration-500
+                                                ${isDragging
+                                                    ? "text-purple-500"
+                                                    : "text-slate-400 group-hover:text-purple-500"
+                                                }
+                                            `}
+                                        />
                                     </div>
 
                                     {/* 텍스트 영역 */}
                                     <div className="text-center space-y-2">
-                                        <p className="text-lg md:text-2xl font-black text-slate-400 group-hover:text-purple-600 transition-colors duration-500 tracking-tight">
+                                        <p
+                                            className={`text-lg md:text-2xl font-black transition-colors duration-500 tracking-tight
+                                                ${isDragging ? "text-purple-600" : "text-slate-400 group-hover:text-purple-600"}
+                                            `}
+                                        >
                                             친구 사진을 추가해 주세요
                                         </p>
-                                        <p className="text-sm font-bold italic text-slate-300 group-hover:text-purple-300 transition-colors duration-500">
+
+                                        <p
+                                            className={`text-sm font-bold italic transition-colors duration-500
+                                                ${isDragging ? "text-purple-300" : "text-slate-300 group-hover:text-purple-300"}
+                                            `}
+                                        >
                                             - 여기에 클릭 또는 드래그 -
                                         </p>
                                     </div>
