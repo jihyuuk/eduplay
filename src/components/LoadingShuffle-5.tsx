@@ -49,7 +49,7 @@ export default function LoadingShuffle5({ count, gridConfig }: LoadingShufflePro
 }
 
 // 개별 카드 컴포넌트
-function CardItem({ index, isGathered, containerRef }: any) {
+function CardItem({ isGathered, containerRef }: any) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
 

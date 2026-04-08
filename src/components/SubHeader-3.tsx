@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react'; // ReactNode를 type으로 가져옵니다.
+import { type ReactNode } from 'react'; // ReactNode를 type으로 가져옵니다.
 import { ChevronLeft } from 'lucide-react';
 
 /**

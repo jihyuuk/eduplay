@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import SubHeader from "../components/SubHeader";
-import { UsersRound, ImageUp, Trash2, Folder, Plus, Save, SquarePen, SmilePlus, HouseHeart } from 'lucide-react';
-import { KidRepository } from "../repositories/kidRepository";
+import { UsersRound, ImageUp, Trash2, Folder, Plus, Save, SquarePen, SmilePlus } from 'lucide-react';
+import { KidRepository } from "../repositories/KidRepository";
 import KidCard from "../components/KidCard";
 import toast from "react-hot-toast";
 import ChunkyButton from "../components/ChunkyButton";
@@ -17,7 +17,7 @@ const MAX_LENGTH = 15;
 export default function SettingPageNew() {
 
     // 아직 안씀(햇살반)
-    const [groupName, setGroupName] = useState('');
+    //const [groupName, setGroupName] = useState('');
     // 업로드한 파일
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     // 이미지 드래그 앤 드롭

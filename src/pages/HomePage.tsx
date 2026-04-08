@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cloud, Github, Home, Mail, Settings, Share2, Sparkles, Star } from 'lucide-react';
+import { Cloud, Github, Mail, Settings, Share2, Sparkles } from 'lucide-react';
 import HomeChunkyButton from '../components/HomeChunkyButton';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';

@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
 import ChunkyIconButton from "../components/ChunkyIconButton";
 import ChunkyButton from "../components/ChunkyButton";
-import { KidRepository } from "../repositories/kidRepository";
+import { KidRepository } from "../repositories/KidRepository";
 import toast from "react-hot-toast";
 
 //상태

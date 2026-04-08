@@ -62,7 +62,6 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
             alt={kidName}
             className="w-full h-full object-cover"
             onLoad={() => setIsLoaded(true)}
-            //onError={(e) => alert(e)}
           />
         }
 
