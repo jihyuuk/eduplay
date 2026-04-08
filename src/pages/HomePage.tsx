@@ -182,7 +182,7 @@ export default function HomePage() {
           <div className="flex items-center gap-4 text-xs md:text-sm font-medium text-purple-300/80 mt-5">
 
             {/* 깃허브 링크 */}
-            <a href="https://github.com/여기에_깃허브_주소_입력" target="_blank" rel="noopener noreferrer"
+            <a href="https://github.com/jihyuuk/eduplay" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-purple-500 transition-colors"
             >
               <Github className="w-4 h-4" />
