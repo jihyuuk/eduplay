@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SubHeader from "../components/SubHeader";
-import { UsersRound, ImageUp, Trash2, ImagePlus, Folder, Plus, Save, SquarePen, UserRoundPlus, SmilePlus, HouseHeart } from 'lucide-react';
+import { UsersRound, ImageUp, Trash2, Folder, Plus, Save, SquarePen, SmilePlus, HouseHeart } from 'lucide-react';
 import { KidRepository } from "../repositories/kidRepository";
 import KidCard from "../components/KidCard";
 import toast from "react-hot-toast";
@@ -186,15 +186,23 @@ export default function SettingPageNew() {
             {/* 메인 콘텐츠 */}
             <main className="w-full max-w-4xl p-4">
                 {/* 기본 설정 카드 */}
-                <div className="bg-white rounded-3xl shadow-2xl p-5 mt-4 mb-6 w-full">
+                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mt-4 mb-6 w-full">
                     {/* 그룹명 입력 */}
-                    <div className="flex items-center gap-3 text-lg mb-5">
-                        <div className="p-3 bg-sky-100 text-sky-600 rounded-2xl">
-                            <HouseHeart className="w-6 h-6" />
+                    <div className="flex items-center justify-between mb-5">
+
+                        <div className="flex items-center gap-2">
+                            <div className="p-3 bg-sky-100 text-sky-600 rounded-2xl">
+                                <HouseHeart className="w-4 h-4 md:w-6 md:h-6" />
+                            </div>
+                            <div className="text-purple-800 font-bold text-lg md:text-xl">
+                                우리 반 이름
+                            </div>
                         </div>
-                        <div className="text-purple-900 font-bold text-xl">
-                            우리 반 이름
-                        </div>
+
+                        <ChunkyButton onClick={removeAllFiles} size="xs" variant="secondary" icon={SquarePen}>
+                            <span className="hidden sm:inline">수정 하기</span>
+                            <span className="inline sm:hidden">수정</span>
+                        </ChunkyButton>
                     </div>
 
                     <input
@@ -202,22 +210,22 @@ export default function SettingPageNew() {
                         value={groupName}
                         onChange={(e) => setGroupName(e.target.value)}
                         //className="w-full px-6 py-4 bg-purple-50 border-2 border-purple-100 rounded-2xl text-purple-700 placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white focus:ring-4 focus:ring-purple-100 transition-all font-jua text-xl shadow-inner"
-                        className="w-full px-6 py-4 bg-purple-50/50 border-2 border-purple-100 rounded-3xl text-purple-700 placeholder-purple-200 focus:outline-none focus:border-purple-400 focus:bg-white focus:ring-4 focus:ring-purple-100/50 transition-all shadow-inner"
+                        className="w-full px-5 py-3 md:px-6 md:py-4 bg-purple-50/50 border-2 border-purple-100 rounded-3xl text-purple-700 placeholder-purple-200 focus:outline-none focus:border-purple-400 focus:bg-white focus:ring-4 focus:ring-purple-100/50 transition-all shadow-inner"
                         placeholder="예: 햇살반"
                         maxLength={15}
                     />
                 </div>
 
                 {/* 사진 업로드 카드 */}
-                <div className="bg-white rounded-3xl shadow-2xl p-5 mb-6 w-full">
+                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mb-6 w-full">
                     {/* 타이틀 영역 & 전체삭제 */}
                     <div className="flex items-center justify-between mb-5">
 
-                        <div className="flex items-center gap-3 text-lg">
+                        <div className="flex items-center gap-2">
                             <div className="p-3 bg-sky-100 text-sky-600 rounded-2xl">
-                                <SmilePlus className="w-6 h-6" />
+                                <SmilePlus className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
-                            <div className="text-purple-900 font-bold text-xl">
+                            <div className="text-purple-800 font-bold text-lg md:text-xl">
                                 새 친구 저장하기
                             </div>
                         </div>
@@ -225,7 +233,8 @@ export default function SettingPageNew() {
                         {/* 사진이 있을 때만 삭제 버튼 표시 */}
                         {uploadedFiles.length > 0 && !isSaving && (
                             <ChunkyButton onClick={removeAllFiles} size="xs" variant="error" icon={Trash2}>
-                                전체삭제
+                                <span className="hidden sm:inline">전체 삭제</span>
+                                <span className="inline sm:hidden">전체</span>
                             </ChunkyButton>
                         )}
                     </div>
@@ -261,17 +270,15 @@ export default function SettingPageNew() {
 
                                     {/* 사진 추가 버튼 카드 */}
                                     {!isSaving &&
-                                        <>
-                                            <div
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
-                                            >
-                                                <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
-                                                    <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
-                                                </div>
-                                                <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="min-h-50 bg-purple-50/50 rounded-2xl border-2 border-dashed border-purple-200/60 hover:border-purple-400 hover:bg-purple-100/80 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 pt-[22px] pb-[22px]"
+                                        >
+                                            <div className="w-12 h-12 rounded-full bg-white/40 border border-white/20 flex items-center justify-center shadow-sm backdrop-blur-[2px] group-hover:scale-110 group-hover:bg-white/60 transition-all duration-300">
+                                                <Plus className="w-7 h-7 text-purple-500/80 group-hover:text-purple-600" />
                                             </div>
-                                        </>
+                                            <span className="mt-6 text-[11px] font-bold text-purple-400 group-hover:text-purple-600 transition-colors">사진 추가</span>
+                                        </div>
                                     }
                                 </div>
                             </div>
@@ -279,7 +286,7 @@ export default function SettingPageNew() {
                         :
                         (
                             <div
-                                className="relative rounded-3xl p-3 transition-all duration-500 border-4 border-dashed border-slate-200 bg-slate-50/30 h-[320px] flex flex-col items-center justify-center hover:bg-white hover:border-purple-300 group overflow-hidden"
+                                className="relative rounded-3xl p-3 transition-all duration-500 border-3  md:border-4 border-dashed border-slate-200 bg-slate-50/30 h-[250px] md:h-[300px] flex flex-col items-center justify-center hover:bg-white hover:border-purple-300 group overflow-hidden"
                             >
                                 {/* 호버 시 배경에 살짝 퍼지는 보라색 광채 효과 */}
                                 <div className="absolute inset-0 bg-gradient-to-b from-purple-100/0 to-purple-100/0 group-hover:from-purple-50 group-hover:to-white transition-all duration-500" />
@@ -289,22 +296,18 @@ export default function SettingPageNew() {
                                     className="relative z-10 cursor-pointer w-full h-full flex flex-col items-center justify-center"
                                 >
                                     {/* 아이콘 박스: 평소엔 차분, 호버 시 공중에 뜨는 느낌 */}
-                                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] flex items-center justify-center mb-8 group-hover:scale-110 group-hover:-translate-y-3 group-hover:shadow-2xl group-hover:shadow-purple-200 group-hover:rotate-3 transition-all duration-500 ease-out">
-                                        <ImageUp className="w-12 h-12 text-slate-400 group-hover:text-purple-500 transition-colors duration-500" />
+                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-[2rem] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 group-hover:-translate-y-3 group-hover:shadow-2xl group-hover:shadow-purple-200 group-hover:rotate-3 transition-all duration-500 ease-out">
+                                        <ImageUp className="w-10 h-10 md:w-12 md:h-12 text-slate-400 group-hover:text-purple-500 transition-colors duration-500" />
                                     </div>
 
                                     {/* 텍스트 영역 */}
                                     <div className="text-center space-y-2">
-                                        <p className="text-2xl font-black text-slate-400 group-hover:text-purple-600 transition-colors duration-500 tracking-tight">
+                                        <p className="text-lg md:text-2xl font-black text-slate-400 group-hover:text-purple-600 transition-colors duration-500 tracking-tight">
                                             친구 사진을 추가해 주세요
                                         </p>
-                                        <div className="flex items-center justify-center gap-2 text-slate-300 group-hover:text-purple-300 transition-colors duration-500">
-                                            <span className="h-px w-8 bg-current opacity-30"></span>
-                                            <p className="text-sm font-bold italic px-2">
-                                                여기에 클릭 또는 드래그
-                                            </p>
-                                            <span className="h-px w-8 bg-current opacity-30"></span>
-                                        </div>
+                                        <p className="text-sm font-bold italic text-slate-300 group-hover:text-purple-300 transition-colors duration-500">
+                                            - 여기에 클릭 또는 드래그 -
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -321,37 +324,51 @@ export default function SettingPageNew() {
 
 
                 {/* 저장된 친구들 목록 카드 */}
-                <div className="bg-white rounded-3xl shadow-2xl p-5 mb-6 w-full">
+                <div className="bg-white rounded-3xl shadow-2xl p-4 md:p-5 mb-6 w-full">
                     <div className="flex items-center justify-between mb-5">
 
-                        <div className="flex items-center gap-3 text-lg">
+                        <div className="flex items-center gap-2">
                             <div className="p-3 bg-sky-100 text-sky-600 rounded-2xl">
-                                <Folder className="w-6 h-6" />
+                                <Folder className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
-                            <div className="text-purple-900 font-bold text-xl">
+                            <div className="text-purple-800 font-bold text-lg md:text-xl">
                                 저장된 친구들
                             </div>
                             <div className="px-3 py-1 bg-purple-50 text-purple-500 text-xs font-black rounded-full border border-purple-100 flex items-center gap-1">
-                                <span className="text-purple-700 text-sm">{kids.length}</span>
+                                <span className="text-purple-700 text-xs md:text-sm">{kids.length}</span>
                                 <span className="opacity-60">명</span>
                             </div>
                         </div>
 
                         {kids.length > 0 && (
                             isEditMode ? (
-                                <div className="flex gap-2">
+                                <div className="hidden sm:flex gap-2">
                                     <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
-                                        전체삭제
+                                        전체 삭제
                                     </ChunkyButton>
                                     <ChunkyButton onClick={handleSaveAll} size="xs" variant="success" icon={Save}>
-                                        저장하기
+                                        저장 하기
                                     </ChunkyButton>
                                 </div>
                             ) : (
-                                <ChunkyButton onClick={() => setIsEditMode(true)} size="xs" variant="primary" icon={SquarePen}>
-                                    수정하기
+                                <ChunkyButton onClick={() => setIsEditMode(true)} size="xs" variant="secondary" icon={SquarePen}>
+                                    <span className="hidden sm:inline">수정 하기</span>
+                                    <span className="inline sm:hidden">수정</span>
                                 </ChunkyButton>
                             )
+                        )}
+                    </div>
+
+                    <div>
+                        {kids.length > 0 && isEditMode && (
+                            <div className="flex gap-2 sm:hidden mb-5 w-full justify-end">
+                                <ChunkyButton onClick={removeAllKids} size="xs" variant="error" icon={Trash2}>
+                                    전체 삭제
+                                </ChunkyButton>
+                                <ChunkyButton onClick={handleSaveAll} size="xs" variant="success" icon={Save}>
+                                    저장 하기
+                                </ChunkyButton>
+                            </div>
                         )}
                     </div>
 
@@ -380,7 +397,7 @@ export default function SettingPageNew() {
                                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                     <UsersRound className="w-10 h-10 text-gray-300" />
                                 </div>
-                                <p className="text-xl font-bold text-gray-400">아직 저장된 친구가 없어요</p>
+                                <p className="text-lg md:text-xl font-bold text-gray-400">아직 저장된 친구가 없어요</p>
                             </div>
                         )}
                 </div>
