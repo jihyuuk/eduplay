@@ -115,7 +115,7 @@ export default function HomePage() {
             onClick={() => (window.location.href = "/")}
           >
             {/* 모바일에서는 w-24, 태블릿 이상에서는 w-28, PC에서는 w-32로 가변 조정 */}
-            <div className="relative w-24 sm:w-28 md:w-32 transition-all duration-300">
+            <div className="relative w-28 sm:w-32 md:w-36 transition-all duration-300">
               <img
                 src="/eduplay-logo.webp"
                 alt="에듀플레이 로고"
@@ -197,7 +197,7 @@ export default function HomePage() {
               className="flex items-center gap-1.5 hover:text-purple-500 transition-colors cursor-pointer"
             >
               <Mail className="w-4 h-4" />
-              <span>jihyuk.dev@gmail.com</span>
+              <span>Email</span>
             </div>
 
             <span>|</span>
