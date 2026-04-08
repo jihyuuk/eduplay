@@ -64,7 +64,7 @@ const ResultModal: React.FC<ResultModalProps> = ({ playTime, hintCount, descript
                     </div>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-8 sm:space-y-9">
                     {/* 1. 다시하기 */}
                     <ChunkyButton
                         icon={RefreshCw}
@@ -79,7 +79,7 @@ const ResultModal: React.FC<ResultModalProps> = ({ playTime, hintCount, descript
                     {/* 하단 닫기 버튼 */}
                     <button
                         onClick={goHome}
-                        className="mt-8 text-gray-400 font-bold hover:text-purple-400 transition-all hover:scale-110 active:scale-95 flex items-center justify-center mx-auto gap-2 cursor-pointer"
+                        className="text-gray-400 font-bold hover:text-purple-400 transition-all hover:scale-110 active:scale-95 flex items-center justify-center mx-auto gap-2 cursor-pointer"
                     >
                         <ArrowLeft className="w-5 h-5 transition-colors group-hover:text-purple-500" />
                         <span>나가기</span>

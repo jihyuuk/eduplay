@@ -222,7 +222,7 @@ export default function FlipCardKidPage() {
 
         // 3. 예외 처리: DB에 저장된 아이들 수가 현재 난이도의 필요 인원보다 적은 경우
         if (dbKids.length < requiredKidsCount) {
-            toast.error(`친구가 부족해요! (${dbKids.length } / ${requiredKidsCount})`);
+            toast.error(`친구가 부족해요! (${dbKids.length} / ${requiredKidsCount})`);
             navigate("/", { replace: true }); // 설정 페이지로 돌려보내기
             return;
         }
@@ -370,7 +370,7 @@ export default function FlipCardKidPage() {
 
         addTimeout(() => {
             //클리어 판별
-            const isClearGame = matchedIds.size + 2  === cards.length;
+            const isClearGame = matchedIds.size + 2 === cards.length;
 
             // matched 추가
             setMatchedIds(prev => {
@@ -448,20 +448,23 @@ export default function FlipCardKidPage() {
 
             <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
                 {/* 게임 지표 (시간, 힌트) - PLAYING 일때만 보임 */}
-                <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
-                        <div className="flex items-center justify-start">
-                            <Timer className="mr-2 text-blue-500" />
-                            시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
+                <div className={`w-full transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="w-full grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
+                        <div className="flex items-center justify-end gap-2">
+                            <Timer className="text-blue-500" />
+                            <div>
+                                시간: <span className="text-blue-600 tabular-nums font-sans">{playTime}</span>초
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-start">
-                            <HelpCircle className="mr-2 text-amber-500" />
-                            힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+                        <div className="flex items-center justify-start gap-2">
+                            <HelpCircle className="text-amber-500" />
+                            <div>
+                                힌트: <span className="text-amber-600 tabular-nums font-sans">{hintCount}</span>번
+                            </div>
                         </div>
                     </div>
                 </div>
-
 
                 {/* 게임 컨텐츠 화면 */}
                 <div className={`flex flex-col items-center w-full min-h-full transition-opacity duration-500`}>

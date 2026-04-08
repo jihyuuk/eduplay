@@ -56,12 +56,15 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
           </div>
         )}
 
-        <img
-          src={imageUrl}
-          alt={kidName}
-          className="w-full h-full object-cover"
-          onLoad={() => setIsLoaded(true)}
-        />
+        {imageUrl &&
+          <img
+            src={imageUrl}
+            alt={kidName}
+            className="w-full h-full object-cover"
+            onLoad={() => setIsLoaded(true)}
+            //onError={(e) => alert(e)}
+          />
+        }
 
         {/* 삭제 버튼 */}
         {isEditMode &&

@@ -38,23 +38,23 @@ const DIFFICULTY_CONFIG = {
 }
 
 const kids: GameKid[] = [
-  { id: 1, name: "사과", imageUrl: "/fruits/apple.png" },
-  { id: 2, name: "아보카도", imageUrl: "/fruits/avocado.png" },
-  { id: 3, name: "바나나", imageUrl: "/fruits/banana.png" },
-  { id:4, name: "블루베리", imageUrl: "/fruits/blueberry.png" },
-  { id: 5, name: "체리", imageUrl: "/fruits/cherry.png" },
-  { id: 6, name: "코코넛", imageUrl: "/fruits/coconut.png" },
-  { id: 7, name: "포도", imageUrl: "/fruits/grape.png" },
-  { id: 8, name: "청포도", imageUrl: "/fruits/green-grape.png" },
-  { id: 9, name: "키위", imageUrl: "/fruits/kiwi.png" },
-  { id: 10, name: "망고", imageUrl: "/fruits/mango.png" },
-  { id: 1, name: "멜론", imageUrl: "/fruits/melon.png" },
-  { id: 12, name: "오렌지", imageUrl: "/fruits/orange.png" },
-  { id: 13, name: "복숭아", imageUrl: "/fruits/peach.png" },
-  { id: 14, name: "레몬", imageUrl: "/fruits/lemon.png" },
-  { id: 15, name: "딸기", imageUrl: "/fruits/strawberry.png" },
-  { id: 16, name: "수박", imageUrl: "/fruits/watermelon.png" },
-  { id: 17, name: "파인애플", imageUrl: "/fruits/pineapple.png" },
+    { id: 1, name: "사과", imageUrl: "/fruits/apple.png" },
+    { id: 2, name: "아보카도", imageUrl: "/fruits/avocado.png" },
+    { id: 3, name: "바나나", imageUrl: "/fruits/banana.png" },
+    { id: 4, name: "블루베리", imageUrl: "/fruits/blueberry.png" },
+    { id: 5, name: "체리", imageUrl: "/fruits/cherry.png" },
+    { id: 6, name: "코코넛", imageUrl: "/fruits/coconut.png" },
+    { id: 7, name: "포도", imageUrl: "/fruits/grape.png" },
+    { id: 8, name: "청포도", imageUrl: "/fruits/green-grape.png" },
+    { id: 9, name: "키위", imageUrl: "/fruits/kiwi.png" },
+    { id: 10, name: "망고", imageUrl: "/fruits/mango.png" },
+    { id: 1, name: "멜론", imageUrl: "/fruits/melon.png" },
+    { id: 12, name: "오렌지", imageUrl: "/fruits/orange.png" },
+    { id: 13, name: "복숭아", imageUrl: "/fruits/peach.png" },
+    { id: 14, name: "레몬", imageUrl: "/fruits/lemon.png" },
+    { id: 15, name: "딸기", imageUrl: "/fruits/strawberry.png" },
+    { id: 16, name: "수박", imageUrl: "/fruits/watermelon.png" },
+    { id: 17, name: "파인애플", imageUrl: "/fruits/pineapple.png" },
 ];
 
 //카드 섞는 함수
@@ -348,8 +348,8 @@ export default function FlipCardFruitPage() {
 
         addTimeout(() => {
             //클리어 판별
-            const isClearGame = matchedIds.size + 2  === cards.length;
-            
+            const isClearGame = matchedIds.size + 2 === cards.length;
+
             // matched 추가
             setMatchedIds(prev => {
                 const next = new Set(prev);
@@ -427,16 +427,20 @@ export default function FlipCardFruitPage() {
 
             <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
                 {/* 게임 지표 (시간, 힌트) - PLAYING 일때만 보임 */}
-                <div className={`transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
-                        <div className="flex items-center justify-start">
-                            <Timer className="mr-2 text-blue-500" />
-                            시간: <span className="ml-2 text-blue-600 tabular-nums">{playTime}</span>초
+                <div className={`w-full transition-opacity duration-500 ${status === 'PLAYING' ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="w-full grid grid-cols-2 gap-4 md:gap-8 mb-4 sm:text-lg md:text-xl font-bold text-slate-700">
+                        <div className="flex items-center justify-end gap-2">
+                            <Timer className="text-blue-500" />
+                            <div>
+                                시간: <span className="text-blue-600 tabular-nums font-sans">{playTime}</span>초
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-start">
-                            <HelpCircle className="mr-2 text-amber-500" />
-                            힌트: <span className="ml-2 text-amber-600 tabular-nums">{hintCount}</span>번
+                        <div className="flex items-center justify-start gap-2">
+                            <HelpCircle className="text-amber-500" />
+                            <div>
+                                힌트: <span className="text-amber-600 tabular-nums font-sans">{hintCount}</span>번
+                            </div>
                         </div>
                     </div>
                 </div>
