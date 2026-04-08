@@ -5,6 +5,7 @@ import { KidRepository } from "../repositories/kidRepository";
 import KidCard from "../components/KidCard";
 import toast from "react-hot-toast";
 import ChunkyButton from "../components/ChunkyButton";
+import Swal from "sweetalert2";
 
 interface UploadedFile {
     file: File;
@@ -67,32 +68,37 @@ export default function SettingPageNew() {
 
     // 5. 삭제 (즉시 DB 반영 + 상태 반영)
     const removeKidById = async (id: number, name: string) => {
-        if (window.confirm(`${name} 친구를 삭제할까요?`)) {
-            try {
-                await KidRepository.delete(id);
-                setKids(prev => prev.filter(k => k.id !== id)); // 화면에서도 즉시 제거
-                toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
-            } catch (error) {
-                console.error("삭제 실패:", error);
-                toast.error("삭제 중 오류가 발생했습니다.");
-            }
+        const result = await deleteConfirm(name, "친구를 삭제할까요?");
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await KidRepository.delete(id);
+            setKids(prev => prev.filter(k => k.id !== id)); // 화면에서도 즉시 제거
+            toast.success(`${name}(이)가 성공적으로 삭제되었습니다.`);
+        } catch (error) {
+            console.error("삭제 실패:", error);
+            toast.error("삭제 중 오류가 발생했습니다.");
         }
     };
 
     const removeAllKids = async () => {
-        // 1. 실수로 누르는 것을 방지하기 위한 안전장치
-        if (window.confirm("저장된 모든 친구들의 정보를 정말 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.")) {
-            try {
-                // 2. Repository의 deleteAll 호출
-                await KidRepository.deleteAll();
-                loadKids();
-                // 3. 성공 알림
-                toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
-            } catch (error) {
-                console.error("전체 삭제 실패:", error);
-                toast.error("삭제 중 오류가 발생했습니다.");
-            }
+
+        const result = await deleteConfirm("전체 삭제", "지금 저장된 모든 친구들을 삭제하시겠어요?");
+
+        if (!result.isConfirmed) return;
+
+        try {
+            // 2. Repository의 deleteAll 호출
+            await KidRepository.deleteAll();
+            loadKids();
+            // 3. 성공 알림
+            toast.success("모든 데이터가 성공적으로 삭제되었습니다.");
+        } catch (error) {
+            console.error("전체 삭제 실패:", error);
+            toast.error("삭제 중 오류가 발생했습니다.");
         }
+
     };
 
     // 1. 파일 선택 시 실행
@@ -226,6 +232,27 @@ export default function SettingPageNew() {
         return newFiles;
     };
 
+    //삭제 컨펌 함수
+    const deleteConfirm = async (title: string, text: string) => {
+        return await Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true, // 취소 버튼 보이기
+            reverseButtons: true, // 버튼 위치 변경 (취소/확인 순서)
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소',
+            customClass: {
+                popup: '!rounded-4xl !p-4 md:!p-5 !shadow-2xl !border-4 !border-purple-100 !w-[90%] !max-w-lg',
+                title: '!text-xl md:!text-3xl !font-black !text-purple-800',
+                htmlContainer: '!text-gray-600 !font-medium !text-md md:!text-xl',
+                actions: '!mt-10',
+                confirmButton: 'px-10 py-3 rounded-2xl font-bold bg-purple-500 text-white mx-1 hover:bg-purple-600 transition-all active:scale-95 cursor-pointer',
+                cancelButton: 'px-10 py-3 rounded-2xl font-bold bg-slate-200 text-slate-600 mx-1 hover:bg-slate-300 transition-all active:scale-95 cursor-pointer',
+            },
+            buttonsStyling: false,
+        });
+    }
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
