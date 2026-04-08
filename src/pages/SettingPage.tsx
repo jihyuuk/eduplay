@@ -20,7 +20,10 @@ export default function SettingPageNew() {
     const [groupName, setGroupName] = useState('');
     // 업로드한 파일
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+    // 이미지 드래그 앤 드롭
     const [isDragging, setIsDragging] = useState(false);
+    // 파일 업로드중
+    const [isUploading, setIsUploading] = useState(false);
     // 업로드한 파일 db에 저장중
     const [isSaving, setIsSaving] = useState(false);
     // db에서 아이들 불러오기
@@ -104,7 +107,7 @@ export default function SettingPageNew() {
     // 1. 파일 선택 시 실행
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
-        if (isSaving) return;
+        if (isSaving || isUploading) return;
 
         if (e.target.files?.length) {
             appendUploadedFiles(e.target.files);
@@ -203,33 +206,46 @@ export default function SettingPageNew() {
         e.stopPropagation();
         setIsDragging(false); // 강조 해제
 
-        if (isSaving) return;
+        if (isSaving || isUploading) return;
 
         if (e.dataTransfer.files?.length) {
-            const newFiles = appendUploadedFiles(e.dataTransfer.files);
-            toast.success(`${newFiles.length}개의 사진이 준비되었습니다!`);
+            appendUploadedFiles(e.dataTransfer.files);
         }
     };
 
 
     //업로드 파일 추가함수 (클릭, 드래그 둘 다 사용)
-    const appendUploadedFiles = (files: FileList | File[]) => {
-        const newFiles: UploadedFile[] = Array.from(files)
-            .filter(file => file.type.startsWith('image/'))
-            .map(file => {
-                const normalizedFileName = file.name.normalize('NFC');
-                const defaultName =
-                    normalizedFileName.split('.').slice(0, -1).join('.') || file.name;
+    const appendUploadedFiles = async (files: FileList | File[]) => {
 
-                return {
-                    file,
-                    kidName: defaultName.slice(0, MAX_LENGTH),
-                };
-            });
+        setIsUploading(true);
 
-        setUploadedFiles(prev => [...prev, ...newFiles]);
+        try {
+            const newFiles: UploadedFile[] = await Promise.all(
 
-        return newFiles;
+                Array.from(files)
+                    .filter(file => file.type.startsWith('image/'))
+                    .map(async (file) => {
+                        const resizedFile = await resizeImage(file);
+
+                        const normalizedFileName = file.name.normalize('NFC');
+                        const defaultName = normalizedFileName.split('.').slice(0, -1).join('.') || file.name;
+
+                        return {
+                            file: resizedFile,
+                            kidName: defaultName.slice(0, MAX_LENGTH),
+                        };
+                    })
+            );
+
+
+            setUploadedFiles(prev => [...prev, ...newFiles]);
+            toast.success("사진 업로드 성공!");
+        } catch (error) {
+            console.error("이미지 업로드 실패:", error);
+            toast.error("사진 업로드 중 오류가 발생했습니다.");
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     //삭제 컨펌 함수
@@ -253,6 +269,60 @@ export default function SettingPageNew() {
             buttonsStyling: false,
         });
     }
+
+
+    // [추가] 이미지 사이즈 조절 및 압축 함수
+    const resizeImage = (file: File): Promise<File> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const SIZE = 256; // 타겟 사이즈 (1:1)
+                    canvas.width = SIZE;
+                    canvas.height = SIZE;
+                    const ctx = canvas.getContext("2d");
+
+                    // --- [핵심] 중앙 크롭 로직 시작 ---
+                    let sourceX = 0;
+                    let sourceY = 0;
+                    let sourceWidth = img.width;
+                    let sourceHeight = img.height;
+
+                    if (img.width > img.height) {
+                        // 가로가 길면: 중앙에서 가로를 세로 길이에 맞춰 자름
+                        sourceWidth = img.height;
+                        sourceX = (img.width - img.height) / 2;
+                    } else {
+                        // 세로가 길면: 중앙에서 세로를 가로 길이에 맞춰 자름
+                        sourceHeight = img.width;
+                        sourceY = (img.height - img.width) / 2;
+                    }
+                    // --- 중앙 크롭 로직 끝 ---
+
+                    // drawImage(이미지, 원본X, 원본Y, 원본W, 원본H, 캔버스X, 캔버스Y, 캔버스W, 캔버스H)
+                    ctx?.drawImage(
+                        img,
+                        sourceX, sourceY, sourceWidth, sourceHeight,
+                        0, 0, SIZE, SIZE
+                    );
+
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const resizedFile = new File([blob], file.name, {
+                                type: "image/jpeg",
+                                lastModified: Date.now(),
+                            });
+                            resolve(resizedFile);
+                        }
+                    }, "image/jpeg", 0.8);
+                };
+            };
+        });
+    };
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
@@ -327,8 +397,31 @@ export default function SettingPageNew() {
                     />
 
                     {/* 업로드 된 사진이 있을때 / 없을때 */}
-                    {uploadedFiles.length > 0 ?
-                        (
+                    {isUploading ?
+                        <div className="relative rounded-3xl p-3 border-3  md:border-4 border-dashed h-[250px] md:h-[300px] flex flex-col items-center justify-center group overflow-hidden bg-white border-purple-300">
+                            <div className="absolute inset-0 bg-gradient-to-b transition-all duration-500 from-purple-50 to-white" />
+                            <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
+                                {/* 통통 튀는 아이콘 박스 */}
+                                <div className="relative">
+                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-purple-50 rounded-[2rem] flex items-center justify-center shadow-xl shadow-purple-100">
+                                        <ImageUp className="w-10 h-10 md:w-12 md:h-12 text-purple-500" />
+                                    </div>
+                                </div>
+
+                                <div className="text-center space-y-2">
+                                    <p className="text-lg md:text-2xl font-black text-purple-600 animate-pulse">
+                                        사진 업로드 중
+                                    </p>
+                                    <div className="flex items-center justify-center gap-1.5">
+                                        <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                        <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                        <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        :
+                        uploadedFiles.length > 0 ?
                             <div
                                 onDragOver={handleDragOver}
                                 onDragEnter={handleDragEnter}
@@ -363,9 +456,7 @@ export default function SettingPageNew() {
                                     }
                                 </div>
                             </div>
-                        )
-                        :
-                        (
+                            :
                             <div
                                 onClick={() => fileInputRef.current?.click()}
                                 onDragOver={handleDragOver}
@@ -428,7 +519,7 @@ export default function SettingPageNew() {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                    }
 
                     {/* 저장 버튼 */}
                     {uploadedFiles.length > 0 &&
