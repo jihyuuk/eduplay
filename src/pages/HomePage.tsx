@@ -196,7 +196,7 @@ export default function HomePage() {
               className="flex items-center gap-1.5 hover:text-purple-500 transition-colors cursor-pointer"
             >
               <Mail className="w-4 h-4" />
-              <span>Email</span>
+              <span>jihyuk.dev@gmail.com</span>
             </div>
 
             <span>|</span>
