@@ -83,7 +83,6 @@ export default function HomePage() {
 
     const shareData = {
       title: "에듀플레이",
-      text: "아이들과 함께 즐기는 재미있는 놀이 공간이에요! 😊",
       url,
     };
 
