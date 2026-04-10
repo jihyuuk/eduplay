@@ -37,7 +37,7 @@ export const games: GameOption[] = [
     icon: "/game-icons/flip-fruit.png",
     variant: 'secondary',
     url: "/flip-card-fruit",
-        settings: [
+    settings: [
       { label: '쉬움', path: '/easy', variant: 'success' },
       { label: '보통', path: '/normal', variant: 'warning' },
       { label: '어려움', path: '/hard', variant: 'error' },
@@ -47,9 +47,14 @@ export const games: GameOption[] = [
     id: 'flip-battle',
     title: '뒤집기 대결',
     icon: "/game-icons/flip-match.png",
-    variant: 'disabled',
-    url: "/",
-    disabled: true
+    variant: 'info',
+    url: "/flip-card-battle",
+    settings: [
+      { label: '쉬움', path: '/easy', variant: 'success' },
+      { label: '보통', path: '/normal', variant: 'warning' },
+      { label: '어려움', path: '/hard', variant: 'error' },
+      { label: '둘이서 대결', path: '/2p', variant: 'primary' },
+    ]
   },
   {
     id: 'face-quiz',
