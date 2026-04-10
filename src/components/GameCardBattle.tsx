@@ -3,12 +3,16 @@ import React from "react";
 
 type GameCardBattleProps = {
   isFlipped: boolean;
+  isTimeOver: boolean;
   onPointerDown: () => void;
+  count: number | null;
 };
 
 function GameCardBattleComponent({
   isFlipped,
-  onPointerDown
+  isTimeOver,
+  onPointerDown,
+  count
 }: GameCardBattleProps) {
   return (
     <div
@@ -17,15 +21,24 @@ function GameCardBattleComponent({
     >
       <div className={`card-inner ${isFlipped ? "flipped" : ""}`}>
         {/* 뒷면 */}
-        <div className="card-battle-back flex flex-col items-center justify-center text-white">
-          <Pointer />
-          <div className="mt-3">
-            뒤집어!!
-          </div>
+        <div className="card-battle-back flex flex-col items-center justify-center text-red-700 text-4xl">
+
+          {count ? count : ""}
+
+          {!isTimeOver &&
+            <>
+              <Pointer className="text-white" />
+              <div className="mt-3 text-base text-white">
+                여기!
+              </div>
+            </>
+          }
         </div>
 
         {/* 앞면 */}
-        <div className={`card-battle-front`} />
+        <div className="card-battle-front flex flex-col items-center justify-center text-blue-600 text-4xl">
+          {count ? count : ""}
+        </div>
 
       </div>
     </div>

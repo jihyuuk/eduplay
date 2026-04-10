@@ -53,7 +53,7 @@ export const games: GameOption[] = [
       { label: '쉬움', path: '/easy', variant: 'success' },
       { label: '보통', path: '/normal', variant: 'warning' },
       { label: '어려움', path: '/hard', variant: 'error' },
-      { label: '둘이서 대결', path: '/2p', variant: 'primary' },
+      // { label: '둘이서 대결', path: '/2p', variant: 'primary' },
     ]
   },
   {

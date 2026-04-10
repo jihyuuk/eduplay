@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
 import ChunkyIconButton from "../components/ChunkyIconButton";
 import GameCardBattle from "../components/GameCardBattle";
-import FlipCardClearModal from "../components/FlipCardClearModal";
+import FlipBattleResultModal from "../components/FlipBattleResultModal";
 
 //상태
 type GameStatus = 'LOADING' | 'PLAYING';
@@ -18,7 +18,7 @@ const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 const CARD_COUNT = 40;
 
 //처음 카운트 다운
-const COUNTDOWN = 0;
+const COUNTDOWN = 5;
 
 //남은 시간
 const LEFT_TIME = 30;
@@ -110,6 +110,36 @@ export default function FlipCardBattlePage() {
     const leftTimerRef = useRef<number | null>(null);
     const cpuTimerRef = useRef<number | null>(null);
 
+    //게임 결과
+    const [resultCount, setResultCount] = useState<Map<number, number>>(new Map());
+    const [showResultModal, setShowResultModal] = useState(false);
+
+    //게임 끝나고 결과 보기
+    const resultCounting = async (flippedIds: Set<number>) => {
+
+        const redCards = Array.from({ length: CARD_COUNT }, (_, i) => i).filter(id => !flippedIds.has(id));
+        const blueCards = Array.from({ length: CARD_COUNT }, (_, i) => i).filter(id => flippedIds.has(id));
+
+        const delay = 250;
+
+        //빨간거 먼저 세기
+        for( let i = 0; i < redCards.length; i++){
+            await new Promise(res => setTimeout(res, delay));
+            const targetIdx = redCards[i];
+            setResultCount(prev => new Map(prev).set(targetIdx, i+1));
+        }
+
+        //파란거 세기
+        for (let i = 0; i < blueCards.length; i++) {
+            await new Promise(res => setTimeout(res, delay));
+            const targetIdx = blueCards[i];
+            setResultCount(prev => new Map(prev).set(targetIdx, i+1));
+        }
+
+        await new Promise(res => setTimeout(res, delay));
+        setShowResultModal(true);
+    }
+
 
     //전체 변수 초기화
     const resetAll = () => {
@@ -130,6 +160,10 @@ export default function FlipCardBattlePage() {
         //카운트다운 및 플레이타임, 힌트
         setCountDown(null);
         setLeftTime(LEFT_TIME);
+
+        //결과 초기화
+        setResultCount(new Map());
+        setShowResultModal(false);
     }
 
     // 게임 셋업
@@ -190,7 +224,12 @@ export default function FlipCardBattlePage() {
 
                 if (prev <= 0){
                     setIsTimeOver(true);
+                    setCountDown(null);
                     clearAllTimers();
+                    setFlippedIds(current => {
+                        resultCounting(current);
+                        return current;
+                    });
                     return 0;
                 }
 
@@ -334,7 +373,9 @@ export default function FlipCardBattlePage() {
                                 <GameCardBattle
                                     key={idx}
                                     isFlipped={flippedIds.has(idx)}
+                                    isTimeOver={isTimeOver}
                                     onPointerDown={() => handleCardClick(idx)}
+                                    count = {resultCount.get(idx) || null}
                                 />
                             )}
                         </div>
@@ -359,13 +400,11 @@ export default function FlipCardBattlePage() {
 
 
             {/*  클리어 모달 */}
-            {isTimeOver && (
-                <FlipCardClearModal
-                    playTime={flippedIds.size}
-                    hintCount={CARD_COUNT-flippedIds.size}
-                    playAgain={startGame} //다시하기
-                    description={""}
-                />
+            {showResultModal && (
+                <FlipBattleResultModal 
+                redScore={CARD_COUNT-flippedIds.size} 
+                blueScore={flippedIds.size} 
+                playAgain={startGame} />
             )}
         </div>
     );
