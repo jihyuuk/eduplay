@@ -47,6 +47,12 @@ body {
   border: 4px solid white;
 }
 
+@media (max-width: 767px) {
+  .card-front {
+    border: 2px solid white;
+  }
+}
+
 /* 카드 뒷면 - (물음표) */
 .card-back {
   color: white;
