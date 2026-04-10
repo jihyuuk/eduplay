@@ -18,17 +18,24 @@ const VALID_DIFFICULTIES: Difficulty[] = ['EASY', 'NORMAL', 'HARD'];
 const CARD_COUNT = 40;
 
 //처음 카운트 다운
-const COUNTDOWN = 5;
+const COUNTDOWN = 0;
 
 //남은 시간
-const LEFT_TIME = 20;
+const LEFT_TIME = 30;
 
-//닌이도 별 뒤집는 시간
+//난이도 별 뒤집는 시간
 const CPU_DELAY_CONFIG = {
-    EASY: 1000,
-    NORMAL: 800,
-    HARD: 600,
+    EASY: 600,
+    NORMAL: 1000,
+    HARD: 1000,
 }
+
+//난이도 별 뒤집기 개수
+const CPU_FLIP_COUNT = {
+    EASY: 1,
+    NORMAL: 2,
+    HARD: 3,
+} 
 
 //랜덤으로 뒤집을 절반 함수
 function pickRandomHalf() {
@@ -181,11 +188,16 @@ export default function FlipCardBattlePage() {
         leftTimerRef.current = window.setInterval(() => {
             setLeftTime(prev => {
 
-                // 1. 여기서 최신값(prev)을 체크합니다.
+                if (prev <= 0){
+                    setIsTimeOver(true);
+                    clearAllTimers();
+                    return 0;
+                }
+
                 if (prev <= 1) {
                     setCountDown("종료!");
-                    stopLeftTimer();
-                    //setIsTimeOver(true);
+                    setIsLock(true);
+                    stopCpuTimer();
                     return 0;
                 }
 
@@ -204,13 +216,22 @@ export default function FlipCardBattlePage() {
         stopCpuTimer();
 
         cpuTimerRef.current = window.setInterval(() => {
-            setFlippedIds((prev) => {
+        setFlippedIds((prev) => {
+                // 1. 기존의 Set을 복사하고 배열로 변환
                 const next = new Set(prev);
-                const idsArray = Array.from(next);
+                let idsArray = Array.from(next);
 
-                if (idsArray.length > 0) {
+                // 2. 반복해서 삭제 시도
+                for (let i = 0; i < CPU_FLIP_COUNT[difficulty]; i++) {
+                    // 더 이상 지울 카드가 없으면 루프 탈출 
+                    if (idsArray.length <= 0) break;
+
+                    // 랜덤 인덱스 선택
                     const randomIndex = Math.floor(Math.random() * idsArray.length);
-                    next.delete(idsArray[randomIndex]); // 랜덤으로 하나 삭제
+                    
+                    // 배열에서 해당 요소를 꺼내고(splice), Set에서도 삭제(delete)
+                    const [removedId] = idsArray.splice(randomIndex, 1);
+                    next.delete(removedId);
                 }
 
                 return next;
@@ -340,8 +361,8 @@ export default function FlipCardBattlePage() {
             {/*  클리어 모달 */}
             {isTimeOver && (
                 <FlipCardClearModal
-                    playTime={0}
-                    hintCount={0}
+                    playTime={flippedIds.size}
+                    hintCount={CARD_COUNT-flippedIds.size}
                     playAgain={startGame} //다시하기
                     description={""}
                 />
