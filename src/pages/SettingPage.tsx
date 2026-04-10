@@ -119,6 +119,9 @@ export default function SettingPageNew() {
 
     // 2. 저장 버튼 클릭 시 실행
     const handleFileSave = async () => {
+
+        if (isSaving || isUploading) return;
+
         if (uploadedFiles.length === 0) {
             toast.error("사진을 업로드해주세요.");
             return;
@@ -169,7 +172,7 @@ export default function SettingPageNew() {
     };
 
     const removeAllFiles = () => {
-        if (isSaving) return;
+        if (isSaving || isUploading) return;
 
         setUploadedFiles([]);
         setIsSaving(false);
@@ -377,7 +380,7 @@ export default function SettingPageNew() {
                         </div>
 
                         {/* 사진이 있을 때만 삭제 버튼 표시 */}
-                        {uploadedFiles.length > 0 && !isSaving && (
+                        {uploadedFiles.length > 0 && !isSaving && !isUploading && (
                             <ChunkyButton onClick={removeAllFiles} size="xs" variant="error" icon={Trash2}>
                                 <span className="hidden sm:inline">전체 삭제</span>
                                 <span className="inline sm:hidden">전체</span>
@@ -521,7 +524,7 @@ export default function SettingPageNew() {
                     }
 
                     {/* 저장 버튼 */}
-                    {uploadedFiles.length > 0 &&
+                    {uploadedFiles.length > 0 && !isUploading &&
                         <ChunkyButton onClick={handleFileSave} icon={Save} size="lg" className="w-full mt-4" variant="secondary" disabled={isSaving}>
 
                             {isSaving ? "저장중..." : `${uploadedFiles.length}명 저장하기`}
