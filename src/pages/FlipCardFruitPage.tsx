@@ -48,7 +48,7 @@ const kids: GameKid[] = [
     { id: 8, name: "청포도", imageUrl: "/fruits/green-grape.png" },
     { id: 9, name: "키위", imageUrl: "/fruits/kiwi.png" },
     { id: 10, name: "망고", imageUrl: "/fruits/mango.png" },
-    { id: 1, name: "멜론", imageUrl: "/fruits/melon.png" },
+    { id: 11, name: "멜론", imageUrl: "/fruits/melon.png" },
     { id: 12, name: "오렌지", imageUrl: "/fruits/orange.png" },
     { id: 13, name: "복숭아", imageUrl: "/fruits/peach.png" },
     { id: 14, name: "레몬", imageUrl: "/fruits/lemon.png" },
