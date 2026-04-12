@@ -383,12 +383,16 @@ export default function FlipCardBattlePage() {
                         {/* 카운트 다운 */}
                         {countDown && (
                             <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
-                                <motion.span
+                               <motion.span
                                     key={countDown}
-                                    initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
-                                    animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                                    transition={{ type: "spring", stiffness: 250, damping: 20 }}
-                                    className="text-[6rem] md:text-[8rem] font-black text-pink-500 drop-shadow-[0_0_20px_white]"
+                                    // initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
+                                    // animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                                    //transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                                    //className="text-[6rem] md:text-[8rem] font-black text-pink-500 drop-shadow-[0_0_20px_white]"
+                                    initial={{ scale: 1.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                    className="text-[6rem] md:text-[8rem] font-black text-pink-500"
                                 >
                                     {countDown}
                                 </motion.span>
