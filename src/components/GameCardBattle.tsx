@@ -27,10 +27,10 @@ function GameCardBattleComponent({
 
           {!isTimeOver &&
             <>
-              <Pointer className="text-white" />
-              <div className="mt-3 text-base text-white">
+              <Pointer className="text-white w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />
+              {/* <div className="mt-3 text-sm sm:text-base md:text-lg lg:text-xl text-white">
                 여기!
-              </div>
+              </div> */}
             </>
           }
         </div>
