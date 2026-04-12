@@ -329,7 +329,7 @@ export default function FlipCardBattlePage() {
             {/* 서브헤더 */}
             <SubHeader
                 title={headerTitle}
-                rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame} disabled={isStarting} />}
+                //rightElement={<ChunkyIconButton icon={RotateCw} iconSize={17} onClick={startGame} disabled={isStarting} />}
             />
 
             <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
