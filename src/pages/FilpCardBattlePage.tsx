@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { RotateCw, Timer } from "lucide-react";
+import { Timer } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import SubHeader from "../components/SubHeader";
-import ChunkyIconButton from "../components/ChunkyIconButton";
 import GameCardBattle from "../components/GameCardBattle";
 import FlipBattleResultModal from "../components/FlipBattleResultModal";
 
