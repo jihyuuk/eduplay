@@ -2,13 +2,15 @@ import { Pointer } from "lucide-react";
 import React from "react";
 
 type GameCardBattleProps = {
+  index: number;
   isFlipped: boolean;
   isTimeOver: boolean;
-  onPointerDown: () => void;
+  onPointerDown: (idx: number) => void;
   count: number | null;
 };
 
 function GameCardBattleComponent({
+  index,
   isFlipped,
   isTimeOver,
   onPointerDown,
@@ -16,7 +18,7 @@ function GameCardBattleComponent({
 }: GameCardBattleProps) {
   return (
     <div
-      onPointerDown={onPointerDown}
+      onPointerDown={() => onPointerDown(index)}
       className="card"
     >
       <div className={`card-inner ${isFlipped ? "flipped" : ""}`}>

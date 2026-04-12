@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { RotateCw, Timer } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -123,17 +123,17 @@ export default function FlipCardBattlePage() {
         const delay = 250;
 
         //빨간거 먼저 세기
-        for( let i = 0; i < redCards.length; i++){
+        for (let i = 0; i < redCards.length; i++) {
             await new Promise(res => setTimeout(res, delay));
             const targetIdx = redCards[i];
-            setResultCount(prev => new Map(prev).set(targetIdx, i+1));
+            setResultCount(prev => new Map(prev).set(targetIdx, i + 1));
         }
 
         //파란거 세기
         for (let i = 0; i < blueCards.length; i++) {
             await new Promise(res => setTimeout(res, delay));
             const targetIdx = blueCards[i];
-            setResultCount(prev => new Map(prev).set(targetIdx, i+1));
+            setResultCount(prev => new Map(prev).set(targetIdx, i + 1));
         }
 
         await new Promise(res => setTimeout(res, delay));
@@ -222,7 +222,7 @@ export default function FlipCardBattlePage() {
         leftTimerRef.current = window.setInterval(() => {
             setLeftTime(prev => {
 
-                if (prev <= 0){
+                if (prev <= 0) {
                     setIsTimeOver(true);
                     setCountDown(null);
                     clearAllTimers();
@@ -237,6 +237,7 @@ export default function FlipCardBattlePage() {
                     setCountDown("종료!");
                     setIsLock(true);
                     stopCpuTimer();
+                    setStatus("LOADING");
                     return 0;
                 }
 
@@ -255,7 +256,7 @@ export default function FlipCardBattlePage() {
         stopCpuTimer();
 
         cpuTimerRef.current = window.setInterval(() => {
-        setFlippedIds((prev) => {
+            setFlippedIds((prev) => {
                 // 1. 기존의 Set을 복사하고 배열로 변환
                 const next = new Set(prev);
                 let idsArray = Array.from(next);
@@ -267,7 +268,7 @@ export default function FlipCardBattlePage() {
 
                     // 랜덤 인덱스 선택
                     const randomIndex = Math.floor(Math.random() * idsArray.length);
-                    
+
                     // 배열에서 해당 요소를 꺼내고(splice), Set에서도 삭제(delete)
                     const [removedId] = idsArray.splice(randomIndex, 1);
                     next.delete(removedId);
@@ -311,29 +312,15 @@ export default function FlipCardBattlePage() {
     };
 
 
-    //카드 뒤집기 
-    const handleCardClick = (idx: number) => {
-
-        //1. 클릭 무시 
+    const handleCardClick = useCallback((idx: number) => {
         if (isLock || isTimeOver || isStarting) return;
 
-        //2. 클릭된 카드 뒤집기
         setFlippedIds(prev => {
             const next = new Set(prev);
             next.add(idx);
             return next;
         });
-
-        // setFlippedIdxs(prev => {
-        //     const next = new Set(prev);
-
-        //     if (next.has(idx)) next.delete(idx);
-        //     else next.add(idx);
-
-        //     return next;
-        // });
-    };
-
+    }, [isLock, isTimeOver, isStarting]);
 
 
     return (
@@ -372,10 +359,11 @@ export default function FlipCardBattlePage() {
                             {Array.from({ length: CARD_COUNT }).map((_, idx) =>
                                 <GameCardBattle
                                     key={idx}
+                                    index={idx}
                                     isFlipped={flippedIds.has(idx)}
                                     isTimeOver={isTimeOver}
-                                    onPointerDown={() => handleCardClick(idx)}
-                                    count = {resultCount.get(idx) || null}
+                                    onPointerDown={handleCardClick}
+                                    count={resultCount.get(idx) || null}
                                 />
                             )}
                         </div>
@@ -383,7 +371,7 @@ export default function FlipCardBattlePage() {
                         {/* 카운트 다운 */}
                         {countDown && (
                             <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
-                               <motion.span
+                                <motion.span
                                     key={countDown}
                                     // initial={{ scale: 1.8, opacity: 0, filter: "blur(10px)" }}
                                     // animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
@@ -405,10 +393,10 @@ export default function FlipCardBattlePage() {
 
             {/*  클리어 모달 */}
             {showResultModal && (
-                <FlipBattleResultModal 
-                redScore={CARD_COUNT-flippedIds.size} 
-                blueScore={flippedIds.size} 
-                playAgain={startGame} />
+                <FlipBattleResultModal
+                    redScore={CARD_COUNT - flippedIds.size}
+                    blueScore={flippedIds.size}
+                    playAgain={startGame} />
             )}
         </div>
     );
