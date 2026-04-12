@@ -35,7 +35,7 @@ const CPU_FLIP_COUNT = {
     EASY: 1,
     NORMAL: 2,
     HARD: 3,
-} 
+}
 
 //랜덤으로 뒤집을 절반 함수
 function pickRandomHalf() {
@@ -50,7 +50,7 @@ function pickRandomHalf() {
 }
 
 //그리드 설정 (총 40개)
-const GRID_CONFIG = "grid-cols-5 md:grid-cols-6 lg:grid-cols-10 gap-2 md:gap-4 px-3 md:px-4 max-w-7xl"
+const GRID_CONFIG = "grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2 md:gap-4 px-3 md:px-4 max-w-7xl"
 
 
 
