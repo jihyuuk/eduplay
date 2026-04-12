@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import React, { memo, type ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import ChunkyIconButton from './ChunkyIconButton';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ interface SubHeaderProps {
   rightElement?: ReactNode;
 }
 
-const SubHeader: React.FC<SubHeaderProps> = ({ title, rightElement }) => {
+const SubHeader: React.FC<SubHeaderProps> = memo(({ title, rightElement }) => {
 
   const navigate = useNavigate();
 
@@ -43,6 +43,6 @@ const SubHeader: React.FC<SubHeaderProps> = ({ title, rightElement }) => {
       </div>
     </header>
   );
-};
+});
 
 export default SubHeader;
