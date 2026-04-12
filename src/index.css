@@ -227,30 +227,48 @@ body {
   transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
 }
 
+/** 카드 뒤집기 **/
+.card-battle {
+  width: 100%;
+  /* 부모 그리드 너비에 맞춤 */
+  aspect-ratio: 3 / 4;
+  /* 4:3비율 유지 */
+  perspective: 1000px;
+}
 
-/** 카드 뒤집기 대결 **/
+.card-battle-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+  cursor: pointer;
+  will-change: transform;
+}
+
+/* 뒤집힌 상태 */
+.card-battle-inner.flipped {
+  transform: rotateY(180deg);
+}
+
 .card-battle-front,
 .card-battle-back {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  /* 뒤집을 때 안보이게 */
-  /* border-radius: 12px; */
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 4px solid white;
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+  /* border: 4px solid white; */
 }
 
-/* 카드 뒷면 - (물음표) */
+/* 카드 뒷면 - (빨간색) */
 .card-battle-back {
   background-color: #f87171;
-  /* background-color: #f472b6; */
 }
 
-/* 카드 앞면 - (사진+이름) */
+/* 카드 앞면 - (파란색) */
 .card-battle-front {
   background-color: #38bdf8;
-  transform: rotateY(180deg);
-  /* 미리 뒤집어 둠 */
+  transform: rotateY(180deg);/* 미리 뒤집어 둠 */
 }

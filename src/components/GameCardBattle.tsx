@@ -19,9 +19,9 @@ function GameCardBattleComponent({
   return (
     <div
       onPointerDown={() => onPointerDown(index)}
-      className="card"
+      className="card-battle"
     >
-      <div className={`card-inner ${isFlipped ? "flipped" : ""}`}>
+      <div className={`card-battle-inner ${isFlipped ? "flipped" : ""}`}>
         {/* 뒷면 */}
         <div className="card-battle-back flex flex-col items-center justify-center text-red-700 text-4xl">
 

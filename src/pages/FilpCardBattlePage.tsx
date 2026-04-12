@@ -25,7 +25,7 @@ const LEFT_TIME = 30;
 
 //난이도 별 뒤집는 시간
 const CPU_DELAY_CONFIG = {
-    EASY: 600,
+    EASY: 800,
     NORMAL: 1000,
     HARD: 1000,
 }
