@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Cloud, Github, Mail, Settings, Share2, Sparkles } from 'lucide-react';
 import HomeChunkyButton from '../components/HomeChunkyButton';
 import toast from 'react-hot-toast';
@@ -45,6 +45,12 @@ const CloudDecoration: React.FC = () => (
 
 export default function HomePage() {
 
+  useEffect(() => {
+    const logStorageStatus = async () => { if (!navigator.storage) return; const persisted = await navigator.storage.persisted?.(); const estimate = await navigator.storage.estimate?.(); console.log("persisted:", persisted); console.log("quota:", estimate?.quota); console.log("usage:", estimate?.usage); }
+    logStorageStatus();
+  }, [])
+
+
   const navigate = useNavigate();
 
   const [selectedGame, setSelectedGame] = useState<GameOption | null>(null);
@@ -55,15 +61,15 @@ export default function HomePage() {
 
   //게임 클릭시 난이도 선택 모달
   const handleGameClick = (game: GameOption) => {
-      if (game.disabled) return; // 비활성화된 게임은 무시
+    if (game.disabled) return; // 비활성화된 게임은 무시
 
-      // 2. 설정(난이도 등)이 있는 게임이면 모달을 열고, 없으면 바로 이동
-      if (game.settings && game.settings.length > 0) {
-        setSelectedGame(game);
-      } else {
-        navigate(game.url);
-      }
-    };
+    // 2. 설정(난이도 등)이 있는 게임이면 모달을 열고, 없으면 바로 이동
+    if (game.settings && game.settings.length > 0) {
+      setSelectedGame(game);
+    } else {
+      navigate(game.url);
+    }
+  };
 
 
   // 이메일 복사 버튼
@@ -106,7 +112,7 @@ export default function HomePage() {
       <CloudDecoration />
 
       {/* --- 상단 내비게이션 (Sticky 적용 x) --- */}
-     <nav className="w-full transition-all duration-300 bg-transparent">
+      <nav className="w-full transition-all duration-300 bg-transparent">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-3 md:py-4">
           {/* 좌측: 로고 */}
           <div
@@ -163,7 +169,7 @@ export default function HomePage() {
               title={game.title}
               icon={game.icon}
               badge={game.badge}
-              onClick={()=>handleGameClick(game)}
+              onClick={() => handleGameClick(game)}
               disabled={game.disabled}
             />
           ))}
@@ -224,10 +230,10 @@ export default function HomePage() {
 
       </div>
 
-{/* 4. selectedGame에 데이터가 있을 때만 모달을 렌더링 */}
+      {/* 4. selectedGame에 데이터가 있을 때만 모달을 렌더링 */}
       {selectedGame && (
-        <GameSettingModal 
-          game={selectedGame} 
+        <GameSettingModal
+          game={selectedGame}
           onClose={() => setSelectedGame(null)} // 닫기 누르면 다시 null로
         />
       )}
