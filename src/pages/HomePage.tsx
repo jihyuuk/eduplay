@@ -45,12 +45,6 @@ const CloudDecoration: React.FC = () => (
 
 export default function HomePage() {
 
-  useEffect(() => {
-    const logStorageStatus = async () => { if (!navigator.storage) return; const persisted = await navigator.storage.persisted?.(); const estimate = await navigator.storage.estimate?.(); console.log("persisted:", persisted); console.log("quota:", estimate?.quota); console.log("usage:", estimate?.usage); }
-    logStorageStatus();
-  }, [])
-
-
   const navigate = useNavigate();
 
   const [selectedGame, setSelectedGame] = useState<GameOption | null>(null);
