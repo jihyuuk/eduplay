@@ -6,6 +6,34 @@ body {
   font-family: 'Jua', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 텍스트 선택 방지 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  /* 스크롤은 살리고, 핀치/더블탭 줌만 제거 */
+  touch-action: pan-x pan-y;
+  /*아이패드에서 이미 한 손가락으로 scroll 중일 때 두 번째 손가락이 들어오면 pinch-zoom이 발동하는 버그 있음*/
+}
+
+/* 입력창 예외 처리 */
+input,
+textarea {
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+}
+
+img {
+  -webkit-user-drag: none;
+  /* 이미지 드래그 방지 */
+  -webkit-tap-highlight-color: transparent;
+  /* 클릭 시 하이라이트 제거 */
+  -webkit-touch-callout: none;
+  /* (추천) 꾹 누르기 메뉴 방지 */
 }
 
 
@@ -270,5 +298,6 @@ body {
 /* 카드 앞면 - (파란색) */
 .card-battle-front {
   background-color: #38bdf8;
-  transform: rotateY(180deg);/* 미리 뒤집어 둠 */
+  transform: rotateY(180deg);
+  /* 미리 뒤집어 둠 */
 }
