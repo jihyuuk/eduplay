@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Cloud, Github, Mail, Settings, Share2, Sparkles } from 'lucide-react';
 import HomeChunkyButton from '../components/HomeChunkyButton';
 import toast from 'react-hot-toast';

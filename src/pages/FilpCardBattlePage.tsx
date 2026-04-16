@@ -119,7 +119,7 @@ export default function FlipCardBattlePage() {
         const redCards = Array.from({ length: CARD_COUNT }, (_, i) => i).filter(id => !flippedIds.has(id));
         const blueCards = Array.from({ length: CARD_COUNT }, (_, i) => i).filter(id => flippedIds.has(id));
 
-        const delay = 250;
+        const delay = 200;
 
         //빨간거 먼저 세기
         for (let i = 0; i < redCards.length; i++) {
