@@ -21,16 +21,21 @@ const PhotoBoothPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 1. 배포 환경(iOS/모바일) 대응을 위한 카메라 시작 함수 수정
+  // 🛠️ 배포 환경 안정성 강화 버전 startCamera
   const startCamera = async () => {
     try {
+      // 혹시 남아있을지 모를 기존 스트림 안전하게 종료
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          facingMode: "user" // 전면 카메라 우선
+          facingMode: "user" 
         },
-        audio: false // 포토부스 정지사 진 촬영이므로 오디오 권한 거부로 인한 에러 방지
+        audio: false 
       });
       
       setStream(mediaStream);
@@ -38,13 +43,24 @@ const PhotoBoothPage = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         
-        // 브라우저의 자동재생 차단 정책을 우회하기 위해 로드 완료 후 play() 강제 호출
-        videoRef.current.onloadedmetadata = async () => {
-          try {
-            await videoRef.current?.play();
-          } catch (playErr) {
-            console.error("비디오 플레이 강제 실행 실패:", playErr);
-          }
+        // 🎯 [핵심 변경] 메타데이터만 로드됐을 때가 아니라, 
+        // 실제 '첫 프레임 데이터(픽셀)'가 도착했을 때 play()를 호출합니다.
+        videoRef.current.onloadeddata = () => {
+          // 브라우저가 내부 렌더링 파이프라인을 완전히 준비하도록 100ms 버퍼를 둡니다.
+          setTimeout(async () => {
+            try {
+              if (videoRef.current) {
+                // 스트림 트랙이 실제로 살아있는지 최종 검증 후 비디오 재생
+                const videoTrack = mediaStream.getVideoTracks()[0];
+                if (videoTrack && videoTrack.readyState === 'live') {
+                  await videoRef.current.play();
+                  console.log("카메라 정상 재생 중");
+                }
+              }
+            } catch (playErr) {
+              console.error("비디오 플레이 강제 실행 실패:", playErr);
+            }
+          }, 100);
         };
       }
     } catch (err) {
@@ -71,7 +87,6 @@ const PhotoBoothPage = () => {
         const vW = videoRef.current.videoWidth;
         const vH = videoRef.current.videoHeight;
         
-        // 0x0 상태로 캡처되는 현상 방지 안전장치
         if (vW === 0 || vH === 0) return "";
 
         const targetRatio = 3 / 2;
@@ -103,11 +118,10 @@ const PhotoBoothPage = () => {
     setPhotos([]);
     setSelectedPhotos([]);
     
-    // 다시 촬영할 때 카메라가 꺼져있다면 재기동
     if (!stream) {
       await startCamera();
-      // 스트림이 완전히 붙을 때까지 찰나의 대기시간 부여
-      await new Promise(r => setTimeout(r, 500));
+      // 카메라 켜지고 스트림이 완벽히 정착할 수 있도록 안전 대기 시간 부여
+      await new Promise(r => setTimeout(r, 800));
     }
     
     for (let i = 0; i < TOTAL_SHOTS; i++) {
@@ -162,12 +176,16 @@ const PhotoBoothPage = () => {
     const imgH = (imgW / 3) * 2;
     const gap = 30;
 
+    let loadedCount = 0;
     selectedPhotos.forEach((photoIndex, i) => {
       const img = new Image();
       img.src = photos[photoIndex];
       img.onload = () => {
         ctx.drawImage(img, padding, padding + (i * (imgH + gap)), imgW, imgH);
-        if (i === SELECT_COUNT - 1) {
+        loadedCount++;
+        
+        // 인덱스 대신 실제 비동기 로딩이 다 끝난 카운트로 마지막을 판단하여 버그 방지
+        if (loadedCount === SELECT_COUNT) {
           ctx.fillStyle = '#FF69B4';
           ctx.font = 'bold 32px Arial';
           ctx.textAlign = 'center';
@@ -203,7 +221,8 @@ const PhotoBoothPage = () => {
       <main className="w-full max-w-5xl flex flex-col items-center">
         {(isCapturing || (photos.length === 0 && stream)) && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
-            <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white">
+            {/* 🛠️ GPU 하드웨어 가속 레이어 꼬임 방지용 transform 트릭 적용 */}
+            <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ transform: 'translateZ(0)' }}>
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
               
               {lastCaptured && (
@@ -231,13 +250,14 @@ const PhotoBoothPage = () => {
                 </>
               )}
               
-              {/* 2. 모바일/배포 정책 대응을 위해 playsInline, muted, autoPlay 속성 완비 */}
               <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 muted 
                 className="w-full h-full object-cover scale-x-[-1]" 
+                // 🛠️ 맥북/모바일 브라우저 그래픽 버그를 방지하기 위해 뒷면 렌더링 제거 및 변형 힌트 추가
+                style={{ backfaceVisibility: 'hidden', willChange: 'transform' }}
               />
             </div>
             {!isCapturing && (
