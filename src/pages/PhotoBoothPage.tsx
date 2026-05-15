@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Camera, Download, RefreshCcw, Check } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Camera, Download, RefreshCcw } from 'lucide-react';
 
 // ==========================================
 // ⚙️ 포토부스 설정 상수
