@@ -6,6 +6,8 @@ import FlipCardFruitPage from "./pages/FlipCardFruitPage";
 import SettingPage from "./pages/SettingPage";
 import ToastProvider from "./components/ToastProvider";
 import FlipCardBattlePage from "./pages/FilpCardBattlePage";
+import LoginPage from "./pages/LoginPage";
+import PhotoBoothPage from "./pages/PhotoBoothPage";
 
 export default function App() {
 
@@ -22,10 +24,12 @@ export default function App() {
       {/* 2. 주소에 따라 갈아끼워질 화면들 */}
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/setting" element={<SettingPage/>} />
         <Route path="/flip-card-kid/:difficultyParam" element={<FlipCardKidPage />} />
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
         <Route path="/flip-card-Battle/:difficultyParam" element={<FlipCardBattlePage />} />
+        <Route path="/photobooth" element={<PhotoBoothPage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>

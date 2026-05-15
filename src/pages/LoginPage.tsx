@@ -11,7 +11,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   // 로그인된 유저 정보를 담을 상태
   const [user, setUser] = useState<User | null>(null);
@@ -31,21 +31,21 @@ export default function AuthPage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) alert('회원가입 실패: ' + error.message);
-    else alert('회원가입 성공!');
-    setLoading(false);
-  }
+  // async function handleSignUp(e: React.FormEvent) {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signUp({ email, password });
+  //   if (error) alert('회원가입 실패: ' + error.message);
+  //   else alert('회원가입 성공!');
+  //   setLoading(false);
+  // }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
+    //setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) alert('로그인 실패: ' + error.message);
-    setLoading(false);
+    //setLoading(false);
   }
 
   async function handleSocialLogin(provider: Provider) {
@@ -169,15 +169,15 @@ export default function AuthPage() {
             </div>
 
             <div className="flex justify-center gap-6">
-              <SocialLoginButton provider="kakao">
+              <SocialLoginButton provider="kakao" onClick={()=>handleSocialLogin("kakao")}>
                 <RiKakaoTalkFill className="w-7 h-7 text-[#371D1E]" />
               </SocialLoginButton>
 
-              <SocialLoginButton provider="google">
+              <SocialLoginButton provider="google" onClick={()=>handleSocialLogin("google")}>
                 <FcGoogle className="w-7 h-7" />
               </SocialLoginButton>
 
-              <SocialLoginButton provider="github">
+              <SocialLoginButton provider="github" onClick={()=>handleSocialLogin("github")}>
                 <FaGithub className="w-7 h-7 text-white" />
               </SocialLoginButton>
             </div>
