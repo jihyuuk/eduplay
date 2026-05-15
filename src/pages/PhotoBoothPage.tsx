@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Camera, Download, RefreshCcw } from 'lucide-react';
 
-// ==========================================
-// ⚙️ 포토부스 설정 상수
-// ==========================================
 const TOTAL_SHOTS = 6;  
 const SELECT_COUNT = 4; 
 const COUNTDOWN_SECONDS = 5; 
@@ -17,14 +14,14 @@ const PhotoBoothPage = () => {
   const [flash, setFlash] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [lastCaptured, setLastCaptured] = useState<string | null>(null);
+  const [cameraReady, setCameraReady] = useState(false); // 👈 카메라 준비 완료 상태 추가
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 🛠️ 배포 환경 안정성 강화 버전 startCamera
-  const startCamera = async () => {
+  // 1. 카메라를 완전히 초기화하고 스트림을 비디오에 강제 주입하는 함수
+  const startCamera = async (): Promise<MediaStream | null> => {
     try {
-      // 혹시 남아있을지 모를 기존 스트림 안전하게 종료
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
@@ -39,32 +36,19 @@ const PhotoBoothPage = () => {
       });
       
       setStream(mediaStream);
+      setCameraReady(false); // 새 스트림이 오면 일단 false
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         
-        // 🎯 [핵심 변경] 메타데이터만 로드됐을 때가 아니라, 
-        // 실제 '첫 프레임 데이터(픽셀)'가 도착했을 때 play()를 호출합니다.
-        videoRef.current.onloadeddata = () => {
-          // 브라우저가 내부 렌더링 파이프라인을 완전히 준비하도록 100ms 버퍼를 둡니다.
-          setTimeout(async () => {
-            try {
-              if (videoRef.current) {
-                // 스트림 트랙이 실제로 살아있는지 최종 검증 후 비디오 재생
-                const videoTrack = mediaStream.getVideoTracks()[0];
-                if (videoTrack && videoTrack.readyState === 'live') {
-                  await videoRef.current.play();
-                  console.log("카메라 정상 재생 중");
-                }
-              }
-            } catch (playErr) {
-              console.error("비디오 플레이 강제 실행 실패:", playErr);
-            }
-          }, 100);
-        };
+        // 배포 환경 버그 방지: 의도적으로 play()를 여러 번 선언하거나 완전히 대기 후 실행
+        await videoRef.current.play();
+        setCameraReady(true);
       }
+      return mediaStream;
     } catch (err) {
-      console.error("카메라를 켤 수 없어요. 권한을 확인해주세요:", err);
+      console.error("카메라 권한 획득 또는 재생 실패:", err);
+      return null;
     }
   };
 
@@ -72,16 +56,18 @@ const PhotoBoothPage = () => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
+      setCameraReady(false);
     }
   };
 
+  // 컴포넌트 마운트 시 최초 1회 카메라 시도 (실패해도 버튼 클릭 시 재시도하므로 안전)
   useEffect(() => {
     startCamera();
     return () => stopCamera();
   }, []);
 
   const takeSelfie = () => {
-    if (videoRef.current && canvasRef.current) {
+    if (videoRef.current && canvasRef.current && cameraReady) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
         const vW = videoRef.current.videoWidth;
@@ -113,16 +99,22 @@ const PhotoBoothPage = () => {
     return "";
   };
 
+  // 2. 사용자의 '클릭 이벤트' 컨텍스트 안에서 확실하게 카메라를 깨우고 시퀀스 시작
   const startSequence = async () => {
-    setIsCapturing(true);
     setPhotos([]);
     setSelectedPhotos([]);
-    
-    if (!stream) {
-      await startCamera();
-      // 카메라 켜지고 스트림이 완벽히 정착할 수 있도록 안전 대기 시간 부여
-      await new Promise(r => setTimeout(r, 800));
+    setIsCapturing(true);
+
+    // 사용자의 클릭 직후에 startCamera를 호출해야 브라우저 AutoPlay 차단 정책을 완벽하게 뚫습니다.
+    const activeStream = await startCamera();
+    if (!activeStream) {
+      alert("카메라를 시작할 수 없습니다. 권한을 확인해주세요.");
+      setIsCapturing(false);
+      return;
     }
+
+    // 비디오 트랙이 렌더러에 완전히 붙을 때까지 안전하게 대기
+    await new Promise(r => setTimeout(r, 1000));
     
     for (let i = 0; i < TOTAL_SHOTS; i++) {
       setCurrentStep(i + 1);
@@ -184,7 +176,6 @@ const PhotoBoothPage = () => {
         ctx.drawImage(img, padding, padding + (i * (imgH + gap)), imgW, imgH);
         loadedCount++;
         
-        // 인덱스 대신 실제 비동기 로딩이 다 끝난 카운트로 마지막을 판단하여 버그 방지
         if (loadedCount === SELECT_COUNT) {
           ctx.fillStyle = '#FF69B4';
           ctx.font = 'bold 32px Arial';
@@ -221,7 +212,6 @@ const PhotoBoothPage = () => {
       <main className="w-full max-w-5xl flex flex-col items-center">
         {(isCapturing || (photos.length === 0 && stream)) && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
-            {/* 🛠️ GPU 하드웨어 가속 레이어 꼬임 방지용 transform 트릭 적용 */}
             <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ transform: 'translateZ(0)' }}>
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
               
@@ -250,13 +240,13 @@ const PhotoBoothPage = () => {
                 </>
               )}
               
+              {/* 3. 자동재생 우회 속성 명시 및 하드웨어 가속 트릭 */}
               <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 muted 
                 className="w-full h-full object-cover scale-x-[-1]" 
-                // 🛠️ 맥북/모바일 브라우저 그래픽 버그를 방지하기 위해 뒷면 렌더링 제거 및 변형 힌트 추가
                 style={{ backfaceVisibility: 'hidden', willChange: 'transform' }}
               />
             </div>
