@@ -5,6 +5,7 @@ import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
+import ChunkyButton from '../components/ChunkyButton';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
@@ -80,7 +81,7 @@ export default function AuthPage() {
 
   // 로그아웃 상태일 때 보여줄 화면 (기존 폼)
   return (
-    <div className="min-h-screen bg-white sm:bg-gray-50 text-gray-900 flex sm:items-center justify-center font-sans">
+    <div className="min-h-screen bg-white sm:bg-gray-50 text-gray-900 flex sm:items-center justify-center">
 
       {/* 모바일에서는 전체, 데스크탑에서는 카드 */}
       <div className="max-w-md w-full bg-white sm:rounded-2xl sm:shadow-xl overflow-hidden flex flex-col">
@@ -148,12 +149,7 @@ export default function AuthPage() {
             </div>
 
             {/* Login Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl py-3.5 font-semibold text-lg transition-colors mt-2 shadow-sm shadow-blue-600/20"
-            >
-              로그인
-            </button>
+            <ChunkyButton size='md' className='w-full'>로그인</ChunkyButton>
           </form>
 
           {/* 회원가입, 비밀번호 찾기 인풋 */}
