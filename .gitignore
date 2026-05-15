@@ -26,3 +26,6 @@ dist-ssr
 #이미지
 /public/images/*
 /public/lower-images/*
+
+#환경설정
+.env
