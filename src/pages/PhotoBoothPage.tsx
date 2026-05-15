@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Camera, Download, RefreshCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Camera, Download, RefreshCcw, Check } from 'lucide-react';
 
 // ==========================================
-// ⚙️ 포토부스 설정 상수 (필요에 따라 변경하세요)
+// ⚙️ 포토부스 설정 상수
 // ==========================================
-const TOTAL_SHOTS = 6;  // 총 촬영할 사진 장수 (예: 4장, 6장, 8장 등)
-const SELECT_COUNT = 4; // 최종 프레임에 들어갈 선택 장수 (네컷사진이므로 보통 4)
-const COUNTDOWN_SECONDS = 5; // 카운트다운 초 설정
+const TOTAL_SHOTS = 6;  
+const SELECT_COUNT = 4; 
+const COUNTDOWN_SECONDS = 5; 
 
 const PhotoBoothPage = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -21,13 +21,34 @@ const PhotoBoothPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // 1. 배포 환경(iOS/모바일) 대응을 위한 카메라 시작 함수 수정
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user" // 전면 카메라 우선
+        },
+        audio: false // 포토부스 정지사 진 촬영이므로 오디오 권한 거부로 인한 에러 방지
+      });
+      
       setStream(mediaStream);
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        
+        // 브라우저의 자동재생 차단 정책을 우회하기 위해 로드 완료 후 play() 강제 호출
+        videoRef.current.onloadedmetadata = async () => {
+          try {
+            await videoRef.current?.play();
+          } catch (playErr) {
+            console.error("비디오 플레이 강제 실행 실패:", playErr);
+          }
+        };
+      }
     } catch (err) {
-      console.error("카메라 에러:", err);
+      console.error("카메라를 켤 수 없어요. 권한을 확인해주세요:", err);
     }
   };
 
@@ -49,8 +70,11 @@ const PhotoBoothPage = () => {
       if (context) {
         const vW = videoRef.current.videoWidth;
         const vH = videoRef.current.videoHeight;
-        const targetRatio = 3 / 2;
         
+        // 0x0 상태로 캡처되는 현상 방지 안전장치
+        if (vW === 0 || vH === 0) return "";
+
+        const targetRatio = 3 / 2;
         let drawW = vW;
         let drawH = vW / targetRatio;
         if (drawH > vH) {
@@ -74,11 +98,17 @@ const PhotoBoothPage = () => {
     return "";
   };
 
-  // 설정된 TOTAL_SHOTS 만큼 반복하도록 루프 수정
   const startSequence = async () => {
     setIsCapturing(true);
     setPhotos([]);
     setSelectedPhotos([]);
+    
+    // 다시 촬영할 때 카메라가 꺼져있다면 재기동
+    if (!stream) {
+      await startCamera();
+      // 스트림이 완전히 붙을 때까지 찰나의 대기시간 부여
+      await new Promise(r => setTimeout(r, 500));
+    }
     
     for (let i = 0; i < TOTAL_SHOTS; i++) {
       setCurrentStep(i + 1);
@@ -93,8 +123,10 @@ const PhotoBoothPage = () => {
       await new Promise(r => setTimeout(r, 100));
       
       const captured = takeSelfie();
-      setPhotos(prev => [...prev, captured]);
-      setLastCaptured(captured);
+      if (captured) {
+        setPhotos(prev => [...prev, captured]);
+        setLastCaptured(captured);
+      }
       
       await new Promise(r => setTimeout(r, 2000));
     }
@@ -104,7 +136,6 @@ const PhotoBoothPage = () => {
     stopCamera();
   };
 
-  // 설정된 SELECT_COUNT 만큼만 선택 가능하도록 제한 수정
   const toggleSelect = (index: number) => {
     if (selectedPhotos.includes(index)) {
       setSelectedPhotos(selectedPhotos.filter(i => i !== index));
@@ -170,14 +201,11 @@ const PhotoBoothPage = () => {
       </header>
 
       <main className="w-full max-w-5xl flex flex-col items-center">
-        {/* 카메라 영역 */}
         {(isCapturing || (photos.length === 0 && stream)) && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
             <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white">
-              {/* 플래시 레이어 */}
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
               
-              {/* 방금 찍힌 사진 미리보기 레이어 */}
               {lastCaptured && (
                 <div className="absolute inset-0 z-50 animate-in fade-in zoom-in duration-300">
                   <img src={lastCaptured} className="w-full h-full object-cover" alt="last captured" />
@@ -189,12 +217,10 @@ const PhotoBoothPage = () => {
 
               {isCapturing && !lastCaptured && (
                 <>
-                {/* 상수에 연동된 우측 하단 스텝 카운터 */}
                 <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full z-20 border border-white/20">
                     <span className="text-white font-black text-lg">{currentStep} / {TOTAL_SHOTS}</span>
                 </div>
 
-                {/* 하단 가운데 카운트다운 숫자 */}
                 {countdown && (
                 <div className="absolute bottom-0 inset-x-0 flex items-center justify-center z-10">
                     <span className="text-[4rem] font-black text-white drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-5 duration-200">
@@ -204,7 +230,15 @@ const PhotoBoothPage = () => {
                 )}
                 </>
               )}
-              <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover scale-x-[-1]" />
+              
+              {/* 2. 모바일/배포 정책 대응을 위해 playsInline, muted, autoPlay 속성 완비 */}
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className="w-full h-full object-cover scale-x-[-1]" 
+              />
             </div>
             {!isCapturing && (
               <button onClick={startSequence} className="w-full py-6 bg-orange-400 text-white rounded-3xl font-black text-2xl shadow-[0_8px_0_rgb(234,88,12)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3">
@@ -217,7 +251,6 @@ const PhotoBoothPage = () => {
         {/* 촬영 완료 후 UI */}
         {photos.length === TOTAL_SHOTS && !isCapturing && (
           <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-10 animate-in fade-in duration-700">
-            {/* 사진 선택 리스트 (그리드 레이아웃 유지) */}
             <div className="md:col-span-7 flex flex-col gap-6">
               <div className="bg-white p-8 rounded-[3rem] shadow-xl border-4 border-pink-100">
                 <h2 className="text-center text-xl font-bold text-gray-800 mb-6">마음에 드는 {SELECT_COUNT}장을 순서대로 눌러주세요! ✨</h2>
@@ -241,7 +274,6 @@ const PhotoBoothPage = () => {
               </button>
             </div>
 
-            {/* 인화지 미리보기 (SELECT_COUNT 상수에 맞게 루프 생성) */}
             <div className="md:col-span-5 flex flex-col items-center">
               <div className="w-full max-w-[280px] aspect-[1/3] bg-[#FFDEE9] rounded-xl shadow-2xl p-5 flex flex-col gap-4 border-[12px] border-white relative">
                 {Array.from({ length: SELECT_COUNT }).map((_, slot) => (
