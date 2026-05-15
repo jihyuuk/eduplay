@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import type { Provider, User } from '@supabase/supabase-js';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { RiKakaoTalkFill } from 'react-icons/ri';
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub } from 'react-icons/fa';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // 로그인된 유저 정보를 담을 상태
   const [user, setUser] = useState<User | null>(null);
 
@@ -78,13 +81,13 @@ export default function AuthPage() {
   // 로그아웃 상태일 때 보여줄 화면 (기존 폼)
   return (
     <div className="min-h-screen bg-white sm:bg-gray-50 text-gray-900 flex sm:items-center justify-center font-sans">
-      
+
       {/* 모바일에서는 전체, 데스크탑에서는 카드 */}
       <div className="max-w-md w-full bg-white sm:rounded-2xl sm:shadow-xl overflow-hidden flex flex-col">
         {/* 헤더 */}
         <header className="p-4 pb-0 sm:p-6 sm:pb-0">
           {/* 뒤로가기 버튼 */}
-          <button 
+          <button
             type="button"
             className="text-gray-600 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
             aria-label="뒤로 가기"
@@ -94,20 +97,20 @@ export default function AuthPage() {
         </header>
 
         {/* 본문 */}
-        <main className="px-6 pb-4 flex-1 flex flex-col">
-          
+        <main className="px-6 pb-6 flex-1 flex flex-col">
+
           {/* 로고 */}
-           <div className="flex justify-center mb-3">
-            <img 
+          <div className="flex justify-center mb-3">
+            <img
               src="/logo-bg-white.png"
-              alt="EduPlay Logo" 
+              alt="EduPlay Logo"
               className="w-80 object-cover"
             />
           </div>
 
           {/* 아이디, 비번 입력 인풋 */}
           <form className="space-y-5" onSubmit={handleLogin}>
-            
+
             {/* ID Input */}
             <div>
               <label htmlFor="userId" className="sr-only">아이디</label>
@@ -170,38 +173,17 @@ export default function AuthPage() {
             </div>
 
             <div className="flex justify-center gap-6">
-              {/* Kakao Login */}
-              <button 
-                type="button"
-                className="w-14 h-14 rounded-full bg-[#FEE500] flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FEE500]"
-                aria-label="카카오로 로그인"
-              >
-                <svg viewBox="0 0 24 24" className="w-7 h-7 text-[#371D1E]" fill="currentColor">
-                  <path d="M12 3c-5.52 0-10 3.58-10 8 0 2.82 1.8 5.3 4.54 6.74-.2.72-.73 2.68-.78 2.86-.06.2.06.32.18.25.1-.06 2.88-1.95 4.02-2.82.65.1 1.34.15 2.04.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
-                </svg>
-              </button>
+              <SocialLoginButton provider="kakao">
+                <RiKakaoTalkFill className="w-7 h-7 text-[#371D1E]" />
+              </SocialLoginButton>
 
-              {/* Naver Login */}
-              <button 
-                type="button"
-                className="w-14 h-14 rounded-full bg-[#03C75A] flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03C75A]"
-                aria-label="네이버로 로그인"
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
-                  <path d="M16.03 3H21v18h-4.97V9.75L9.36 21H4.5V3h4.97v11.25L14.9 3h1.13z"/>
-                </svg>
-              </button>
+              <SocialLoginButton provider="google">
+                <FcGoogle className="w-7 h-7" />
+              </SocialLoginButton>
 
-              {/* Google Login */}
-              <button 
-                type="button"
-                className="w-14 h-14 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
-                aria-label="구글로 로그인"
-              >
-                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#000000">
-                  <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
-                </svg>
-              </button>
+              <SocialLoginButton provider="github">
+                <FaGithub className="w-7 h-7 text-white" />
+              </SocialLoginButton>
             </div>
           </div>
 
@@ -210,3 +192,35 @@ export default function AuthPage() {
     </div>
   );
 }
+
+
+interface SocialLoginButtonProps {
+  provider: 'kakao' | 'google' | 'github';
+  onClick?: () => void;
+  children: React.ReactNode;
+}
+
+const SocialLoginButton = ({ provider, onClick, children }: SocialLoginButtonProps) => {
+  const providerStyles = {
+    kakao: "bg-[#FEE500] focus:ring-[#FEE500]",
+    google: "bg-white border border-gray-200 focus:ring-gray-200",
+    github: "bg-[#24292F] focus:ring-[#24292F]",
+  };
+
+  const ariaLabels = {
+    kakao: "카카오로 로그인",
+    google: "구글로 로그인",
+    github: "깃허브로 로그인",
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-14 h-14 rounded-full flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${providerStyles[provider]}`}
+      aria-label={ariaLabels[provider]}
+    >
+      {children}
+    </button>
+  );
+};
