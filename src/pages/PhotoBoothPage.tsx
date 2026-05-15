@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Camera, Download, RefreshCcw } from 'lucide-react';
 
+// ==========================================
+// ⚙️ 포토부스 설정 상수
+// ==========================================
 const TOTAL_SHOTS = 6;  
 const SELECT_COUNT = 4; 
 const COUNTDOWN_SECONDS = 5; 
@@ -14,12 +17,11 @@ const PhotoBoothPage = () => {
   const [flash, setFlash] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [lastCaptured, setLastCaptured] = useState<string | null>(null);
-  const [cameraReady, setCameraReady] = useState(false); // 👈 카메라 준비 완료 상태 추가
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 1. 카메라를 완전히 초기화하고 스트림을 비디오에 강제 주입하는 함수
+  // 배포 환경 안전성 강화 버전의 카메라 작동 함수
   const startCamera = async (): Promise<MediaStream | null> => {
     try {
       if (stream) {
@@ -36,14 +38,10 @@ const PhotoBoothPage = () => {
       });
       
       setStream(mediaStream);
-      setCameraReady(false); // 새 스트림이 오면 일단 false
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        
-        // 배포 환경 버그 방지: 의도적으로 play()를 여러 번 선언하거나 완전히 대기 후 실행
         await videoRef.current.play();
-        setCameraReady(true);
       }
       return mediaStream;
     } catch (err) {
@@ -56,18 +54,16 @@ const PhotoBoothPage = () => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
-      setCameraReady(false);
     }
   };
 
-  // 컴포넌트 마운트 시 최초 1회 카메라 시도 (실패해도 버튼 클릭 시 재시도하므로 안전)
+  // 컴포넌트 언마운트 시 스트림 정리
   useEffect(() => {
-    startCamera();
     return () => stopCamera();
-  }, []);
+  }, [stream]);
 
   const takeSelfie = () => {
-    if (videoRef.current && canvasRef.current && cameraReady) {
+    if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
         const vW = videoRef.current.videoWidth;
@@ -90,6 +86,8 @@ const PhotoBoothPage = () => {
         context.drawImage(videoRef.current, (vW - drawW) / 2, (vH - drawH) / 2, drawW, drawH, 0, 0, 600, 400);
         
         const dataUrl = canvasRef.current.toDataURL('image/png');
+        
+        // ⚡ 번쩍이는 플래시 이펙트 복구
         setFlash(true);
         setTimeout(() => setFlash(false), 150);
         
@@ -99,13 +97,15 @@ const PhotoBoothPage = () => {
     return "";
   };
 
-  // 2. 사용자의 '클릭 이벤트' 컨텍스트 안에서 확실하게 카메라를 깨우고 시퀀스 시작
+  // 🎬 [복구된 핵심 시퀀스] 사용자의 버튼 클릭 컨텍스트 안에서 안전하게 실행
   const startSequence = async () => {
     setPhotos([]);
     setSelectedPhotos([]);
     setIsCapturing(true);
+    setCurrentStep(0);
+    setLastCaptured(null);
 
-    // 사용자의 클릭 직후에 startCamera를 호출해야 브라우저 AutoPlay 차단 정책을 완벽하게 뚫습니다.
+    // 1. 버튼 클릭 직후 카메라 스트림을 연결하여 자동재생 락 해제
     const activeStream = await startCamera();
     if (!activeStream) {
       alert("카메라를 시작할 수 없습니다. 권한을 확인해주세요.");
@@ -113,30 +113,35 @@ const PhotoBoothPage = () => {
       return;
     }
 
-    // 비디오 트랙이 렌더러에 완전히 붙을 때까지 안전하게 대기
+    // 2. 배포 환경에서 비디오가 온전히 화면에 띄워질 때까지 1초 버퍼 대기
     await new Promise(r => setTimeout(r, 1000));
     
+    // 3. 총 6장 촬영 루프 작동
     for (let i = 0; i < TOTAL_SHOTS; i++) {
       setCurrentStep(i + 1);
-      setLastCaptured(null);
+      setLastCaptured(null); // 이전 촬영 결과물 숨기기 (실시간 카메라 보여주기)
       
+      // 카운트다운 (5초)
       for (let c = COUNTDOWN_SECONDS; c > 0; c--) {
         setCountdown(c);
         await new Promise(r => setTimeout(r, 1000));
       }
       
       setCountdown(null);
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 100)); // 찰나의 순간 대기 후 캡처
       
+      // 찰칵! 촬영 및 결과물 상태 저장
       const captured = takeSelfie();
       if (captured) {
         setPhotos(prev => [...prev, captured]);
-        setLastCaptured(captured);
+        setLastCaptured(captured); // ✨ 방금 찍은 사진 팝업 노출
       }
       
+      // 👍 아이들이 결과물을 확인할 수 있도록 2초간 멈춤 대기
       await new Promise(r => setTimeout(r, 2000));
     }
     
+    // 4. 촬영 완료 후 정리 및 카메라 Off ➡️ 사진 고르기 UI 자동 진입
     setIsCapturing(false);
     setLastCaptured(null);
     stopCamera();
@@ -198,7 +203,8 @@ const PhotoBoothPage = () => {
     setPhotos([]);
     setSelectedPhotos([]);
     setCurrentStep(0);
-    startCamera();
+    setLastCaptured(null);
+    // 다시 처음 상태(카메라 켜지기 전 버튼 상태)로 복귀
   };
 
   return (
@@ -210,11 +216,13 @@ const PhotoBoothPage = () => {
       </header>
 
       <main className="w-full max-w-5xl flex flex-col items-center">
-        {(isCapturing || (photos.length === 0 && stream)) && (
+        {/* [조건식 복구] 촬영 중이거나, 촬영 전 초기 대기 상태일 때 비디오 스크린 노출 */}
+        {(isCapturing || photos.length === 0) && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
             <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ transform: 'translateZ(0)' }}>
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
               
+              {/* 결과물 피드백 팝업 복구 */}
               {lastCaptured && (
                 <div className="absolute inset-0 z-50 animate-in fade-in zoom-in duration-300">
                   <img src={lastCaptured} className="w-full h-full object-cover" alt="last captured" />
@@ -240,7 +248,6 @@ const PhotoBoothPage = () => {
                 </>
               )}
               
-              {/* 3. 자동재생 우회 속성 명시 및 하드웨어 가속 트릭 */}
               <video 
                 ref={videoRef} 
                 autoPlay 
@@ -258,7 +265,7 @@ const PhotoBoothPage = () => {
           </div>
         )}
 
-        {/* 촬영 완료 후 UI */}
+        {/* 촬영 완료 후 4컷 선택 UI 완벽 노출 */}
         {photos.length === TOTAL_SHOTS && !isCapturing && (
           <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-10 animate-in fade-in duration-700">
             <div className="md:col-span-7 flex flex-col gap-6">
