@@ -15,12 +15,15 @@ const CANVAS_WIDTH = 600;        // 저장될 사진 가로 해상도
 const CANVAS_HEIGHT = 400;       // 저장될 사진 세로 해상도
 const FLASH_DURATION = 150;      // 플래시 깜빡임 시간 (ms)
 
+type PhotoBoothStep = 'FRAME_SELECT' | 'CAPTURING' | 'RESULT';
+
 const PhotoBoothPage = () => {
+
+  const [step, setStep] = useState<PhotoBoothStep>('FRAME_SELECT');
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [lastCaptured, setLastCaptured] = useState<string | null>(null);
 
-  const [isCapturing, setIsCapturing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
 
@@ -126,14 +129,14 @@ const PhotoBoothPage = () => {
   // 전반적인 실행 함수
   const startSequence = async () => {
     setPhotos([]);
-    setIsCapturing(true);
+    setStep('CAPTURING');
     setLastCaptured(null);
 
     // 1. 버튼 클릭 직후 카메라 스트림을 연결하여 자동재생 락 해제
     const activeStream = await startCamera();
     if (!activeStream) {
       alert("카메라를 시작할 수 없습니다. 권한을 확인해주세요.");
-      setIsCapturing(false);
+      setStep('FRAME_SELECT');
       return;
     }
 
@@ -165,9 +168,9 @@ const PhotoBoothPage = () => {
     }
 
     // 4. 촬영 완료 후 정리 및 카메라 Off ➡️ 사진 고르기 UI 자동 진입
-    setIsCapturing(false);
-    setLastCaptured(null);
     stopCamera();
+    setLastCaptured(null);
+    setStep("RESULT");
   };
 
   //이미지 저장 함수
@@ -232,10 +235,10 @@ const PhotoBoothPage = () => {
   };
 
   useEffect(() => {
-    if (photos.length === SELECT_COUNT && !isCapturing) {
+    if (step === 'RESULT' && photos.length === SELECT_COUNT) {
       drawResultPreview();
     }
-  }, [photos, isCapturing]);
+  }, [step, photos]);
 
   return (
     <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
@@ -244,14 +247,14 @@ const PhotoBoothPage = () => {
 
       <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
 
-        {!isCapturing && photos.length === 0 && (
+        {step === 'FRAME_SELECT'&& (
           <ChunkyButton onClick={startSequence} icon={Camera}>
             촬영시작
           </ChunkyButton>
         )}
 
 
-        {isCapturing && (
+        {step === 'CAPTURING' && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
             <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ transform: 'translateZ(0)' }}>
               {/* 플래쉬 효과 */}
@@ -297,7 +300,7 @@ const PhotoBoothPage = () => {
         )}
 
         {/* 촬영 완료 후 4컷 선택 UI 완벽 노출 */}
-        {photos.length === TOTAL_SHOTS && !isCapturing && (
+        {step === 'RESULT' && (
           <div className="flex flex-col items-center">
 
             {/* 프레임 영역 */}
