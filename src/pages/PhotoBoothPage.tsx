@@ -75,7 +75,7 @@ const PhotoBoothPage = () => {
   }, []);
 
   // 사진 찍는 함수
-  const takeSelfie = () => {
+  const captureFrame = () => {
 
     if (videoRef.current && captureCanvasRef.current) {
       const context = captureCanvasRef.current.getContext('2d');
@@ -154,7 +154,7 @@ const PhotoBoothPage = () => {
       await new Promise(r => setTimeout(r, 100)); // 찰나의 순간 대기 후 캡처
 
       // 찰칵! 촬영 및 결과물 상태 저장
-      const captured = takeSelfie();
+      const captured = captureFrame();
       if (captured) {
         setPhotos(prev => [...prev, captured]);
         setLastCaptured(captured); // ✨ 방금 찍은 사진 팝업 노출
@@ -171,7 +171,7 @@ const PhotoBoothPage = () => {
   };
 
   //이미지 저장 함수
-  const saveFourCut = () => {
+  const saveResult = () => {
     if (!previewCanvasRef.current) return;
 
     const link = document.createElement('a');
@@ -180,7 +180,7 @@ const PhotoBoothPage = () => {
     link.click();
   };
 
-  const drawFourCutPreview = async () => {
+  const drawResultPreview = async () => {
     if (!previewCanvasRef.current || photos.length !== SELECT_COUNT) return;
 
     const canvas = previewCanvasRef.current;
@@ -233,7 +233,7 @@ const PhotoBoothPage = () => {
 
   useEffect(() => {
     if (photos.length === SELECT_COUNT && !isCapturing) {
-      drawFourCutPreview();
+      drawResultPreview();
     }
   }, [photos, isCapturing]);
 
@@ -313,7 +313,7 @@ const PhotoBoothPage = () => {
 
             {/* 저장버튼 */}
             <button
-              onClick={saveFourCut}
+              onClick={saveResult}
               className={`w-full mt-8 py-5 rounded-3xl font-black text-xl shadow-lg transition-all ${photos.length === SELECT_COUNT
                 ? 'bg-pink-500 text-white hover:bg-pink-600 shadow-[0_6px_0_rgb(190,24,93)] active:translate-y-1 active:shadow-none'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
