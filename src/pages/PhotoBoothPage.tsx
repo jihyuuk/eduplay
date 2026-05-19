@@ -224,14 +224,36 @@ const PhotoBoothPage = () => {
       );
     });
 
-    ctx.fillStyle = '#FF69B4';
-    ctx.font = 'bold 32px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('EduPlay Photo', w / 2, h - 120);
+    //로고 이미지-------------------
+    const logo = new Image();
+    logo.src = "/eduplay-logo.png";
 
+    await new Promise((resolve) => {
+      logo.onload = resolve;
+    });
+
+    const logoW = 240;
+    const logoH = logo.height * (logoW / logo.width);
+
+    ctx.drawImage(
+      logo,
+      w / 2 - logoW / 2, // 중앙정렬
+      h - 160,            // y 위치
+      logoW,
+      logoH
+    );
+
+    //하단 문구
+    ctx.fillStyle = '#FF69B4';
+    ctx.font = '60px Jua';
+    ctx.textAlign = 'center';
+    ctx.fillText('가나다라마바사아자차카', w / 2, h - 190);
+
+    //날짜
     ctx.font = '24px Arial';
+    ctx.textAlign = 'center';
     ctx.fillStyle = '#888';
-    ctx.fillText(new Date().toLocaleDateString(), w / 2, h - 70);
+    ctx.fillText(new Date().toLocaleDateString(), w / 2, h - 40);
   };
 
   useEffect(() => {
