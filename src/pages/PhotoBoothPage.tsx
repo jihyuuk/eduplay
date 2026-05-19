@@ -301,9 +301,14 @@ const PhotoBoothPage = () => {
           <div className="flex flex-col items-center">
 
             {/* 프레임 영역 */}
+            {/* <canvas
+              ref={previewCanvasRef}
+              className="w-full max-w-[280px] rounded-xl shadow-2xl border-8 border-white bg-[#FFDEE9]"
+            /> */}
+
             <canvas
               ref={previewCanvasRef}
-              className="w-full max-w-[280px] aspect-[1/3] rounded-xl shadow-2xl border-8 border-white bg-[#FFDEE9]"
+              className="h-[60vh] min-h-[600px] w-auto rounded-xl shadow-2xl border-8 border-white bg-[#FFDEE9]"
             />
 
             {/* 저장버튼 */}
