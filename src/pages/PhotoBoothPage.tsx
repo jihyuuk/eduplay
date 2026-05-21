@@ -217,11 +217,49 @@ const PhotoBoothPage = () => {
   //이미지 저장 함수
   const saveResult = () => {
     if (!previewCanvasRef.current) return;
+    const canvas = previewCanvasRef.current;
 
-    const link = document.createElement('a');
-    link.download = `eduplay-${Date.now()}.png`;
-    link.href = previewCanvasRef.current.toDataURL('image/png');
-    link.click();
+    // 1. 캔버스 데이터를 가벼운 Blob(바이너리) 형태로 변환
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+
+      const fileName = `eduplay-${Date.now()}.png`;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+
+      // 2. [아이폰] 공유 창 띄우기
+      if (isIOS && navigator.canShare) {
+        // 파일 객체는 iOS에서 공유할 때만 필요하므로 이 안으로 이동 (메모리 절약)
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: '에듀플레이 네컷사진' });
+            return; // 성공 시 여기서 함수 종료
+          } catch (error) {
+            console.log('공유 취소 또는 실패:', error);
+            return;
+          }
+        }
+
+        return;
+      }
+
+      // 3. [맥북/PC/안드로이드] 초고속 다운로드 (최적화 핵심!)
+      // 무거운 toDataURL 대신, 만들어둔 blob을 가상 URL로 바로 연결합니다.
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.click();
+
+      // 4. 메모리 청소
+      // 다운로드가 시작될 수 있게 살짝(100ms) 기다렸다가 가상 URL을 삭제합니다.
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+
+    }, 'image/png');
   };
 
   const drawResultPreview = async () => {
