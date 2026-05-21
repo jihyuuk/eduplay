@@ -8,7 +8,7 @@ import ChunkyButton from '../components/ChunkyButton';
 // ==========================================
 const TOTAL_SHOTS = 4;
 const SELECT_COUNT = 4;
-const COUNTDOWN_SECONDS = 1;
+const COUNTDOWN_SECONDS = 5;
 const FLASH_DURATION = 150;      // 플래시 깜빡임 시간 (ms)
 
 type PhotoBoothStep = 'FRAME_SELECT' | 'CAPTURING' | 'RESULT';
@@ -311,7 +311,7 @@ const PhotoBoothPage = () => {
     ctx.fillStyle = '#FF69B4';
     ctx.font = '60px Jua';
     ctx.textAlign = 'center';
-    ctx.fillText('가나다라마바사아자차카', w / 2, h - 190);
+    //ctx.fillText('가나다라마바사아자차카', w / 2, h - 190);
 
     //날짜
     ctx.font = '24px Arial';
@@ -371,7 +371,7 @@ const PhotoBoothPage = () => {
                 onClick={startSequence}
                 icon={Camera}
                 disabled={selectedFrame === null}
-                className={`${selectedFrame === null ? 'hidden' : ""}`}
+                className={`transition-opacity duration-500 ${selectedFrame !== null ? 'opacity-100' : 'opacity-0'}`}
               >
                 촬영 시작하기!
               </ChunkyButton>
@@ -381,8 +381,23 @@ const PhotoBoothPage = () => {
 
 
         {step === 'CAPTURING' && (
-          <div className="w-full max-w-2xl flex flex-col gap-6">
-            <div className="relative w-full bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ aspectRatio: selectedFrame?.ratio, transform: 'translateZ(0)' }}>
+          <div className="w-full flex flex-col gap-6 items-center">
+            <div
+              className="relative bg-black rounded-xl overflow-hidden shadow-2xl border-2 md:border-3 border-white"
+              style={{
+                aspectRatio: selectedFrame?.ratio,
+                transform: 'translateZ(0)',
+
+                // 2. 가로는 기본적으로 100%를 차지하되
+                width: '100%',
+
+                // 3. 세로 길이가 (전체화면 - 헤더 및 상하여백 약 160px)을 넘지 못하게 막습니다.
+                maxHeight: 'calc(100dvh - 150px)',
+
+                // 4. (핵심) 세로가 제한되었을 때 가로도 비율에 맞춰 제한되도록 계산합니다.
+                maxWidth: `calc((100dvh - 150px) * ${selectedFrame?.ratio})`
+              }}
+            >
               {/* 플래쉬 효과 */}
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
 
@@ -390,21 +405,21 @@ const PhotoBoothPage = () => {
               {lastCaptured && (
                 <div className="absolute inset-0 z-50 animate-in fade-in zoom-in duration-300">
                   <img src={lastCaptured} className="w-full h-full object-cover" alt="last captured" />
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-lg">
+                  {/* <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-lg">
                     멋져요! 👍
-                  </div>
+                  </div> */}
                 </div>
               )}
 
               {!lastCaptured && (
                 <>
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full z-20 border border-white/20">
-                    <span className="text-white font-black text-lg">{photos.length + 1} / {TOTAL_SHOTS}</span>
+                  <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-black/60 backdrop-blur-md px-3 py-1 sm:px-5 sm:py-2 rounded-full z-20 border border-white/20">
+                    <span className="text-white font-black text-md sm:text-lg">{photos.length + 1} / {TOTAL_SHOTS}</span>
                   </div>
 
                   {countdown && (
                     <div className="absolute bottom-0 inset-x-0 flex items-center justify-center z-10">
-                      <span className="text-[4rem] font-black text-white drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-5 duration-200">
+                      <span className="text-[2rem] sm:text-[4rem] font-black text-white drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-5 duration-200">
                         {countdown}
                       </span>
                     </div>
@@ -437,19 +452,15 @@ const PhotoBoothPage = () => {
 
             <canvas
               ref={previewCanvasRef}
-              className="h-[60vh] min-h-[600px] w-auto rounded-xl shadow-2xl border-8 border-white bg-[#FFDEE9]"
+              className="h-[60vh] min-h-[600px] w-auto max-w-full rounded-xl shadow-2xl border-4 border-white bg-[#FFDEE9]"
             />
 
             {/* 저장버튼 */}
-            <button
-              onClick={saveResult}
-              className={`w-full mt-8 py-5 rounded-3xl font-black text-xl shadow-lg transition-all ${photos.length === SELECT_COUNT
-                ? 'bg-pink-500 text-white hover:bg-pink-600 shadow-[0_6px_0_rgb(190,24,93)] active:translate-y-1 active:shadow-none'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
-            >
-              <Download className="inline-block mr-2" /> 사진 저장하기
-            </button>
+            <div className='mt-4 py-4'>
+              <ChunkyButton icon={Download} onClick={saveResult}>
+                저장하기
+              </ChunkyButton>
+            </div>
           </div>
         )}
       </main>
