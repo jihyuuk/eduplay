@@ -68,6 +68,7 @@ const PhotoBoothPage = () => {
   const [flash, setFlash] = useState(false);
 
   const [frameColor, setFrameColor] = useState('#FFDEE9');
+  const [caption, setCaption] = useState('우리 반 최고! ❤️');
 
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -360,7 +361,7 @@ const PhotoBoothPage = () => {
     ctx.fillStyle = '#FF69B4';
     ctx.font = '60px Jua';
     ctx.textAlign = 'center';
-    //ctx.fillText('가나다라마바사아자차카', w / 2, h - 190);
+    ctx.fillText(caption, w / 2, h - 190);
 
     //날짜
     ctx.font = '24px Arial';
@@ -501,39 +502,64 @@ const PhotoBoothPage = () => {
 
             <canvas
               ref={previewCanvasRef}
-              className="h-[60vh] min-h-[600px] w-auto max-w-full rounded-xl shadow-2xl border-4 border-white bg-[#FFDEE9]"
+              className="h-[50vh] min-h-[500px] w-auto max-w-full rounded-xl shadow-2xl border-4 border-white bg-[#FFDEE9]"
             />
 
-            {/* 프레임 색상 선택 */}
-            <div className="flex flex-wrap justify-center gap-4 mt-6 mb-2">
-              {FRAME_COLORS.map((color) =>
-                <button
-                  key={color.id}
-                  onClick={() => setFrameColor(color.hex)}
-                  aria-label={`${color.id} 색상 선택`}
-                  style={{ backgroundColor: color.hex }}
-                  className={`
-          relative w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm
-          ${frameColor === color.hex
-                      ? 'border-pink-500 scale-110 shadow-md' // 선택됨: 커지고 링(띠) 생성
-                      : 'border-white hover:scale-105 hover:shadow-md'              // 안 선택됨: 기본 모양
-                    }
-        `}
-                >
-                  {/* 선택된 경우에만 쏙 나타나는 체크 아이콘 */}
-                  {frameColor === color.hex && (
-                    <Check
-                      className="w-7 h-7 animate-in zoom-in duration-200 text-pink-500"
-                      strokeWidth={3.5}
-                    />
-                  )}
-                </button>
-              )}
+            {/* 캡션 입력 영역  */}
+            <div className="flex flex-col w-full max-w-[320px] gap-2 mt-8 px-2">
+              <div className="text-pink-600 font-bold text-center">
+                하단에 문구를 적어볼까요?
+              </div>
+              <div className="flex gap-2 h-12">
+                <input
+                  type="text"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  maxLength={11} // 너무 길면 캔버스를 뚫고 나가므로 제한
+                  placeholder="문구를 입력해주세요."
+                  className="flex-1 w-full px-4 rounded-2xl border-2 border-pink-200 bg-white font-bold text-gray-700 text-center outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all shadow-inner"
+                />
+                <ChunkyButton size='sm' onClick={drawResultPreview} >
+                  입력
+                </ChunkyButton>
+              </div>
             </div>
 
+            {/* 프레임 색상 선택 */}
+            <div className='mt-5'>
+              <div className="text-pink-600 font-bold text-center">
+                프레임 색상을 선택해주세요
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 mt-2">
+                {FRAME_COLORS.map((color) =>
+                  <button
+                    key={color.id}
+                    onClick={() => setFrameColor(color.hex)}
+                    aria-label={`${color.id} 색상 선택`}
+                    style={{ backgroundColor: color.hex }}
+                    className={`
+            relative w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm
+            ${frameColor === color.hex
+                        ? 'border-pink-500 scale-110 shadow-md' // 선택됨: 커지고 링(띠) 생성
+                        : 'border-white hover:scale-105 hover:shadow-md'              // 안 선택됨: 기본 모양
+                      }
+          `}
+                  >
+                    {/* 선택된 경우에만 쏙 나타나는 체크 아이콘 */}
+                    {frameColor === color.hex && (
+                      <Check
+                        className="w-7 h-7 animate-in zoom-in duration-200 text-pink-500"
+                        strokeWidth={3.5}
+                      />
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* 저장버튼 */}
-            <div className='mt-4 py-4'>
+            <div className='my-8'>
               <ChunkyButton icon={Download} onClick={saveResult}>
                 저장하기
               </ChunkyButton>
