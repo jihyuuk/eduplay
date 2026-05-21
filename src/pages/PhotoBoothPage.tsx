@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Download } from 'lucide-react';
+import { Camera, Check, Download } from 'lucide-react';
 import SubHeader from '../components/SubHeader';
 import ChunkyButton from '../components/ChunkyButton';
 
@@ -47,6 +47,15 @@ const FRAME_OPTIONS: FrameOption[] = [
   },
 ];
 
+const FRAME_COLORS = [
+  { id: 'pink', hex: '#FFDEE9' },
+  { id: 'blue', hex: '#AEE2FF' },
+  { id: 'green', hex: '#D9F8C4' },
+  { id: 'yellow', hex: '#FFF3B0' },
+  // { id: 'white', hex: '#FFFFFF' }, 
+  // { id: 'black', hex: '#1A1A1A' }, 
+];
+
 const PhotoBoothPage = () => {
 
   const [step, setStep] = useState<PhotoBoothStep>('FRAME_SELECT');
@@ -57,6 +66,8 @@ const PhotoBoothPage = () => {
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
+
+  const [frameColor, setFrameColor] = useState('#FFDEE9');
 
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -275,7 +286,7 @@ const PhotoBoothPage = () => {
     canvas.width = w;
     canvas.height = h;
 
-    ctx.fillStyle = '#FFDEE9';
+    ctx.fillStyle = frameColor;
     ctx.fillRect(0, 0, w, h);
 
 
@@ -362,7 +373,7 @@ const PhotoBoothPage = () => {
     if (step === 'RESULT' && photos.length === SELECT_COUNT) {
       drawResultPreview();
     }
-  }, [step, photos]);
+  }, [step, photos, frameColor]);
 
   return (
     <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
@@ -480,7 +491,7 @@ const PhotoBoothPage = () => {
 
         {/* 촬영 완료 후 4컷 선택 UI 완벽 노출 */}
         {step === 'RESULT' && (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center justify-center">
 
             {/* 프레임 영역 */}
             {/* <canvas
@@ -492,6 +503,34 @@ const PhotoBoothPage = () => {
               ref={previewCanvasRef}
               className="h-[60vh] min-h-[600px] w-auto max-w-full rounded-xl shadow-2xl border-4 border-white bg-[#FFDEE9]"
             />
+
+            {/* 프레임 색상 선택 */}
+            <div className="flex flex-wrap justify-center gap-4 mt-6 mb-2">
+              {FRAME_COLORS.map((color) =>
+                <button
+                  key={color.id}
+                  onClick={() => setFrameColor(color.hex)}
+                  aria-label={`${color.id} 색상 선택`}
+                  style={{ backgroundColor: color.hex }}
+                  className={`
+          relative w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm
+          ${frameColor === color.hex
+                      ? 'border-pink-500 scale-110 shadow-md' // 선택됨: 커지고 링(띠) 생성
+                      : 'border-white hover:scale-105 hover:shadow-md'              // 안 선택됨: 기본 모양
+                    }
+        `}
+                >
+                  {/* 선택된 경우에만 쏙 나타나는 체크 아이콘 */}
+                  {frameColor === color.hex && (
+                    <Check
+                      className="w-7 h-7 animate-in zoom-in duration-200 text-pink-500"
+                      strokeWidth={3.5}
+                    />
+                  )}
+                </button>
+              )}
+            </div>
+
 
             {/* 저장버튼 */}
             <div className='mt-4 py-4'>
