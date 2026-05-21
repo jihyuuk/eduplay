@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Download, RefreshCcw } from 'lucide-react';
+import { Camera, Download } from 'lucide-react';
 import SubHeader from '../components/SubHeader';
 import ChunkyButton from '../components/ChunkyButton';
 
