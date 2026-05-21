@@ -9,17 +9,48 @@ import ChunkyButton from '../components/ChunkyButton';
 const TOTAL_SHOTS = 4;
 const SELECT_COUNT = 4;
 const COUNTDOWN_SECONDS = 1;
-
-const TARGET_RATIO = 3 / 2;      // 원하는 사진 비율 (3:2)
-const CANVAS_WIDTH = 600;        // 저장될 사진 가로 해상도
-const CANVAS_HEIGHT = 400;       // 저장될 사진 세로 해상도
 const FLASH_DURATION = 150;      // 플래시 깜빡임 시간 (ms)
 
 type PhotoBoothStep = 'FRAME_SELECT' | 'CAPTURING' | 'RESULT';
 
+type FrameOption = {
+  id: string;
+  label: string;
+  previewUrl: string;
+  ratio: number;
+  img_width: number;
+  img_height: number;
+  frame_width: number;
+  frame_height: number;
+}
+
+const FRAME_OPTIONS: FrameOption[] = [
+  {
+    id: '2x6',
+    label: '2x6',
+    previewUrl: '/photo-frames/2x6.png',
+    ratio: 3 / 2,
+    img_width: 600,
+    img_height: 400,
+    frame_width: 600,
+    frame_height: 1800
+  },
+  {
+    id: '4x6',
+    label: '4x6',
+    previewUrl: '/photo-frames/4x6.png',
+    ratio: 3 / 4,
+    img_width: 600,
+    img_height: 800,
+    frame_width: 1200,
+    frame_height: 1800
+  },
+];
+
 const PhotoBoothPage = () => {
 
   const [step, setStep] = useState<PhotoBoothStep>('FRAME_SELECT');
+  const [selectedFrame, setSelectedFrame] = useState<FrameOption | null>(null);
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [lastCaptured, setLastCaptured] = useState<string | null>(null);
@@ -80,7 +111,7 @@ const PhotoBoothPage = () => {
   // 사진 찍는 함수
   const captureFrame = () => {
 
-    if (videoRef.current && captureCanvasRef.current) {
+    if (videoRef.current && captureCanvasRef.current && selectedFrame) {
       const context = captureCanvasRef.current.getContext('2d');
       if (context) {
         //비디오 넓이, 높이 가져오기
@@ -89,6 +120,10 @@ const PhotoBoothPage = () => {
 
         // 아직 영상 준비 안됐으면 종료
         if (vW === 0 || vH === 0) return "";
+
+        const TARGET_RATIO = selectedFrame.ratio;
+        const CANVAS_WIDTH = selectedFrame.img_width;
+        const CANVAS_HEIGHT = selectedFrame.img_height;
 
         // 비율 맞추기
         let drawW = vW;
@@ -131,6 +166,12 @@ const PhotoBoothPage = () => {
     setPhotos([]);
     setStep('CAPTURING');
     setLastCaptured(null);
+
+    if (selectedFrame === null) {
+      alert("프레임을 선택해주세요.");
+      setStep('FRAME_SELECT');
+      return;
+    }
 
     // 1. 버튼 클릭 직후 카메라 스트림을 연결하여 자동재생 락 해제
     const activeStream = await startCamera();
@@ -184,14 +225,14 @@ const PhotoBoothPage = () => {
   };
 
   const drawResultPreview = async () => {
-    if (!previewCanvasRef.current || photos.length !== SELECT_COUNT) return;
+    if (!previewCanvasRef.current || photos.length !== SELECT_COUNT || selectedFrame === null) return;
 
     const canvas = previewCanvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const w = 600;
-    const h = 1800;
+    const w = selectedFrame.frame_width;
+    const h = selectedFrame.frame_height;
 
     canvas.width = w;
     canvas.height = h;
@@ -199,11 +240,8 @@ const PhotoBoothPage = () => {
     ctx.fillStyle = '#FFDEE9';
     ctx.fillRect(0, 0, w, h);
 
-    const padding = 40;
-    const imgW = w - padding * 2;
-    const imgH = (imgW / 3) * 2;
-    const gap = 30;
 
+    //이미지 로드 (공통)
     const images = await Promise.all(
       photos.map((src) => {
         return new Promise<HTMLImageElement>((resolve) => {
@@ -214,17 +252,43 @@ const PhotoBoothPage = () => {
       })
     );
 
-    images.forEach((img, i) => {
-      ctx.drawImage(
-        img,
-        padding,
-        padding + i * (imgH + gap),
-        imgW,
-        imgH
-      );
-    });
+    // 분기
+    if (selectedFrame.id === '2x6') {
+      const padding = 40;
+      const imgW = w - padding * 2;
+      const imgH = (imgW / 3) * 2;
+      const gap = 30;
 
-    //로고 이미지-------------------
+      images.forEach((img, i) => {
+        ctx.drawImage(
+          img,
+          padding,
+          padding + i * (imgH + gap),
+          imgW,
+          imgH
+        );
+      });
+    } else if (selectedFrame.id === '4x6') {
+      // [4x6 배치 모드]: 2x2 그리드 (사진 비율 3:4)
+      const padding = 40;
+      const gap = 30;
+      // 전체 가로에서 양쪽 패딩과 가운데 갭을 뺀 뒤 반으로 나눔
+      const imgW = (w - padding * 2 - gap) / 2;
+      const imgH = imgW * (4 / 3); // 가로 3, 세로 4 비율
+
+      images.forEach((img, i) => {
+        const col = i % 2; // 0 (왼쪽) 또는 1 (오른쪽)
+        const row = Math.floor(i / 2); // 0 (첫째 줄) 또는 1 (둘째 줄)
+
+        const x = padding + col * (imgW + gap);
+        const y = padding + row * (imgH + gap);
+
+        ctx.drawImage(img, x, y, imgW, imgH);
+      });
+    }
+
+
+    //로고 이미지(공통)-------------------
     const logo = new Image();
     logo.src = "/eduplay-logo.png";
 
@@ -269,16 +333,56 @@ const PhotoBoothPage = () => {
 
       <main className="flex-1 flex flex-col items-center justify-center w-full p-4 relative">
 
-        {step === 'FRAME_SELECT'&& (
-          <ChunkyButton onClick={startSequence} icon={Camera}>
-            촬영시작
-          </ChunkyButton>
+        {step === 'FRAME_SELECT' && (
+          <div className="w-full max-w-2xl flex flex-col items-center animate-in fade-in duration-300">
+            {/* 안내 문구 */}
+            <h2 className="text-2xl md:text-3xl text-pink-600 drop-shadow-sm mb-2">
+              프레임을 선택해주세요!
+            </h2>
+
+            {/* 프레임 선택 카드 리스트 */}
+            <div className="grid grid-cols-2 gap-4 w-full mt-5">
+              {FRAME_OPTIONS.map((frame) => {
+                const isSelected = selectedFrame?.id === frame.id;
+                return (
+                  <button
+                    key={frame.id}
+                    onClick={() => setSelectedFrame(frame)}
+                    className={`bg-slate-50 p-2 rounded-2xl overflow-hidden border-2 transition-all duration-150
+                      ${isSelected
+                        ? 'border-pink-500 bg-pink-50/30'
+                        : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                  >
+                    {/* 프레임 이미지 공간 */}
+                    <img
+                      src={frame.previewUrl}
+                      alt={frame.id}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 촬영 시작 버튼 (프레임 미선택 시 비활성화) */}
+            <div className="mt-10">
+              <ChunkyButton
+                onClick={startSequence}
+                icon={Camera}
+                disabled={selectedFrame === null}
+                className={`${selectedFrame === null ? 'hidden' : ""}`}
+              >
+                촬영 시작하기!
+              </ChunkyButton>
+            </div>
+          </div>
         )}
 
 
         {step === 'CAPTURING' && (
           <div className="w-full max-w-2xl flex flex-col gap-6">
-            <div className="relative w-full aspect-[3/2] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ transform: 'translateZ(0)' }}>
+            <div className="relative w-full bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-white" style={{ aspectRatio: selectedFrame?.ratio, transform: 'translateZ(0)' }}>
               {/* 플래쉬 효과 */}
               {flash && <div className="absolute inset-0 bg-white z-[60] animate-out fade-out duration-150" />}
 
