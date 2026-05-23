@@ -7,6 +7,7 @@ import SettingPage from "./pages/SettingPage";
 import ToastProvider from "./components/ToastProvider";
 import FlipCardBattlePage from "./pages/FilpCardBattlePage";
 import PhotoBoothPage from "./pages/PhotoBoothPage";
+import FaceQuziePage from "./pages/face-quiz/FaceQuizPage";
 
 export default function App() {
 
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/flip-card-fruit/:difficultyParam" element={<FlipCardFruitPage />} />
         <Route path="/flip-card-Battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/photobooth" element={<PhotoBoothPage />} />
+        <Route path="/face-quiz" element={<FaceQuziePage />} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>

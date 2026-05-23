@@ -250,6 +250,12 @@ img {
   box-shadow: none !important;
 }
 
+.chunky-pressed {
+  transform: translateY(6px) !important;
+  box-shadow: none !important;
+}
+
+
 /* 부드러운 전환 효과 */
 .chunky-transition {
   transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
@@ -300,4 +306,29 @@ img {
   background-color: #38bdf8;
   transform: rotateY(180deg);
   /* 미리 뒤집어 둠 */
+}
+
+/* 바운스 효과 */
+@keyframes bounce-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.bounce-in {
+    animation: bounce-in 0.5s ease-out;
 }

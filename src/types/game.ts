@@ -65,11 +65,10 @@ export const games: GameOption[] = [
   },
   {
     id: 'face-quiz',
-    title: '너의 눈코입',
+    title: '얼굴 퀴즈',
     icon: "/game-icons/face-quiz.png",
-    variant: 'disabled',
-    url: "/",
-    disabled: true
+    variant: 'warning',
+    url: "/face-quiz",
   },
   {
     id: 'journey-rabbit',
