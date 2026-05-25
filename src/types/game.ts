@@ -59,14 +59,14 @@ export const games: GameOption[] = [
   {
     id: 'face-quiz',
     title: '네컷사진',
-    icon: "/game-icons/photobooth.png",
+    icon: "/game-icons/photobooth.webp",
     variant: 'success',
     url: "/photobooth",
   },
   {
     id: 'face-quiz',
     title: '얼굴 퀴즈',
-    icon: "/game-icons/face-quiz.png",
+    icon: "/game-icons/face-quiz.webp",
     variant: 'warning',
     url: "/face-quiz",
   },
