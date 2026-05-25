@@ -3,7 +3,7 @@ import { ChunkyButtonExample } from "./components/ChunkyButtonExample";
 import FlipCardKidPage from "./pages/FlipCardKidPage";
 import HomePage from "./pages/HomePage";
 import FlipCardFruitPage from "./pages/FlipCardFruitPage";
-import SettingPage from "./pages/SettingPage";
+import SettingPage from "./pages/setting/SettingPage";
 import ToastProvider from "./components/ToastProvider";
 import FlipCardBattlePage from "./pages/FilpCardBattlePage";
 import PhotoBoothPage from "./pages/PhotoBoothPage";
