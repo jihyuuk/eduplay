@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Trash2, X } from 'lucide-react';
+import { AlertTriangle, Check, Loader2, Trash2, X } from 'lucide-react';
+import type { AnalysisStatus } from '../pages/setting/components/FaceQuizSetting';
 
 interface KidCardProps {
   kidName: string;
@@ -8,9 +9,10 @@ interface KidCardProps {
   onNameChange: (newName: string) => void;
   isEditMode: boolean;
   maxLength: number;
+  analysisStatus?: AnalysisStatus;
 }
 
-export default function KidCard({ kidName, image, onRemove, onNameChange, isEditMode, maxLength }: KidCardProps) {
+export default function KidCard({ kidName, image, onRemove, onNameChange, isEditMode, maxLength, analysisStatus = null }: KidCardProps) {
 
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -75,6 +77,52 @@ export default function KidCard({ kidName, image, onRemove, onNameChange, isEdit
             </button>
           </div>
         }
+
+        {/* 분석중, 성공, 실패 벳지 */}
+        {analysisStatus &&
+          <>
+            <div className="absolute top-1.5 right-1.5 z-20">
+              {analysisStatus === 'ready' && (
+                <div className="w-7 h-7 bg-purple-500 text-white rounded-full flex items-center justify-center shadow-lg animate-spin">
+                  <Loader2 className="w-4 h-4" />
+                </div>
+              )}
+
+              {analysisStatus === 'success' && (
+                <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                  <Check className="w-4 h-4" />
+                </div>
+              )}
+
+              {analysisStatus === 'fail' && (
+                <div className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+
+            <div
+              className={`
+                  absolute bottom-0 left-0 right-0 h-1/3 z-10
+                  flex items-center justify-center
+                  transition-all duration-300
+                  ${analysisStatus === 'success'
+                  ? 'bg-green-600/80'
+                  : analysisStatus === 'fail'
+                    ? 'bg-red-600/80'
+                    : 'bg-black/50'
+                }
+              `}
+            >
+              <p className="text-white text-xs font-black">
+                {analysisStatus === 'ready' && '분석중..'}
+                {analysisStatus === 'success' && '성공'}
+                {analysisStatus === 'fail' && '실패'}
+              </p>
+            </div>
+          </>
+        }
+
       </div>
 
       {/* 이름 */}
