@@ -57,7 +57,7 @@ export const games: GameOption[] = [
     ]
   },
   {
-    id: 'face-quiz',
+    id: 'photobooth',
     title: '네컷사진',
     icon: "/game-icons/photobooth.webp",
     variant: 'success',
@@ -69,6 +69,13 @@ export const games: GameOption[] = [
     icon: "/game-icons/face-quiz.webp",
     variant: 'warning',
     url: "/face-quiz",
+  },
+  {
+    id: 'timer',
+    title: '타이머',
+    icon: "/game-icons/timer.webp",
+    variant: 'error',
+    url: "/timer",
   },
   {
     id: 'journey-rabbit',

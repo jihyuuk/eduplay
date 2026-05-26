@@ -8,6 +8,7 @@ import ToastProvider from "./components/ToastProvider";
 import FlipCardBattlePage from "./pages/FilpCardBattlePage";
 import PhotoBoothPage from "./pages/PhotoBoothPage";
 import FaceQuziePage from "./pages/face-quiz/FaceQuizPage";
+import TimerPage from "./pages/timmer/TimmerPage";
 
 export default function App() {
 
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/flip-card-Battle/:difficultyParam" element={<FlipCardBattlePage />} />
         <Route path="/photobooth" element={<PhotoBoothPage />} />
         <Route path="/face-quiz" element={<FaceQuziePage />} />
+        <Route path="/timer" element={<TimerPage/>} />
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>
