@@ -71,11 +71,19 @@ export const games: GameOption[] = [
     url: "/face-quiz",
   },
   {
+    id: 'kiosk',
+    title: '키오스크',
+    icon: "/game-icons/face-quiz.webp",
+    variant: 'error',
+    url: "/kiosk",
+  },
+  {
     id: 'timer',
     title: '타이머',
     icon: "/game-icons/timer.webp",
-    variant: 'error',
-    url: "/timer",
+    variant: 'disabled',
+    url: "/",
+    disabled: true
   },
   {
     id: 'journey-rabbit',

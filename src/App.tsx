@@ -9,6 +9,12 @@ import FlipCardBattlePage from "./pages/FilpCardBattlePage";
 import PhotoBoothPage from "./pages/PhotoBoothPage";
 import FaceQuziePage from "./pages/face-quiz/FaceQuizPage";
 import TimerPage from "./pages/timmer/TimmerPage";
+import KioskHomePage from "./pages/kiosk/KioskHomePage";
+import KioskOrderPage from "./pages/kiosk/KioskOrderPage";
+import KioskCartPage from "./pages/kiosk/KioskCartPage";
+import KioskPaymentPage from "./pages/kiosk/KioskPaymentPage";
+import KioskResultPage from "./pages/kiosk/KioskResultPage";
+import KioskLayout from "./pages/kiosk/KioskLayout";
 
 export default function App() {
 
@@ -32,6 +38,13 @@ export default function App() {
         <Route path="/photobooth" element={<PhotoBoothPage />} />
         <Route path="/face-quiz" element={<FaceQuziePage />} />
         <Route path="/timer" element={<TimerPage/>} />
+        <Route path="/kiosk" element={<KioskLayout />}>
+          <Route index element={<KioskHomePage />} />
+          <Route path="order" element={<KioskOrderPage />} />
+          <Route path="cart" element={<KioskCartPage />} />
+          <Route path="payment" element={<KioskPaymentPage />} />
+          <Route path="result" element={<KioskResultPage />} />
+        </Route>
         <Route path="/chunkybutton-Example" element={<ChunkyButtonExample />} />
       </Routes>
     </BrowserRouter>
