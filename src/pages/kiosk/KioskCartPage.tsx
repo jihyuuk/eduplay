@@ -142,7 +142,7 @@ export default function KioskCartPage() {
                         <ChunkyButton
                             variant="secondary"
                             className="w-32 shrink-0 font-black text-lg"
-                            onClick={() => navigate("/kiosk/order")}
+                            onClick={() => navigate(-1)}
                         >
                             더 담기
                         </ChunkyButton>
