@@ -1,12 +1,16 @@
-import { AlarmClock, Plus, RefreshCcw } from "lucide-react";
+import { AlarmClock, RefreshCcw } from "lucide-react";
 import SubHeader from "../../components/SubHeader";
 import ChunkyButton from "../../components/ChunkyButton";
 import TimePickerField, { TEXT_COLORS } from "./components/TimePickerField";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const MAX_OPTION_HOUR = 25;
 const MAX_OPTION_MINUTE = 60;
 const MAX_OPTION_SECOND = 60;
+
+type TimerType = 'digital' | 'analog' | 'bomb' | 'hourglass';
 
 type QuickTime = {
     label: string;      // 화면에 보여줄 텍스트
@@ -27,9 +31,12 @@ const quickTimes: QuickTime[] = [
 
 export default function TimerPage() {
 
+    const navigate = useNavigate();
+
     const [hour, setHour] = useState<number>(0);
     const [minute, setMinute] = useState<number>(0);
     const [second, setSecond] = useState<number>(0);
+    const [selectedTimer, _setSelectedTimer] = useState<TimerType>('hourglass');
 
     const handleHourChange = (newValue: number) => {
         setHour(((newValue % MAX_OPTION_HOUR) + MAX_OPTION_HOUR) % MAX_OPTION_HOUR);
@@ -58,6 +65,15 @@ export default function TimerPage() {
             handleHourChange(hour + time.value);
         }
     };
+
+    const handleStart = () => {
+        if (hour === 0 && minute === 0 && second === 0) {
+            toast.error("시간을 입력하세요.");
+            return;
+        }
+
+        navigate(`/timer/${selectedTimer}?h=${hour}&m=${minute}&s=${second}`);
+    }
 
     return (
         <div className="bg-gradient-to-br from-amber-100 via-pink-100 to-purple-100 bg-fixed flex flex-col items-center min-h-screen !min-h-[100dvh]">
@@ -104,7 +120,7 @@ export default function TimerPage() {
                             초기화
                         </ChunkyButton>
 
-                        <ChunkyButton icon={AlarmClock} className="w-full">
+                        <ChunkyButton icon={AlarmClock} className="w-full" onClick={handleStart}>
                             시작하기
                         </ChunkyButton>
                     </div>
@@ -115,10 +131,10 @@ export default function TimerPage() {
     );
 }
 
-function Colon() {
-    return (
-        <div className="text-4xl sm:text-5xl font-black text-gray-400 pb-7 sm:pb-9 select-none">
-            :
-        </div>
-    );
-}
+// function Colon() {
+//     return (
+//         <div className="text-4xl sm:text-5xl font-black text-gray-400 pb-7 sm:pb-9 select-none">
+//             :
+//         </div>
+//     );
+// }
