@@ -1,4 +1,4 @@
-import { X, Plus, Minus, CreditCard, ShoppingBag } from "lucide-react";
+import { X, Plus, Minus, CreditCard, ShoppingBag, ChevronLeft } from "lucide-react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import ChunkyButton from "../../components/ChunkyButton";
 import type { KioskOutletContext } from "./KioskLayout";
@@ -74,11 +74,15 @@ export default function KioskCartPage() {
 
                                     {/* 이미지 윈도우 */}
                                     <div className="h-24 w-24 shrink-0 rounded-2xl border-2 border-purple-50 bg-pink-50/40 p-2 flex items-center justify-center overflow-hidden">
-                                        <img
+                                        {/* <img
                                             src={product.imgUrl}
                                             alt={product.name}
                                             className="h-full w-full object-cover rounded-xl mix-blend-multiply"
-                                        />
+                                        /> */}
+
+                                        <div className="text-4xl">
+                                            {product.emoji}
+                                        </div>
                                     </div>
 
                                     {/* 상품 상세 및 수량 조절 */}
@@ -140,8 +144,9 @@ export default function KioskCartPage() {
 
                     <div className="flex gap-3 h-[67px]">
                         <ChunkyButton
+                            icon={ChevronLeft}
                             variant="secondary"
-                            className="w-32 shrink-0 font-black text-lg"
+                            className="shrink-0 font-black text-lg"
                             onClick={() => navigate(-1)}
                         >
                             더 담기

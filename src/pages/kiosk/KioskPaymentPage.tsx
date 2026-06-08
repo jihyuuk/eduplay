@@ -146,7 +146,7 @@ function PaymentGuide({
 
     return (
         <div className="w-full flex flex-col items-center text-center">
-            <div className="w-full bg-white border-4 border-purple-100 rounded-[2.5rem] p-8 py-15 shadow-[0_12px_24px_-4px_rgba(0,0,0,0.04)] mb-6">
+            <div className="w-full bg-white border-4 border-purple-100 rounded-[2.5rem] p-8 py-20 shadow-[0_12px_24px_-4px_rgba(0,0,0,0.04)] mb-6">
                 <div className="text-4xl font-black text-gray-800 tracking-tight leading-tight">
                     {title}
                 </div>

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import ChunkyButton from "../../components/ChunkyButton";
-import { Home, X, ShoppingBasket, Plus, Minus } from "lucide-react";
+import { X, ShoppingBasket, Plus, Minus } from "lucide-react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import toast from "react-hot-toast";
 import type { KioskOutletContext } from "./KioskLayout";
 
-export type Category = "과자" | "라면" | "음료수" | "아이스크림";
-const categories: Category[] = ["과자", "라면", "음료수", "아이스크림"]
+export type Category = "채소" | "과일";
+const categories: Category[] = ["채소", "과일"]
 
 export type Product = {
     id: number;
@@ -15,12 +15,13 @@ export type Product = {
     price: number;
     quantity: number;
     category: Category;
+    emoji: string;
 }
 
 export default function KioskOrderPage() {
     const navigate = useNavigate();
     const { products, setProducts } = useOutletContext<KioskOutletContext>();
-    const [selectedCategory, setSelectedCategory] = useState("과자");
+    const [selectedCategory, setSelectedCategory] = useState("채소");
 
     const showProducts = products.filter(p => p.category === selectedCategory);
     const totalAmount = products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0);
@@ -96,7 +97,7 @@ export default function KioskOrderPage() {
                 </header>
 
                 {/* 메인 (상품 목록) */}
-                <main className="flex-1 min-h-0 overflow-y-auto bg-gray-50/50 p-4">
+                <main key={selectedCategory} className="flex-1 min-h-0 overflow-y-auto bg-gray-50/50 p-4 pb-15">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {showProducts.map((product) => (
                             <div
@@ -106,11 +107,16 @@ export default function KioskOrderPage() {
                             >
                                 {/* 상품 이미지 컨테이너 */}
                                 <div className="w-full aspect-square overflow-hidden rounded-2xl bg-pink-50/60 p-2 flex items-center justify-center relative">
-                                    <img
+                                    {/* <img
                                         src={product.imgUrl}
                                         alt={product.name}
                                         className="h-full w-full object-cover rounded-xl mix-blend-multiply"
-                                    />
+                                    /> */}
+
+                                    <div className="text-7xl">
+                                        {product.emoji}
+                                    </div>
+
                                     {product.quantity > 0 && (
                                         <div className="absolute top-2 right-2 bg-rose-500 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-md animate-pulse">
                                             {product.quantity}개 담김
@@ -133,24 +139,23 @@ export default function KioskOrderPage() {
                 </main>
 
                 {/* 하단 취소 및 결제 버튼 영역 */}
-                <footer className="h-[100px] flex p-4 gap-4 justify-center shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)] z-10">
-                    <ChunkyButton onClick={() => navigate(-1)} icon={Home} variant="secondary" className="shrink-0 font-black text-lg px-6 !h-full">
-                        홈으로
-                    </ChunkyButton>
-
-                    <ChunkyButton
-                        icon={ShoppingBasket}
-                        className="w-full font-black text-xl bg-gradient-to-r from-orange-400 to-rose-400 border-orange-500 shadow-[0_5px_0_0_#ea580c] !h-full"
-                        onClick={goToCartPage}
-                    >
-                        <div className="flex items-center justify-center gap-2">
-                            <span>{totalAmount.toLocaleString()}원</span>
-                            <span className="opacity-60">|</span>
-                            <span>장바구니 확인</span>
-                        </div>
-                    </ChunkyButton>
-                </footer>
+                {totalAmount > 0 &&
+                    <footer className="h-[100px] flex p-4 gap-4 justify-center shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)] z-10">
+                        <ChunkyButton
+                            className="w-full font-black text-xl bg-gradient-to-r from-orange-400 to-rose-400 border-orange-500 shadow-[0_5px_0_0_#ea580c] !h-full"
+                            onClick={goToCartPage}
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <span>{totalAmount.toLocaleString()}원</span>
+                                <span className="opacity-60">|</span>
+                                <ShoppingBasket size={24} />
+                                <span>장바구니 확인</span>
+                            </div>
+                        </ChunkyButton>
+                    </footer>
+                }
             </div>
+
 
             {/* 수량 선택 모달 (Chunky Pop) */}
             {selectedProduct && (
@@ -167,11 +172,15 @@ export default function KioskOrderPage() {
 
                         {/* 모달 이미지 윈도우 */}
                         <div className="mx-auto mb-4 h-44 w-44 overflow-hidden rounded-3xl flex items-center justify-center">
-                            <img
+                            {/* <img
                                 src={selectedProduct.imgUrl}
                                 alt={selectedProduct.name}
                                 className="h-full w-full object-cover rounded-2xl mix-blend-multiply"
-                            />
+                            /> */}
+                            <div className="text-7xl">
+                                {selectedProduct.emoji}
+                            </div>
+
                         </div>
 
                         {/* 상품명 & 가격 */}

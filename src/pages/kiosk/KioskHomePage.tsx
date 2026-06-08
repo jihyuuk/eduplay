@@ -28,7 +28,7 @@ export default function KioskHomePage() {
                 {/* 타이틀 영역 */}
                 <section className="shrink-0 text-center pt-16 px-6 relative">
                     <h1 className="text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-400 drop-shadow-sm">
-                        에듀 편의점
+                        에듀 마트
                     </h1>
 
                     <div className="mt-6 inline-block bg-amber-100 text-amber-700 text-2xl font-bold px-6 py-2 rounded-full border-2 border-amber-300 shadow-sm">
